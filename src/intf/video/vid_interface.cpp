@@ -6,6 +6,11 @@
 
 #define ENABLE_PREVIEW
 
+#ifdef __APPLE__
+	extern int FBNeo_InitVideoMetal(int width, int height);
+	extern void FBNeo_ShutdownVideoMetal();
+	extern void FBNeo_DrawFrameMetal(const void* frameBuffer, int width, int height);
+#endif
 #if defined (BUILD_WIN32)
 	extern struct VidOut VidOutDDraw;
 	extern struct VidOut VidOutD3D;

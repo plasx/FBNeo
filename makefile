@@ -23,7 +23,8 @@ UNICODE = 1
 # Include x86 Assembly routines
 BUILD_X86_ASM = 1
 
-# Include GCC optmisations for your CPU e.g use -march=native. WARNING: This might mean that the generated binaries will not run on other peoples (older) machines!
+# Include GCC optimizations for your CPU e.g use -march=native.
+# WARNING: This might mean that the generated binaries will not run on other people's (older) machines!
 #BUILD_NATIVE = 1
 
 # Build for x64 targets (MinGW64 and MSVC only, this will undefine BUILD_A68K and BUILD_X86_ASM)
@@ -116,5 +117,8 @@ vc: FORCE
 
 pi: FORCE
 	@$(MAKE) -s -f makefile.pi
+
+metal: FORCE
+	@$(MAKE) -s -f makefile.metal
 
 FORCE:
