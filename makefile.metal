@@ -1,44 +1,63 @@
-# Makefile.metal for FBNeo with Metal and SDL2
+# makefile.metal
+# A minimal example for building FBNeo on macOS with Metal + SDL2
 
 TARGET = fbneo_metal
+
+# Detect macOS
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 DARWIN = 1
 endif
 
-# Explicitly list sources for cross-platform compatibility
+# ------------------------------------------------------------------------
+# SOURCE FILES
+# ------------------------------------------------------------------------
+# Instead of wildcarding everything, we’ll list only the needed .cpp files.
+# In practice, you might add more from src/burn/drv/* if you want more systems.
+
 SOURCES = \
     src/intf/video/sdl/sdl2_video_metal.mm \
     src/intf/video/metal_renderer.mm \
+    src/intf/video/vid_interface_metal.cpp \
     src/burn/burn.cpp \
+    src/burn/burnint.cpp \
     src/burn/cpuexec.cpp \
-    src/burn/devices/joyprocess.cpp \
-    src/burn/intf/burnint.cpp \
-    src/burn/devices/input/input_manager.cpp \
-    src/intf/audio/audio_sdl2.cpp \
-    src/intf/video/scalers/scaler_common.cpp
-    # Add additional source files here if needed
+    src/burn/drv/capcom/cps1.cpp \
+    src/burn/drv/capcom/cps2.cpp \
+    src/burn/drv/neo/neo_geo.cpp \
+    src/burn/state.cpp \
+    # ... add other cross-platform drivers you need ...
+    # If you add more, be sure to confirm none reference <tchar.h> or Windows-only code
 
+# ------------------------------------------------------------------------
+# OBJECT FILES
+# ------------------------------------------------------------------------
 OBJS = $(SOURCES:.cpp=.o)
 OBJS := $(OBJS:.mm=.o)
 
+# ------------------------------------------------------------------------
+# COMPILER AND FLAGS
+# ------------------------------------------------------------------------
 CXX = clang++
-CXXFLAGS = -std=c++17 -stdlib=libc++ -Wall -Wextra -Wno-unused-parameter -fobjc-arc
-CXXFLAGS += -ObjC++ -fobjc-arc -DTCHAR_H_INCLUDE -DLSB_FIRST -DUSE_SPEEDHACKS
+CXXFLAGS = -std=c++17 -stdlib=libc++ -Wall -Wextra -Wno-unused-parameter
+CXXFLAGS += -ObjC++ -fobjc-arc  # Use Objective-C++ with ARC for .mm files
+
+# If you want to silence "ISO C++11 does not allow conversion from string literal to 'char *'"
+CXXFLAGS += -Wno-write-strings
+
+# ------------------------------------------------------------------------
+# INCLUDE PATHS
+# ------------------------------------------------------------------------
 INCLUDES = \
     -I. \
     -Isrc \
     -Isrc/burn \
-    -Isrc/burn/devices \
-    -Isrc/burn/intf \
-    -Isrc/intf/audio \
     -Isrc/intf/video \
-    -Isrc/intf/input \
-    -Isrc/intf/video/scalers \
-    -Icompat \
-    -I/opt/homebrew/include \
-    `sdl2-config --cflags`
+    -I/opt/homebrew/include  # For SDL2 if installed via Homebrew
 
+# ------------------------------------------------------------------------
+# LINKER FLAGS
+# ------------------------------------------------------------------------
 LDFLAGS = \
     -framework Metal \
     -framework MetalKit \
@@ -47,28 +66,24 @@ LDFLAGS = \
     -framework IOKit \
     -framework CoreVideo \
     -L/opt/homebrew/lib \
-    `sdl2-config --libs`
+    -lSDL2
 
-ifdef DARWIN
-LDFLAGS += -framework OpenGL
-endif
-
+# ------------------------------------------------------------------------
+# DEFAULT TARGET
+# ------------------------------------------------------------------------
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	@echo "Linking $(TARGET)..."
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
+# Rules to compile .cpp/.mm
 %.o: %.cpp
-	@echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 %.o: %.mm
-	@echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	@echo "Cleaning up..."
 	rm -f $(OBJS) $(TARGET)
 
 .PHONY: all clean
