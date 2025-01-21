@@ -1,5 +1,4 @@
-// vid_interface_metal.h
-
+// src/intf/video/vid_interface_metal.h
 #pragma once
 
 int FBNeo_InitializeVideoMetal(int width, int height);

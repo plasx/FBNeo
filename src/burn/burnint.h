@@ -10,12 +10,33 @@
 #include <string.h>
 #include <assert.h>
 
-#include "tchar.h"
+#if defined(_WIN32)
+// On Windows, use real <tchar.h>
+#include <tchar.h>
+#elif defined(METAL_STANDALONE)
+// For our standalone Metal build on macOS, use a dummy tchar
+#include "tchar_dummy.h"
+#else
+// Some other platform (Linux, etc.) might have its own approach
+// If you want, you can also do #include "tchar_dummy.h" here if it suits your environment
+#include "tchar_dummy.h"
+#endif
+
 
 #include "burn.h"
 #include "burn_sound.h"
 #include "joyprocess.h"
 #include "burn_endian.h"
+
+
+// burnint.h (near the bottom) - after the #includes
+#ifdef METAL_STANDALONE
+// Use our minimal, static driver list
+#include "driverlist_metal.h"
+#else
+// Normal build uses the auto-generated driverlist.h
+#include "driverlist.h"
+#endif
 
 // macros to prevent misaligned address access
 #define BURN_UNALIGNED_READ16(x) (\

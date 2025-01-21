@@ -1,25 +1,12 @@
-//
-// sdl2_video_metal.mm
-//
-// SDL front-end code that calls the metal_renderer code.
-//
-// We'll create 3 extern "C" functions that the rest of FBNeo can call:
-//  1) FBNeo_InitVideoMetal()
-//  2) FBNeo_ShutdownVideoMetal()
-//  3) FBNeo_DrawFrameMetal()
-//
-// They are separate from "Interface" calls so that we can specifically
-// create/destroy the SDL window for Metal usage.
-//
+// src/intf/video/sdl/sdl2_video_metal.mm
+// SDL front-end code bridging to metal_renderer.mm
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
-#include "../metal_renderer.mm"  // We'll include the definitions (or a header) so we can call them
+#include "../metal_renderer.mm"  // Or use a separate header if you prefer
 
-// We'll store the SDL window globally
 static SDL_Window* g_sdlWindowMetal = nullptr;
 
-// extern the metal_renderer init calls
 extern bool MetalRendererInit(void* nsWindowPtr, int width, int height);
 extern void MetalRendererShutdown();
 extern void MetalRendererDrawFrame(const void* frameBuffer, int width, int height);
@@ -31,7 +18,6 @@ extern "C" int FBNeo_InitVideoMetal(int width, int height)
         return -1;
     }
 
-    // Create an SDL window with the METAL flag
     g_sdlWindowMetal = SDL_CreateWindow(
         "FBNeo - Metal",
         SDL_WINDOWPOS_CENTERED,
@@ -45,23 +31,20 @@ extern "C" int FBNeo_InitVideoMetal(int width, int height)
         return -1;
     }
 
-    // Now get the NSWindow pointer using SDL_SysWMinfo
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
     if (SDL_GetWindowWMInfo(g_sdlWindowMetal, &wmInfo)) {
-    #if defined(__APPLE__)
-        // On macOS, info.cocoa.window is an NSWindow*
+#if defined(__APPLE__)
         void* nsWindowPtr = (__bridge void*)wmInfo.info.cocoa.window;
-
         bool ok = MetalRendererInit(nsWindowPtr, width, height);
         if (!ok) {
             SDL_Log("MetalRendererInit failed.\n");
             return -1;
         }
         return 0;
-    #else
+#else
         return -1;
-    #endif
+#endif
     } else {
         SDL_Log("SDL_GetWindowWMInfo failed.\n");
         return -1;
@@ -81,11 +64,11 @@ extern "C" void FBNeo_ShutdownVideoMetal()
 
 extern "C" void FBNeo_DrawFrameMetal(const void* frameBuffer, int width, int height)
 {
-    // We'll pump SDL events here so the window remains responsive
+    // Handle events so the window is responsive
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) {
-            // You could handle shutdown logic or set a global to exit
+            // Could set a global to exit
         }
     }
 

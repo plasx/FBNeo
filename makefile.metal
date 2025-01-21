@@ -1,49 +1,49 @@
 # makefile.metal
-# A minimal example for building FBNeo on macOS with Metal + SDL2
+# Standalone build for FBNeo on macOS with Metal + SDL2
+# - Does NOT require auto-generated driverlist.h
+# - Uses driverlist_metal.h (static driver references)
+# - Depends on new tchar_dummy.h to avoid Windows <tchar.h> errors
+# - Should not affect other builds
 
 TARGET = fbneo_metal
 
-# Detect macOS
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 DARWIN = 1
 endif
 
 # ------------------------------------------------------------------------
-# SOURCE FILES
+# SOURCE FILES (minimal set)
 # ------------------------------------------------------------------------
-# Instead of wildcarding everything, we’ll list only the needed .cpp files.
-# In practice, you might add more from src/burn/drv/* if you want more systems.
-
 SOURCES = \
     src/intf/video/sdl/sdl2_video_metal.mm \
     src/intf/video/metal_renderer.mm \
     src/intf/video/vid_interface_metal.cpp \
+    \
     src/burn/burn.cpp \
     src/burn/burnint.cpp \
     src/burn/cpuexec.cpp \
+    src/burn/state.cpp \
+    \
     src/burn/drv/capcom/cps1.cpp \
     src/burn/drv/capcom/cps2.cpp \
     src/burn/drv/neo/neo_geo.cpp \
-    src/burn/state.cpp \
-    # ... add other cross-platform drivers you need ...
-    # If you add more, be sure to confirm none reference <tchar.h> or Windows-only code
+    \
+    # Add more as needed, but be sure to declare them in driverlist_metal.h
 
-# ------------------------------------------------------------------------
-# OBJECT FILES
-# ------------------------------------------------------------------------
 OBJS = $(SOURCES:.cpp=.o)
 OBJS := $(OBJS:.mm=.o)
 
 # ------------------------------------------------------------------------
-# COMPILER AND FLAGS
+# COMPILER & FLAGS
 # ------------------------------------------------------------------------
 CXX = clang++
-CXXFLAGS = -std=c++17 -stdlib=libc++ -Wall -Wextra -Wno-unused-parameter
-CXXFLAGS += -ObjC++ -fobjc-arc  # Use Objective-C++ with ARC for .mm files
 
-# If you want to silence "ISO C++11 does not allow conversion from string literal to 'char *'"
+# -DMETAL_STANDALONE tells burnint.h to use driverlist_metal.h
+CXXFLAGS = -std=c++17 -stdlib=libc++ -Wall -Wextra -Wno-unused-parameter
+CXXFLAGS += -ObjC++ -fobjc-arc
 CXXFLAGS += -Wno-write-strings
+CXXFLAGS += -DMETAL_STANDALONE=1
 
 # ------------------------------------------------------------------------
 # INCLUDE PATHS
@@ -53,7 +53,7 @@ INCLUDES = \
     -Isrc \
     -Isrc/burn \
     -Isrc/intf/video \
-    -I/opt/homebrew/include  # For SDL2 if installed via Homebrew
+    -I/opt/homebrew/include  # SDL2 installed by brew, for example
 
 # ------------------------------------------------------------------------
 # LINKER FLAGS
@@ -69,14 +69,14 @@ LDFLAGS = \
     -lSDL2
 
 # ------------------------------------------------------------------------
-# DEFAULT TARGET
+# BUILD TARGET
 # ------------------------------------------------------------------------
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
-# Rules to compile .cpp/.mm
+# Rules to build .cpp and .mm
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
