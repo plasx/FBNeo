@@ -1,9 +1,5 @@
 # makefile.metal
-# Standalone build for FBNeo on macOS with Metal + SDL2
-# - Does NOT require auto-generated driverlist.h
-# - Uses driverlist_metal.h (static driver references)
-# - Depends on new tchar_dummy.h to avoid Windows <tchar.h> errors
-# - Should not affect other builds
+# A dynamic approach, using vpath, for a minimal Metal build of FBNeo on macOS.
 
 TARGET = fbneo_metal
 
@@ -12,31 +8,26 @@ ifeq ($(UNAME_S),Darwin)
 DARWIN = 1
 endif
 
-# ------------------------------------------------------------------------
-# SOURCE FILES (minimal set)
-# ------------------------------------------------------------------------
-SOURCES = \
-    src/intf/video/sdl/sdl2_video_metal.mm \
-    src/intf/video/metal_renderer.mm \
-    src/intf/video/vid_interface_metal.cpp \
-    \
-    src/burn/burn.cpp \
-    src/burn/burnint.cpp \
-    src/burn/cpuexec.cpp \
-    src/burn/state.cpp \
-    \
-    src/burn/drv/capcom/cps1.cpp \
-    src/burn/drv/capcom/cps2.cpp \
-    src/burn/drv/neo/neo_geo.cpp \
-    \
-    # Add more as needed, but be sure to declare them in driverlist_metal.h
+# Where source files live
+srcdir = src/
 
+# Define directories to search for source files
+alldir = burn burn/drv/capcom burn/drv/neo intf/video
+
+# vpath helps make find .cpp and .mm across these directories
+vpath %.cpp $(foreach dir,$(alldir),$(srcdir)$(dir))
+vpath %.mm  $(foreach dir,$(alldir),$(srcdir)$(dir))
+vpath %.h   $(foreach dir,$(alldir),$(srcdir)$(dir))
+
+# Collect all .cpp and .mm in those directories
+SOURCES := $(foreach dir,$(alldir),$(wildcard $(srcdir)$(dir)/*.cpp))
+SOURCES += $(foreach dir,$(alldir),$(wildcard $(srcdir)$(dir)/*.mm))
+
+# Convert *.cpp/*.mm to *.o
 OBJS = $(SOURCES:.cpp=.o)
 OBJS := $(OBJS:.mm=.o)
 
-# ------------------------------------------------------------------------
-# COMPILER & FLAGS
-# ------------------------------------------------------------------------
+# Compiler and flags
 CXX = clang++
 
 # -DMETAL_STANDALONE tells burnint.h to use driverlist_metal.h
@@ -45,39 +36,31 @@ CXXFLAGS += -ObjC++ -fobjc-arc
 CXXFLAGS += -Wno-write-strings
 CXXFLAGS += -DMETAL_STANDALONE=1
 
-# ------------------------------------------------------------------------
-# INCLUDE PATHS
-# ------------------------------------------------------------------------
+# Include paths
 INCLUDES = \
     -I. \
     -Isrc \
     -Isrc/burn \
     -Isrc/burn/devices \
     -Isrc/intf/video \
-    -I/opt/homebrew/include  # SDL2 installed by brew, for example
+    -I/opt/homebrew/include  # For SDL2 or other headers if needed
 
-# ------------------------------------------------------------------------
-# LINKER FLAGS
-# ------------------------------------------------------------------------
+# Linker flags
+# Add more frameworks or libraries if needed, e.g. -framework MetalKit -lSDL2
 LDFLAGS = \
     -framework Metal \
-    -framework MetalKit \
     -framework Cocoa \
-    -framework QuartzCore \
-    -framework IOKit \
-    -framework CoreVideo \
-    -L/opt/homebrew/lib \
-    -lSDL2
+    -framework QuartzCore
 
-# ------------------------------------------------------------------------
-# BUILD TARGET
-# ------------------------------------------------------------------------
+# Default target
+.PHONY: all clean
 all: $(TARGET)
 
+# Link the final executable
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
-# Rules to build .cpp and .mm
+# Compile rules for .cpp and .mm
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
@@ -85,6 +68,4 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
-
-.PHONY: all clean
+	rm -f $(TARGET) $(OBJS)
