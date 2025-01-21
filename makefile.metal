@@ -1,71 +1,156 @@
+############################################################
 # makefile.metal
-# A dynamic approach, using vpath, for a minimal Metal build of FBNeo on macOS.
+#
+# A single-pass build for FBNeo on macOS + Metal.
+# Includes .mm files in burner/metal for the new front-end.
+############################################################
 
-TARGET = fbneo_metal
+unexport
 
+# 1. Detect platform
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-DARWIN = 1
+  DARWIN = 1
 endif
 
-# Where source files live
-srcdir = src/
+# 2. Basic config
+NAME       = fbneo_metal
+TARGET     = $(NAME)
+srcdir     = src/
+objdir     = obj/
 
-# Define directories to search for source files
-alldir = burn burn/drv/capcom burn/drv/neo intf/video
+# 3. Subdirectories
+#    Now we add burner/metal as well:
+alldir = \
+  burner \
+  burner/sdl \
+  burner/metal \
+  dep/libs/libspng \
+  dep/libs/lib7z \
+  dep/libs/zlib \
+  intf \
+  intf/video \
+  intf/video/scalers \
+  intf/video/sdl \
+  intf/audio \
+  intf/audio/sdl \
+  intf/input \
+  intf/input/sdl \
+  intf/cd \
+  intf/cd/sdl \
+  intf/perfcount \
+  intf/perfcount/sdl \
+  dep/generated \
+  burn \
+  burn/drv \
+  burn/drv/capcom \
+  burn/drv/neo
 
-# vpath helps make find .cpp and .mm across these directories
+# 4. vpath to locate .c/.cpp/.mm/.asm
+vpath %.c   $(foreach dir,$(alldir),$(srcdir)$(dir))
 vpath %.cpp $(foreach dir,$(alldir),$(srcdir)$(dir))
-vpath %.mm  $(foreach dir,$(alldir),$(srcdir)$(dir))
+vpath %.mm  $(foreach dir,$(alldir),$(srcdir)$(dir))  # NEW for Objective-C++ code
+vpath %.asm $(foreach dir,$(alldir),$(srcdir)$(dir))
 vpath %.h   $(foreach dir,$(alldir),$(srcdir)$(dir))
 
-# Collect all .cpp and .mm in those directories
-SOURCES := $(foreach dir,$(alldir),$(wildcard $(srcdir)$(dir)/*.cpp))
-SOURCES += $(foreach dir,$(alldir),$(wildcard $(srcdir)$(dir)/*.mm))
+# 5. Collect all .c/.cpp/.mm/.asm
+SRC_C   := $(foreach dir,$(alldir),$(wildcard $(srcdir)$(dir)/*.c))
+SRC_CPP := $(foreach dir,$(alldir),$(wildcard $(srcdir)$(dir)/*.cpp))
+SRC_MM  := $(foreach dir,$(alldir),$(wildcard $(srcdir)$(dir)/*.mm))  # NEW
+SRC_ASM := $(foreach dir,$(alldir),$(wildcard $(srcdir)$(dir)/*.asm))
 
-# Convert *.cpp/*.mm to *.o
-OBJS = $(SOURCES:.cpp=.o)
-OBJS := $(OBJS:.mm=.o)
+OBJ_C   := $(SRC_C:%.c=%.o)
+OBJ_CPP := $(SRC_CPP:%.cpp=%.o)
+OBJ_MM  := $(SRC_MM:%.mm=%.o)    # NEW
+OBJ_ASM := $(SRC_ASM:%.asm=%.o)
 
-# Compiler and flags
-CXX = clang++
+ALL_OBJS = $(OBJ_C) $(OBJ_CPP) $(OBJ_MM) $(OBJ_ASM)
 
-# -DMETAL_STANDALONE tells burnint.h to use driverlist_metal.h
-CXXFLAGS = -std=c++17 -stdlib=libc++ -Wall -Wextra -Wno-unused-parameter
-CXXFLAGS += -ObjC++ -fobjc-arc
-CXXFLAGS += -Wno-write-strings
-CXXFLAGS += -DMETAL_STANDALONE=1
+# 6. Compiler & Linker
+CC      = clang
+CXX     = clang++
+LD      = clang
 
-# Include paths
-INCLUDES = \
-    -I. \
-    -Isrc \
-    -Isrc/burn \
-    -Isrc/burn/devices \
-    -Isrc/intf/video \
-    -I/opt/homebrew/include  # For SDL2 or other headers if needed
+# 7. Base flags
+CFLAGS   = -O2 -fomit-frame-pointer -Wall -Wno-write-strings \
+           -Wno-long-long -Wno-sign-compare -Wno-conversion -Wno-unused-parameter \
+           -std=c99
 
-# Linker flags
-# Add more frameworks or libraries if needed, e.g. -framework MetalKit -lSDL2
-LDFLAGS = \
-    -framework Metal \
-    -framework Cocoa \
-    -framework QuartzCore
+CXXFLAGS = -O2 -fomit-frame-pointer -Wall -Wno-write-strings \
+           -Wno-long-long -Wno-sign-compare -Wno-conversion -Wno-unused-parameter \
+           -std=c++17 -stdlib=libc++
 
-# Default target
-.PHONY: all clean
-all: $(TARGET)
+# Add some ObjC++ flags so .mm compiles properly
+OBJCPPFLAGS = -fobjc-arc -ObjC++
 
-# Link the final executable
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS)
+# Possibly help zlib find <unistd.h>:
+CFLAGS   += -DHAVE_UNISTD_H
+CXXFLAGS += -DHAVE_UNISTD_H
 
-# Compile rules for .cpp and .mm
+# 8. Macros to skip Windows references or SDL references
+DEF      = -D__APPLE__ -DDARWIN -DMETAL_STANDALONE
+DEF     += -U_WIN32 -UWIN32 -DNO_WINDOWS
+DEF     += -DNO_SDL_BUILD
+
+CFLAGS   += $(DEF)
+CXXFLAGS += $(DEF)
+
+# 9. Add subdirectories to include path
+incdir   = $(foreach dir,$(alldir),-I$(srcdir)$(dir))
+incdir  += -I$(objdir)dep/generated 
+incdir  += -I/opt/homebrew/include
+
+CFLAGS   += $(incdir)
+CXXFLAGS += $(incdir)
+
+# 10. Libraries (Metal frameworks)
+lib := -lstdc++ -lm -lpthread
+ifeq ($(DARWIN),1)
+lib += -framework Metal -framework Cocoa -framework QuartzCore
+endif
+
+LDFLAGS = -s
+
+# 11. Default target
+.PHONY: all init clean
+all: init $(TARGET)
+
+init:
+	@echo "Building FBNeo (Metal) on macOS..."
+	mkdir -p $(objdir)
+	mkdir -p $(srcdir)dep/generated
+
+# 12. Link final binary
+$(TARGET): $(ALL_OBJS)
+	@echo "Linking $(TARGET)..."
+	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(ALL_OBJS) $(lib)
+
+# 13. Pattern rules
+%.o: %.c
+	@echo "Compiling C $<..."
+	$(CC) $(CFLAGS) -c $< -o $@
+
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "Compiling C++ $<..."
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.mm
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "Compiling ObjC++ $<..."
+	$(CXX) $(CXXFLAGS) $(OBJCPPFLAGS) -c $< -o $@
+
+%.o: %.asm
+	@echo "Assembling $<..."
+	nasm -f macho64 $< -o $@
 
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -f $(TARGET) $(OBJ_C) $(OBJ_CPP) $(OBJ_MM) $(OBJ_ASM)
+	rm -rf $(objdir)
+
+############################################################
+# Explanation:
+# - We add burner/metal folder to alldir so we get .mm files.
+# - We add a pattern rule for .mm -> .o with Objective-C++ flags.
+# - We link with -framework Metal -framework Cocoa -framework QuartzCore.
+# - We define -DNO_WINDOWS and -DNO_SDL_BUILD to avoid Windows/SDL code paths.
+# - We STILL must ifdef out leftover references to Windows/SDL in .cpp code.
+############################################################
