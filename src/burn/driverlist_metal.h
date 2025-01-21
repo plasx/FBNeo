@@ -1,24 +1,30 @@
 // driverlist_metal.h
-// A minimal hand-crafted driver list for Metal standalone builds,
-// referencing a few example drivers (CPS1, CPS2, NeoGeo).
+// Minimal, handcrafted list for a Metal-only build.
 
 #pragma once
 
-// Declare external references to the drivers you want to build/link
-extern struct BurnDriver BurnDrvCps1;      // from CPS1
-extern struct BurnDriver BurnDrvCps2;      // from CPS2
-extern struct BurnDriver BurnDrvNeoGeo;    // from Neo Geo
+#include "burn.h"  // For BurnDriver struct & UINT32 definition
 
-// You can add more as you add .cpp to your build
+// Forward declare the drivers you want to include:
+extern struct BurnDriver BurnDrvCps1;
+extern struct BurnDriver BurnDrvCps2;
+extern struct BurnDriver BurnDrvNeoGeo;
 
-// Provide a driver list array
-struct BurnDriver *pDriver[] = {
+// Define pDriver[] and nBurnDrvCount in C++ linkage
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// The emulator expects these names/variables:
+struct BurnDriver* pDriver[] = {
     &BurnDrvCps1,
     &BurnDrvCps2,
     &BurnDrvNeoGeo,
-    // Add more if you want
     NULL
 };
 
-// The count of drivers in this list
-int nBurnDrvCount = 3;
+UINT32 nBurnDrvCount = 3; // Must match the type in burn.h
+
+#ifdef __cplusplus
+}
+#endif

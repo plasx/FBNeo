@@ -52,6 +52,7 @@ INCLUDES = \
     -I. \
     -Isrc \
     -Isrc/burn \
+    -Isrc/burn/devices \
     -Isrc/intf/video \
     -I/opt/homebrew/include  # SDL2 installed by brew, for example
 

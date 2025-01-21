@@ -4,7 +4,13 @@
 #include "burnint.h"
 #include "timer.h"
 //#include "burn_sound.h" // included in burnint.h
+#if defined(METAL_STANDALONE)
+// Use our custom minimal driver list:
+#include "driverlist_metal.h"
+#else
+// Normal builds use the auto-generated driverlist.h
 #include "driverlist.h"
+#endif
 
 #ifndef __LIBRETRO__
 // filler function, used if the application is not printing debug messages
@@ -17,7 +23,9 @@ INT32 (__cdecl *bprintf)(INT32 nStatus, TCHAR* szFormat, ...) = BurnbprintfFille
 
 INT32 nBurnVer = BURN_VERSION;	// Version number of the library
 
-UINT32 nBurnDrvCount     = 0;	// Count of game drivers
+#if !defined(METAL_STANDALONE)
+UINT32 nBurnDrvCount = 0; // Count of game drivers
+#endif
 UINT32 nBurnDrvActive    = ~0U;	// Which game driver is selected
 INT32 nBurnDrvSubActive  = -1;	// Which sub-game driver is selected
 UINT32 nBurnDrvSelect[8] = { ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U, ~0U }; // Which games are selected (i.e. loaded but not necessarily active)
@@ -281,7 +289,9 @@ extern "C" TCHAR* BurnDrvGetText(UINT32 i)
 
 				if (i & DRV_NEXTNAME) {
 					if (pszCurrentNameW && pDriver[nBurnDrvActive]->szFullNameW) {
-						pszCurrentNameW += wcslen(pszCurrentNameW) + 1;
+						#if !defined(METAL_STANDALONE)
+							pszCurrentNameW += wcslen(pszCurrentNameW) + 1;
+						#endif
 						if (!pszCurrentNameW[0]) {
 							return NULL;
 						}
@@ -298,7 +308,9 @@ extern "C" TCHAR* BurnDrvGetText(UINT32 i)
 
 						do {
 							nRet = wcstombs(szFullNameA, pszCurrentNameW, 256);
-							pszCurrentNameW += wcslen(pszCurrentNameW) + 1;
+							#if !defined(METAL_STANDALONE)
+								pszCurrentNameW += wcslen(pszCurrentNameW) + 1;
+							#endif
 						} while	(nRet >= 0 && pszCurrentNameW[0]);
 
 						// If all titles can be printed, we can use the Unicode versions
@@ -759,13 +771,17 @@ extern "C" INT32 BurnDrvGetFamilyFlags()
 // Return sourcefile
 extern "C" char* BurnDrvGetSourcefile()
 {
-	char* szShortName = pDriver[nBurnDrvActive]->szShortName;
-	for (INT32 i = 0; sourcefile_table[i].game_name[0] != '\0'; i++) {
-		if (!strcmp(sourcefile_table[i].game_name, szShortName)) {
-			return sourcefile_table[i].sourcefile;
-		}
-	}
-	return "";
+    char* szShortName = pDriver[nBurnDrvActive]->szShortName;
+
+    #if !defined(METAL_STANDALONE)
+        for (INT32 i = 0; sourcefile_table[i].game_name[0] != '\0'; i++) {
+            if (!strcmp(sourcefile_table[i].game_name, szShortName)) {
+                return sourcefile_table[i].sourcefile;
+            }
+        }
+    #endif
+
+    return "";
 }
 
 // Save Aspect & Screensize in BurnDrvInit(), restore in BurnDrvExit()
