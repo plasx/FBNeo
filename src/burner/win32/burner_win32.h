@@ -21,7 +21,9 @@
 
 #define WIN32_LEAN_AND_MEAN
 #define OEMRESOURCE
-#include <windows.h>
+#ifdef _WIN32
+  #include <windows.h>
+#endif
 #include <windowsx.h>
 #include <commctrl.h>
 #include <commdlg.h>

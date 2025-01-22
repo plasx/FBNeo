@@ -3,7 +3,9 @@
 #endif
 
 #include <stdio.h>
-#include <windows.h>
+#ifdef _WIN32
+  #include <windows.h>
+#endif
 #include "net.h"
 
 HMODULE Kaillera_HDLL;
