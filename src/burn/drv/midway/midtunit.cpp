@@ -301,7 +301,7 @@ static void MKSoundWrite(UINT16 address, UINT8 value)
 
 		case 0x2400:
 		case 0x2401: {
-			BurnYM2151Write(address&1, value);
+			BurnYM2151Write(0, address & 1, value);
 			return;
 		}
 

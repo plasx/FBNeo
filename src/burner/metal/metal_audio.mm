@@ -1,0 +1,1341 @@
+#import <Cocoa/Cocoa.h>
+#import <AudioToolbox/AudioToolbox.h>
+#import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
+#include "metal_compat_layer.h"
+#include <CoreAudio/CoreAudio.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "metal_declarations.h"
+#include "metal_audio.h"
+#include "metal_bridge.h"
+
+// Ring buffer state
+static short* audioRingBuffer = NULL;
+static int ringBufferSize = 0;
+static int readPos = 0;
+static int writePos = 0;
+static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
+
+// Ring buffer functions
+int RingBufferFree() {
+    int free = readPos - writePos - 1;
+    if (free < 0) {
+        free += ringBufferSize;
+    }
+    return free;
+}
+
+int RingBufferAvailable() {
+    int available = writePos - readPos;
+    if (available < 0) {
+        available += ringBufferSize;
+    }
+    return available;
+}
+
+void RingBufferWrite(const short* data, int samples) {
+    pthread_mutex_lock(&audioMutex);
+    
+    int samplesWritten = 0;
+    int samplesToWrite = samples;
+    
+    // Check if we have enough space
+    if (samplesToWrite > RingBufferFree() / 2) {
+        // Not enough space, only write what we can
+        samplesToWrite = RingBufferFree() / 2;
+    }
+    
+    while (samplesWritten < samplesToWrite) {
+        int toWrite = samplesToWrite - samplesWritten;
+        int contiguous = ringBufferSize - writePos;
+        if (contiguous > toWrite) {
+            contiguous = toWrite;
+        }
+        
+        // Copy data to ring buffer
+        memcpy(&audioRingBuffer[writePos * 2], &data[samplesWritten * 2], contiguous * 2 * sizeof(short));
+        
+        writePos = (writePos + contiguous) % ringBufferSize;
+        samplesWritten += contiguous;
+    }
+    
+    pthread_mutex_unlock(&audioMutex);
+}
+
+int RingBufferRead(short* data, int samples) {
+    pthread_mutex_lock(&audioMutex);
+    
+    int samplesRead = 0;
+    int samplesToRead = samples;
+    
+    // Check how many samples are available
+    int available = RingBufferAvailable();
+    if (samplesToRead > available) {
+        samplesToRead = available;
+    }
+    
+    while (samplesRead < samplesToRead) {
+        int toRead = samplesToRead - samplesRead;
+        int contiguous = ringBufferSize - readPos;
+        if (contiguous > toRead) {
+            contiguous = toRead;
+        }
+        
+        // Copy data from ring buffer
+        memcpy(&data[samplesRead * 2], &audioRingBuffer[readPos * 2], contiguous * 2 * sizeof(short));
+        
+        readPos = (readPos + contiguous) % ringBufferSize;
+        samplesRead += contiguous;
+    }
+    
+    // If we couldn't read enough samples, fill the rest with silence
+    if (samplesRead < samples) {
+        memset(&data[samplesRead * 2], 0, (samples - samplesRead) * 2 * sizeof(short));
+    }
+    
+    pthread_mutex_unlock(&audioMutex);
+    return samplesRead;
+}
+
+// Constants for audio configuration
+#define AUDIO_SAMPLE_RATE 48000
+#define AUDIO_CHANNELS 2
+#define AUDIO_BUFFER_COUNT 3
+#define AUDIO_BUFFER_FRAMES 2048
+
+// Audio state structure
+typedef struct {
+    AudioQueueRef queue;
+    AudioQueueBufferRef buffers[AUDIO_BUFFER_COUNT];
+    BOOL isRunning;
+    float volume;
+    int sampleRate;
+    int channels;
+    int bytesPerFrame;
+    int bufferSize;
+    AudioStreamBasicDescription format;
+} MetalAudioState;
+
+// Global audio state
+static MetalAudioState gAudioState;
+
+// Audio engine
+static AVAudioEngine* audioEngine = nil;
+static AVAudioSourceNode* sourceNode = nil;
+static BOOL audioInitialized = NO;
+static int audioSampleRate = 44100;
+static int audioChannels = 2;
+
+// Audio buffer
+static short* audioBuffer = NULL;
+static int audioBufferSize = 0;
+static int audioBufferPos = 0;
+static dispatch_semaphore_t audioSemaphore;
+
+// Audio callback function prototype
+typedef void (*AudioCallbackFunc)(short* buffer, int samples);
+
+// AudioQueue callback for output
+static void HandleInputBuffer(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer) {
+    // Calculate number of samples (16-bit stereo)
+    int numSamples = inBuffer->mAudioDataBytesCapacity / (2 * sizeof(short));
+    BurnSoundRender((short*)inBuffer->mAudioData, numSamples);
+    inBuffer->mAudioDataByteSize = inBuffer->mAudioDataBytesCapacity;
+    AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, NULL);
+}
+
+// Audio state
+static AudioComponentInstance audioUnit = NULL;
+static AudioBufferList* audioBufferList = NULL;
+static float volume = 1.0f;
+static bool audioPaused = false;
+static AudioCallbackFunc audioCallback = NULL;
+static int audioFrameSize = 0;
+
+// Audio state
+static AudioQueueRef audioQueue = NULL;
+static AudioQueueBufferRef audioBuffers[3];
+static int currentBuffer = 0;
+static bool isPlaying = false;
+
+// Add sampleRate as a static variable
+static int sampleRate = 44100;
+
+// Audio callback
+static OSStatus AudioOutputCallback(void* inRefCon,
+                                    AudioUnitRenderActionFlags* ioActionFlags,
+                                    const AudioTimeStamp* inTimeStamp,
+                                    UInt32 inBusNumber,
+                                    UInt32 inNumberFrames,
+                                    AudioBufferList* ioData) {
+    if (audioPaused) {
+        // Fill with silence if paused
+        for (int i = 0; i < ioData->mNumberBuffers; i++) {
+            memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
+        }
+        return noErr;
+    }
+    
+    int framesToRead = inNumberFrames;
+    short* tempBuffer = (short*)malloc(framesToRead * 2 * sizeof(short));
+    if (!tempBuffer) {
+        return -1;
+    }
+
+    // Process audio...
+    BurnSoundRender(tempBuffer, framesToRead);
+
+    // Copy to output buffers
+    for (UInt32 i = 0; i < ioData->mNumberBuffers; i++) {
+        memcpy(ioData->mBuffers[i].mData, tempBuffer, framesToRead * 2 * sizeof(short));
+    }
+
+    free(tempBuffer);
+    return noErr;
+}
+
+// Initialize the audio system
+int Metal_InitAudioSystem(int inSampleRate) {
+    printf("Metal_InitAudioSystem(%d) called\n", inSampleRate);
+    
+    // Already initialized?
+    if (audioInitialized) {
+        printf("Audio already initialized, shutting down first\n");
+        Metal_ShutdownAudio();
+    }
+    
+    // Store sample rate
+    sampleRate = inSampleRate > 0 ? inSampleRate : 44100;
+    
+    // Create the audio component description
+    AudioComponentDescription desc;
+    desc.componentType = kAudioUnitType_Output;
+    desc.componentSubType = kAudioUnitSubType_DefaultOutput;
+    desc.componentManufacturer = kAudioUnitManufacturer_Apple;
+    desc.componentFlags = 0;
+    desc.componentFlagsMask = 0;
+    
+    // Find the default output audio unit
+    AudioComponent outputComponent = AudioComponentFindNext(NULL, &desc);
+    if (outputComponent == NULL) {
+        printf("Failed to find default audio output component\n");
+        return 1;
+    }
+    
+    // Create the audio unit
+    OSStatus status = AudioComponentInstanceNew(outputComponent, &audioUnit);
+    if (status != noErr) {
+        printf("Failed to create audio unit: %d\n", (int)status);
+        return 1;
+    }
+    
+    // Set up audio format
+    AudioStreamBasicDescription audioFormat;
+    memset(&audioFormat, 0, sizeof(audioFormat));
+    audioFormat.mSampleRate = sampleRate;
+    audioFormat.mFormatID = kAudioFormatLinearPCM;
+    audioFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+    audioFormat.mFramesPerPacket = 1;
+    audioFormat.mChannelsPerFrame = 2; // Stereo
+    audioFormat.mBitsPerChannel = 16;
+    audioFormat.mBytesPerPacket = 4;
+    audioFormat.mBytesPerFrame = 4;
+    
+    status = AudioUnitSetProperty(audioUnit,
+                                 kAudioUnitProperty_StreamFormat,
+                                 kAudioUnitScope_Input,
+                                 0,
+                                 &audioFormat,
+                                 sizeof(audioFormat));
+    
+    if (status != noErr) {
+        printf("Failed to set audio unit format: %d\n", (int)status);
+        AudioComponentInstanceDispose(audioUnit);
+        audioUnit = NULL;
+        return 1;
+    }
+    
+    // Set up the audio callback
+    AURenderCallbackStruct callbackStruct;
+    callbackStruct.inputProc = AudioOutputCallback;
+    callbackStruct.inputProcRefCon = NULL;
+    
+    status = AudioUnitSetProperty(audioUnit,
+                                 kAudioUnitProperty_SetRenderCallback,
+                                 kAudioUnitScope_Input,
+                                 0,
+                                 &callbackStruct,
+                                 sizeof(callbackStruct));
+    
+    if (status != noErr) {
+        printf("Failed to set audio callback: %d\n", (int)status);
+        AudioComponentInstanceDispose(audioUnit);
+        audioUnit = NULL;
+        return 1;
+    }
+    
+    // Initialize the audio unit
+    status = AudioUnitInitialize(audioUnit);
+    if (status != noErr) {
+        printf("Failed to initialize audio unit: %d\n", (int)status);
+        AudioComponentInstanceDispose(audioUnit);
+        audioUnit = NULL;
+        return 1;
+    }
+    
+    // Calculate a good buffer size (2 seconds of audio)
+    ringBufferSize = sampleRate * 2;
+    audioRingBuffer = (short*)malloc(ringBufferSize * 2 * sizeof(short)); // Stereo, so * 2
+    
+    if (!audioRingBuffer) {
+        printf("Failed to allocate audio ring buffer\n");
+        AudioUnitUninitialize(audioUnit);
+        AudioComponentInstanceDispose(audioUnit);
+        audioUnit = NULL;
+        return 1;
+    }
+    
+    // Clear the ring buffer
+    memset(audioRingBuffer, 0, ringBufferSize * 2 * sizeof(short));
+    readPos = 0;
+    writePos = 0;
+    
+    // Init audio frame size (for one frame of emulation)
+    audioFrameSize = sampleRate / 60; // Assuming 60 FPS
+    
+    // Set initial volume
+    volume = 1.0f;
+    
+    // Start the audio unit
+    status = AudioOutputUnitStart(audioUnit);
+    if (status != noErr) {
+        printf("Failed to start audio unit: %d\n", (int)status);
+        free(audioRingBuffer);
+        audioRingBuffer = NULL;
+        AudioUnitUninitialize(audioUnit);
+        AudioComponentInstanceDispose(audioUnit);
+        audioUnit = NULL;
+        return 1;
+    }
+    
+    // Mark as initialized
+    audioInitialized = true;
+    audioPaused = false;
+    
+    printf("Audio initialized: %dHz, buffer size: %d samples\n", 
+           sampleRate, ringBufferSize);
+    
+    return 0;
+}
+
+// Shutdown audio
+int Metal_ShutdownAudio() {
+    if (audioQueue) {
+        if (isPlaying) {
+            AudioQueueStop(audioQueue, true);
+        }
+        
+        // Free buffers
+        for (int i = 0; i < 3; i++) {
+            if (audioBuffers[i]) {
+                AudioQueueFreeBuffer(audioQueue, audioBuffers[i]);
+                audioBuffers[i] = NULL;
+            }
+        }
+        
+        AudioQueueDispose(audioQueue, true);
+        audioQueue = NULL;
+    }
+    
+    isPlaying = false;
+    return 0;
+}
+
+// Set the audio callback function
+int Metal_SetAudioCallback(AudioCallbackFunc callback) {
+    audioCallback = callback;
+    return 0;
+}
+
+// Add audio samples to the buffer
+int Metal_AddAudioSamples(const short* samples, int count) {
+    if (!audioInitialized || !audioRingBuffer) {
+        return 1;
+    }
+    
+    RingBufferWrite(samples, count);
+    
+    return 0;
+}
+
+// Pause or resume audio
+int Metal_PauseAudio(int pause) {
+    audioPaused = pause ? true : false;
+    printf("Audio %s\n", audioPaused ? "paused" : "resumed");
+    return 0;
+}
+
+// Set the audio volume (0.0 to 1.0)
+int Metal_SetAudioVolume(float newVolume) {
+    if (newVolume < 0.0f) newVolume = 0.0f;
+    if (newVolume > 1.0f) newVolume = 1.0f;
+    
+    volume = newVolume;
+    return 0;
+}
+
+// Get the audio volume (0.0 to 1.0)
+float Metal_GetAudioVolume() {
+    return volume;
+}
+
+// Check if audio is initialized
+bool Metal_IsAudioInitialized() {
+    return audioInitialized;
+}
+
+// Get the audio frame size (samples per frame)
+int Metal_GetAudioFrameSize() {
+    return audioFrameSize;
+}
+
+// Generate and add audio for one frame of emulation
+int Metal_ProcessAudioFrame() {
+    if (!audioInitialized || !audioCallback) {
+        return 1;
+    }
+    
+    // Calculate samples for one frame
+    int samples = sampleRate / 60; // Assuming 60 FPS
+    
+    // Check if we have enough space in the ring buffer
+    if (RingBufferFree() < samples * 2) {
+        // Not enough space, skip this frame
+        printf("Audio buffer overflow, skipping frame\n");
+        return 1;
+    }
+    
+    // Generate audio samples
+    short* tempBuffer = (short*)malloc(samples * 2 * sizeof(short));
+    if (!tempBuffer) {
+        return 1;
+    }
+    
+    // Call the callback to fill the buffer
+    audioCallback(tempBuffer, samples);
+    
+    // Add to ring buffer
+    RingBufferWrite(tempBuffer, samples);
+    
+    // Free temp buffer
+    free(tempBuffer);
+    
+    return 0;
+}
+
+// Reset the audio system
+int Metal_ResetAudio() {
+    if (!audioInitialized) {
+        return 1;
+    }
+    
+    // Clear the ring buffer
+    pthread_mutex_lock(&audioMutex);
+    memset(audioRingBuffer, 0, ringBufferSize * 2 * sizeof(short));
+    readPos = 0;
+    writePos = 0;
+    pthread_mutex_unlock(&audioMutex);
+    
+    return 0;
+}
+
+// Get buffer fill percentage (0.0 to 1.0)
+float Metal_GetAudioBufferFillPercentage() {
+    if (!audioInitialized) {
+        return 0.0f;
+    }
+    
+    int available = RingBufferAvailable();
+    return (float)available / (float)ringBufferSize;
+}
+
+// Implementation of public interface functions
+int MetalAudioInit() {
+    return Metal_InitAudioSystem(44100);
+}
+
+int MetalAudioExit() {
+    if (audioQueue) {
+        AudioQueueStop(audioQueue, true);
+        AudioQueueDispose(audioQueue, true);
+        audioQueue = NULL;
+        Metal_ShutdownAudio();
+    }
+    return 0;
+}
+
+int MetalAudioPlay() {
+    return Metal_PauseAudio(0);
+}
+
+int MetalAudioStop() {
+    return Metal_PauseAudio(1);
+}
+
+int MetalAudioSetVolume(int vol) {
+    return Metal_SetAudioVolume(vol / 100.0f);
+}
+
+int MetalAudioGetSettings(InterfaceInfo* pInfo) {
+    if (pInfo) {
+        pInfo->nAudSampleRate = sampleRate;
+        pInfo->nAudVolume = (int)(volume * 100.0f);
+        pInfo->bAudOkay = audioInitialized;
+    }
+    return 0;
+}
+
+// Audio callback function
+static void AudioQueueCallback(void* userData, AudioQueueRef queue, AudioQueueBufferRef buffer) {
+    if (!gAudioState.isRunning) {
+        memset(buffer->mAudioData, 0, buffer->mAudioDataBytesCapacity);
+        buffer->mAudioDataByteSize = buffer->mAudioDataBytesCapacity;
+        AudioQueueEnqueueBuffer(queue, buffer, 0, NULL);
+        return;
+    }
+    
+    // Get audio samples from FBNeo core
+    extern int BurnSoundRender(short* pSoundBuf, int nSegmentLength);
+    
+    // Calculate how many frames we need to render
+    int framesToRender = buffer->mAudioDataBytesCapacity / gAudioState.bytesPerFrame;
+    
+    // Render audio frames
+    BurnSoundRender((short*)buffer->mAudioData, framesToRender);
+    
+    // Set the actual audio data size
+    buffer->mAudioDataByteSize = framesToRender * gAudioState.bytesPerFrame;
+    
+    // Enqueue the buffer back to the audio queue
+    AudioQueueEnqueueBuffer(queue, buffer, 0, NULL);
+}
+
+// Initialize the audio system
+int MetalAudio_Init(int sampleRate, int channels) {
+    NSLog(@"MetalAudio_Init: Initializing audio (%d Hz, %d channels)", sampleRate, channels);
+    
+    // Store audio parameters
+    gAudioState.sampleRate = (sampleRate > 0) ? sampleRate : AUDIO_SAMPLE_RATE;
+    gAudioState.channels = (channels > 0) ? channels : AUDIO_CHANNELS;
+    gAudioState.bytesPerFrame = gAudioState.channels * sizeof(INT16); // 16-bit samples
+    gAudioState.bufferSize = AUDIO_BUFFER_FRAMES * gAudioState.bytesPerFrame;
+    gAudioState.volume = 1.0f;
+    gAudioState.isRunning = NO;
+    
+    // Set up audio format
+    AudioStreamBasicDescription& format = gAudioState.format;
+    memset(&format, 0, sizeof(format));
+    format.mSampleRate = gAudioState.sampleRate;
+    format.mFormatID = kAudioFormatLinearPCM;
+    format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+    format.mBitsPerChannel = 8 * sizeof(INT16);
+    format.mChannelsPerFrame = gAudioState.channels;
+    format.mBytesPerFrame = gAudioState.bytesPerFrame;
+    format.mFramesPerPacket = 1;
+    format.mBytesPerPacket = format.mBytesPerFrame * format.mFramesPerPacket;
+    format.mReserved = 0;
+    
+    // Create the audio queue
+    OSStatus status = AudioQueueNewOutput(&format, 
+                                          AudioQueueCallback, 
+                                          NULL, 
+                                          NULL, 
+                                          NULL, 
+                                          0, 
+                                          &gAudioState.queue);
+    
+    if (status != noErr) {
+        NSLog(@"MetalAudio_Init: Failed to create audio queue (error %d)", (int)status);
+        return 1;
+    }
+    
+    // Create and enqueue audio buffers
+    for (int i = 0; i < AUDIO_BUFFER_COUNT; i++) {
+        status = AudioQueueAllocateBuffer(gAudioState.queue, 
+                                          gAudioState.bufferSize, 
+                                          &gAudioState.buffers[i]);
+        
+        if (status != noErr) {
+            NSLog(@"MetalAudio_Init: Failed to allocate audio buffer %d (error %d)", 
+                  i, (int)status);
+            MetalAudioExit();
+            return 1;
+        }
+        
+        // Fill with silence
+        memset(gAudioState.buffers[i]->mAudioData, 0, gAudioState.bufferSize);
+        gAudioState.buffers[i]->mAudioDataByteSize = gAudioState.bufferSize;
+        
+        // Enqueue the buffer
+        status = AudioQueueEnqueueBuffer(gAudioState.queue, 
+                                         gAudioState.buffers[i], 
+                                         0, 
+                                         NULL);
+        
+        if (status != noErr) {
+            NSLog(@"MetalAudio_Init: Failed to enqueue audio buffer %d (error %d)", 
+                  i, (int)status);
+            MetalAudioExit();
+            return 1;
+        }
+    }
+    
+    // Set the audio queue volume
+    AudioQueueSetParameter(gAudioState.queue, kAudioQueueParam_Volume, gAudioState.volume);
+    
+    NSLog(@"MetalAudio_Init: Audio system initialized successfully");
+    return 0;
+}
+
+// Start audio playback
+int MetalAudio_Start() {
+    if (!gAudioState.queue) {
+        NSLog(@"MetalAudio_Start: Audio system not initialized");
+        return 1;
+    }
+    
+    if (gAudioState.isRunning) {
+        NSLog(@"MetalAudio_Start: Audio system already running");
+        return 0;
+    }
+    
+    // Start the audio queue
+    OSStatus status = AudioQueueStart(gAudioState.queue, NULL);
+    if (status != noErr) {
+        NSLog(@"MetalAudio_Start: Failed to start audio queue (error %d)", (int)status);
+        return 1;
+    }
+    
+    gAudioState.isRunning = YES;
+    NSLog(@"MetalAudio_Start: Audio system started");
+    return 0;
+}
+
+// Stop audio playback
+int MetalAudio_Stop() {
+    if (!gAudioState.queue || !gAudioState.isRunning) {
+        return 0;
+    }
+    
+    // Stop the audio queue
+    OSStatus status = AudioQueueStop(gAudioState.queue, true);
+    if (status != noErr) {
+        NSLog(@"MetalAudio_Stop: Failed to stop audio queue (error %d)", (int)status);
+        return 1;
+    }
+    
+    gAudioState.isRunning = NO;
+    NSLog(@"MetalAudio_Stop: Audio system stopped");
+    return 0;
+}
+
+// Clean up audio resources
+int MetalAudio_Exit() {
+    // Stop the audio if it's running
+    MetalAudio_Stop();
+    
+    // Dispose of the audio queue
+    if (gAudioState.queue) {
+        AudioQueueDispose(gAudioState.queue, true);
+        gAudioState.queue = NULL;
+    }
+    
+    NSLog(@"MetalAudio_Exit: Audio system cleaned up");
+    return 0;
+}
+
+// Set audio volume (0.0 - 1.0)
+int MetalAudio_SetVolume(float volume) {
+    if (!gAudioState.queue) {
+        return 1;
+    }
+    
+    // Clamp volume to valid range
+    volume = (volume < 0.0f) ? 0.0f : ((volume > 1.0f) ? 1.0f : volume);
+    gAudioState.volume = volume;
+    
+    // Set the audio queue volume
+    OSStatus status = AudioQueueSetParameter(gAudioState.queue, 
+                                            kAudioQueueParam_Volume, 
+                                            volume);
+    
+    if (status != noErr) {
+        NSLog(@"MetalAudio_SetVolume: Failed to set volume (error %d)", (int)status);
+        return 1;
+    }
+    
+    return 0;
+}
+
+// Pause/resume audio
+int MetalAudio_Pause(BOOL pause) {
+    if (pause && gAudioState.isRunning) {
+        return MetalAudio_Stop();
+    } else if (!pause && !gAudioState.isRunning) {
+        return MetalAudio_Start();
+    }
+    return 0;
+}
+
+// Reset the audio system
+int MetalAudio_Reset() {
+    // Stop the audio
+    int result = MetalAudio_Stop();
+    if (result != 0) {
+        return result;
+    }
+    
+    // Re-enqueue the buffers
+    for (int i = 0; i < AUDIO_BUFFER_COUNT; i++) {
+        if (gAudioState.buffers[i]) {
+            // Fill with silence
+            memset(gAudioState.buffers[i]->mAudioData, 0, gAudioState.bufferSize);
+            gAudioState.buffers[i]->mAudioDataByteSize = gAudioState.bufferSize;
+            
+            // Enqueue the buffer
+            OSStatus status = AudioQueueEnqueueBuffer(gAudioState.queue, 
+                                                     gAudioState.buffers[i], 
+                                                     0, 
+                                                     NULL);
+            
+            if (status != noErr) {
+                NSLog(@"MetalAudio_Reset: Failed to enqueue audio buffer %d (error %d)", 
+                      i, (int)status);
+                return 1;
+            }
+        }
+    }
+    
+    // Start the audio
+    return MetalAudio_Start();
+}
+
+// Get current audio state
+BOOL MetalAudio_IsRunning() {
+    return gAudioState.isRunning;
+}
+
+// Stubs required for FBNeo integration
+extern "C" {
+    // Initialize the audio subsystem
+    int AudSoundInit() {
+        return MetalAudio_Init(48000, 2);
+    }
+    
+    // Clean up audio resources
+    int AudSoundExit() {
+        return MetalAudio_Exit();
+    }
+    
+    // Reset the audio system
+    int AudSoundReset() {
+        return MetalAudio_Reset();
+    }
+    
+    // Set the volume
+    void AudSoundSetVolume(int nVolume) {
+        // Convert from FBNeo volume (0-100) to float (0.0-1.0)
+        float volume = (float)nVolume / 100.0f;
+        MetalAudio_SetVolume(volume);
+    }
+}
+
+// Initialize audio system
+int Metal_InitAudioSystem_AVAudio(int sampleRate) {
+    if (audioInitialized) {
+        return 0;
+    }
+    
+    audioSampleRate = sampleRate;
+    audioSemaphore = dispatch_semaphore_create(1);
+    
+    // Allocate buffer (2 seconds of audio)
+    audioBufferSize = audioSampleRate * audioChannels * 2;
+    audioBuffer = (short*)calloc(audioBufferSize, sizeof(short));
+    if (!audioBuffer) {
+        NSLog(@"Failed to allocate audio buffer");
+        return 1;
+    }
+    
+    @autoreleasepool {
+        // Create audio engine
+        audioEngine = [[AVAudioEngine alloc] init];
+        
+        // Configure audio format
+        AVAudioFormat* format = [[AVAudioFormat alloc] 
+                                initStandardFormatWithSampleRate:audioSampleRate 
+                                channels:audioChannels];
+        
+        // Create source node with callback
+        sourceNode = [[AVAudioSourceNode alloc] 
+                     initWithFormat:format 
+                     renderBlock:^OSStatus(BOOL *isSilence, 
+                                          const AudioTimeStamp *timestamp, 
+                                          AVAudioFrameCount frameCount, 
+                                          AudioBufferList *outputData) {
+            
+            // Lock buffer access
+            dispatch_semaphore_wait(audioSemaphore, DISPATCH_TIME_FOREVER);
+            
+            // Check if we have data
+            if (!audioBuffer || audioBufferPos >= audioBufferSize) {
+                *isSilence = YES;
+                dispatch_semaphore_signal(audioSemaphore);
+                return noErr;
+            }
+            
+            // Get pointer to output buffer
+            float* outputBuffer = (float*)outputData->mBuffers[0].mData;
+            int outputChannels = outputData->mBuffers[0].mNumberChannels;
+            
+            // Copy data to output buffer
+            for (int i = 0; i < frameCount; i++) {
+                if (audioBufferPos >= audioBufferSize) {
+                    // Fill rest with silence
+                    for (int j = i; j < frameCount; j++) {
+                        for (int ch = 0; ch < outputChannels; ch++) {
+                            outputBuffer[j * outputChannels + ch] = 0.0f;
+                        }
+                    }
+                    break;
+                }
+                
+                // Left channel
+                outputBuffer[i * outputChannels] = audioBuffer[audioBufferPos] / 32768.0f;
+                audioBufferPos++;
+                
+                // Right channel (if stereo)
+                if (outputChannels > 1 && audioBufferPos < audioBufferSize) {
+                    outputBuffer[i * outputChannels + 1] = audioBuffer[audioBufferPos] / 32768.0f;
+                    audioBufferPos++;
+                }
+            }
+            
+            *isSilence = NO;
+            dispatch_semaphore_signal(audioSemaphore);
+            return noErr;
+        }];
+        
+        // Connect nodes
+        [audioEngine attachNode:sourceNode];
+        [audioEngine connect:sourceNode to:audioEngine.mainMixerNode format:format];
+        
+        // Prepare and start
+        NSError* error = nil;
+        if (![audioEngine startAndReturnError:&error]) {
+            NSLog(@"Failed to start audio engine: %@", error);
+            return 1;
+        }
+        
+        audioInitialized = YES;
+        NSLog(@"Audio system initialized at %d Hz", audioSampleRate);
+    }
+    
+    return 0;
+}
+
+// Add audio samples to buffer
+int Metal_AddAudioSamples_AVAudio(const short* samples, int count) {
+    if (!audioInitialized || !audioBuffer || !samples || count <= 0) {
+        return 1;
+    }
+    
+    // Lock buffer access
+    dispatch_semaphore_wait(audioSemaphore, DISPATCH_TIME_FOREVER);
+    
+    // Reset buffer position if it's near the end
+    if (audioBufferPos >= audioBufferSize - count) {
+        audioBufferPos = 0;
+    }
+    
+    // Copy samples to buffer
+    memcpy(audioBuffer + audioBufferPos, samples, count * sizeof(short));
+    audioBufferPos += count;
+    
+    dispatch_semaphore_signal(audioSemaphore);
+    return 0;
+}
+
+// Stop audio system
+void Metal_StopAudioSystem() {
+    if (audioInitialized) {
+        [audioEngine stop];
+        audioEngine = nil;
+        sourceNode = nil;
+        
+        if (audioBuffer) {
+            free(audioBuffer);
+            audioBuffer = NULL;
+        }
+        
+        audioInitialized = NO;
+    }
+}
+
+// Initialize audio system
+int Metal_AudioInit(int nSampleRate, int nChannels) {
+    // Set up audio format
+    AudioStreamBasicDescription audioFormat;
+    audioFormat.mSampleRate = nSampleRate;
+    audioFormat.mFormatID = kAudioFormatLinearPCM;
+    audioFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+    audioFormat.mBitsPerChannel = 16;
+    audioFormat.mChannelsPerFrame = nChannels;
+    audioFormat.mFramesPerPacket = 1;
+    audioFormat.mBytesPerFrame = audioFormat.mBitsPerChannel / 8 * audioFormat.mChannelsPerFrame;
+    audioFormat.mBytesPerPacket = audioFormat.mBytesPerFrame * audioFormat.mFramesPerPacket;
+    
+    // Create audio queue
+    OSStatus status = AudioQueueNewOutput(&audioFormat,
+                                        HandleInputBuffer,
+                                        NULL,
+                                        NULL,
+                                        NULL,
+                                        0,
+                                        &audioQueue);
+    if (status != noErr) {
+        return 1;
+    }
+    
+    // Allocate buffers
+    const int bufferSize = 4096 * sizeof(INT16);
+    for (int i = 0; i < 3; i++) {
+        status = AudioQueueAllocateBuffer(audioQueue, bufferSize, &audioBuffers[i]);
+        if (status != noErr) {
+            return 1;
+        }
+        
+        // Fill buffer with silence
+        memset(audioBuffers[i]->mAudioData, 0, bufferSize);
+        audioBuffers[i]->mAudioDataByteSize = bufferSize;
+        
+        // Enqueue buffer
+        AudioQueueEnqueueBuffer(audioQueue, audioBuffers[i], 0, NULL);
+    }
+    
+    // Start playback
+    status = AudioQueueStart(audioQueue, NULL);
+    if (status != noErr) {
+        return 1;
+    }
+    
+    isPlaying = true;
+    return 0;
+}
+
+// Forward declarations for FBNeo audio functions
+extern "C" {
+    typedef int32_t INT32;
+    typedef int16_t INT16;
+    typedef uint8_t UINT8;
+    typedef uint32_t UINT32;
+    
+    // FBNeo audio variables
+    extern INT16* pBurnSoundOut;
+    extern INT32 nBurnSoundLen;
+    extern INT32 nBurnSoundRate;
+    
+    // FBNeo audio functions
+    INT32 BurnSoundInit();
+    INT32 BurnSoundExit();
+    void BurnSoundDCFilterReset();
+}
+
+// Audio configuration
+#define METAL_AUDIO_SAMPLE_RATE 44100
+#define METAL_AUDIO_CHANNELS 2
+#define METAL_AUDIO_BUFFER_SIZE 1024
+#define METAL_AUDIO_NUM_BUFFERS 4
+
+// Audio state
+static AudioQueueRef g_audioQueue = NULL;
+static AudioQueueBufferRef g_audioBuffers[METAL_AUDIO_NUM_BUFFERS];
+static bool g_audioInitialized = false;
+static bool g_audioEnabled = true;
+static INT16* g_audioBuffer = NULL;
+static INT32 g_audioBufferSize = 0;
+static float g_audioVolume = 1.0f;
+
+// Audio format description
+static AudioStreamBasicDescription g_audioFormat = {
+    .mSampleRate = METAL_AUDIO_SAMPLE_RATE,
+    .mFormatID = kAudioFormatLinearPCM,
+    .mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked,
+    .mBytesPerPacket = 4, // 2 channels * 2 bytes per sample
+    .mFramesPerPacket = 1,
+    .mBytesPerFrame = 4,
+    .mChannelsPerFrame = METAL_AUDIO_CHANNELS,
+    .mBitsPerChannel = 16,
+    .mReserved = 0
+};
+
+// Audio queue callback
+static void Metal_AudioCallback(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer) {
+    if (!g_audioInitialized || !g_audioEnabled) {
+        // Fill with silence
+        memset(inBuffer->mAudioData, 0, inBuffer->mAudioDataBytesCapacity);
+        inBuffer->mAudioDataByteSize = inBuffer->mAudioDataBytesCapacity;
+        AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, NULL);
+        return;
+    }
+    
+    // Calculate how many samples we need
+    UInt32 bytesRequested = inBuffer->mAudioDataBytesCapacity;
+    UInt32 samplesRequested = bytesRequested / (METAL_AUDIO_CHANNELS * sizeof(INT16));
+    
+    INT16* outputBuffer = (INT16*)inBuffer->mAudioData;
+    
+    // Check if we have FBNeo audio data
+    if (pBurnSoundOut && nBurnSoundLen > 0) {
+        // Copy FBNeo audio data
+        UInt32 samplesToCopy = (samplesRequested < nBurnSoundLen) ? samplesRequested : nBurnSoundLen;
+        UInt32 bytesToCopy = samplesToCopy * METAL_AUDIO_CHANNELS * sizeof(INT16);
+        
+        // Apply volume and copy
+        for (UInt32 i = 0; i < samplesToCopy * METAL_AUDIO_CHANNELS; i++) {
+            float sample = (float)pBurnSoundOut[i] * g_audioVolume;
+            
+            // Clamp to prevent overflow
+            if (sample > 32767.0f) sample = 32767.0f;
+            if (sample < -32768.0f) sample = -32768.0f;
+            
+            outputBuffer[i] = (INT16)sample;
+        }
+        
+        // Fill remaining with silence if needed
+        if (samplesToCopy < samplesRequested) {
+            UInt32 remainingBytes = (samplesRequested - samplesToCopy) * METAL_AUDIO_CHANNELS * sizeof(INT16);
+            memset(&outputBuffer[samplesToCopy * METAL_AUDIO_CHANNELS], 0, remainingBytes);
+        }
+        
+        inBuffer->mAudioDataByteSize = bytesRequested;
+    } else {
+        // No audio data available, fill with silence
+        memset(outputBuffer, 0, bytesRequested);
+        inBuffer->mAudioDataByteSize = bytesRequested;
+    }
+    
+    // Enqueue the buffer back to the audio queue
+    AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, NULL);
+}
+
+// Initialize Metal audio system
+INT32 Metal_InitAudio() {
+    printf("[Metal_InitAudio] Initializing audio system\n");
+    
+    if (g_audioInitialized) {
+        printf("[Metal_InitAudio] Audio already initialized\n");
+        return 0;
+    }
+    
+    // Set FBNeo audio parameters
+    nBurnSoundRate = METAL_AUDIO_SAMPLE_RATE;
+    nBurnSoundLen = METAL_AUDIO_BUFFER_SIZE;
+    
+    // Allocate audio buffer for FBNeo
+    g_audioBufferSize = METAL_AUDIO_BUFFER_SIZE * METAL_AUDIO_CHANNELS * sizeof(INT16);
+    g_audioBuffer = (INT16*)malloc(g_audioBufferSize);
+    if (!g_audioBuffer) {
+        printf("[Metal_InitAudio] ERROR: Failed to allocate audio buffer\n");
+        return 1;
+    }
+    
+    // Set FBNeo audio output pointer
+    pBurnSoundOut = g_audioBuffer;
+    
+    // Initialize FBNeo audio system
+    BurnSoundInit();
+    BurnSoundDCFilterReset();
+    
+    // Create audio queue
+    OSStatus status = AudioQueueNewOutput(&g_audioFormat, Metal_AudioCallback, NULL, 
+                                         CFRunLoopGetCurrent(), kCFRunLoopCommonModes, 0, &g_audioQueue);
+    if (status != noErr) {
+        printf("[Metal_InitAudio] ERROR: Failed to create audio queue (status: %d)\n", (int)status);
+        free(g_audioBuffer);
+        g_audioBuffer = NULL;
+        pBurnSoundOut = NULL;
+        return 1;
+    }
+    
+    // Allocate and enqueue audio buffers
+    for (int i = 0; i < METAL_AUDIO_NUM_BUFFERS; i++) {
+        status = AudioQueueAllocateBuffer(g_audioQueue, METAL_AUDIO_BUFFER_SIZE * METAL_AUDIO_CHANNELS * sizeof(INT16), 
+                                         &g_audioBuffers[i]);
+        if (status != noErr) {
+            printf("[Metal_InitAudio] ERROR: Failed to allocate audio buffer %d (status: %d)\n", i, (int)status);
+            Metal_ExitAudio();
+            return 1;
+        }
+        
+        // Fill with silence initially
+        memset(g_audioBuffers[i]->mAudioData, 0, g_audioBuffers[i]->mAudioDataBytesCapacity);
+        g_audioBuffers[i]->mAudioDataByteSize = g_audioBuffers[i]->mAudioDataBytesCapacity;
+        
+        // Enqueue the buffer
+        AudioQueueEnqueueBuffer(g_audioQueue, g_audioBuffers[i], 0, NULL);
+    }
+    
+    // Start the audio queue
+    status = AudioQueueStart(g_audioQueue, NULL);
+    if (status != noErr) {
+        printf("[Metal_InitAudio] ERROR: Failed to start audio queue (status: %d)\n", (int)status);
+        Metal_ExitAudio();
+        return 1;
+    }
+    
+    g_audioInitialized = true;
+    printf("[Metal_InitAudio] Audio system initialized successfully\n");
+    printf("[Metal_InitAudio] Sample rate: %d Hz, Channels: %d, Buffer size: %d samples\n", 
+           METAL_AUDIO_SAMPLE_RATE, METAL_AUDIO_CHANNELS, METAL_AUDIO_BUFFER_SIZE);
+    
+    return 0;
+}
+
+// Exit Metal audio system
+INT32 Metal_ExitAudio() {
+    printf("[Metal_ExitAudio] Shutting down audio system\n");
+    
+    if (g_audioQueue) {
+        // Stop the audio queue
+        AudioQueueStop(g_audioQueue, true);
+        
+        // Dispose of the audio queue
+        AudioQueueDispose(g_audioQueue, true);
+        g_audioQueue = NULL;
+    }
+    
+    // Free audio buffer
+    if (g_audioBuffer) {
+        free(g_audioBuffer);
+        g_audioBuffer = NULL;
+    }
+    
+    // Reset FBNeo audio pointers
+    pBurnSoundOut = NULL;
+    nBurnSoundLen = 0;
+    
+    // Exit FBNeo audio system
+    if (g_audioInitialized) {
+        BurnSoundExit();
+    }
+    
+    g_audioInitialized = false;
+    printf("[Metal_ExitAudio] Audio system shutdown complete\n");
+    
+    return 0;
+}
+
+// Enable/disable audio output
+void Metal_SetAudioEnabled(bool enabled) {
+    g_audioEnabled = enabled;
+    printf("[Metal_SetAudioEnabled] Audio %s\n", enabled ? "enabled" : "disabled");
+}
+
+// Set audio volume (0.0 to 1.0)
+void Metal_SetAudioVolume(float volume) {
+    if (volume < 0.0f) volume = 0.0f;
+    if (volume > 1.0f) volume = 1.0f;
+    
+    g_audioVolume = volume;
+    printf("[Metal_SetAudioVolume] Volume set to %.2f\n", volume);
+}
+
+// Get current audio volume
+float Metal_GetAudioVolume() {
+    return g_audioVolume;
+}
+
+// Check if audio is initialized
+bool Metal_IsAudioInitialized() {
+    return g_audioInitialized;
+}
+
+// Update audio (called each frame)
+void Metal_UpdateAudio() {
+    if (!g_audioInitialized || !g_audioEnabled) {
+        return;
+    }
+    
+    // Diagnostic logging to help identify audio issues
+    static int frameCount = 0;
+    bool logFrame = (++frameCount % 300) == 0 || frameCount < 10;  // Log first 10 frames and every 300 frames (5 seconds at 60fps)
+    
+    if (logFrame) {
+        printf("[Metal_UpdateAudio] Frame %d: Audio diagnostic check\n", frameCount);
+        
+        // Check if pBurnSoundOut is valid
+        if (!pBurnSoundOut) {
+            printf("[Metal_UpdateAudio] ERROR: pBurnSoundOut is NULL!\n");
+            printf("[Metal_UpdateAudio] This means the FBNeo core can't output audio.\n");
+            printf("[Metal_UpdateAudio] Check that sound system is properly initialized.\n");
+            return;
+        }
+        
+        // Check if nBurnSoundLen is valid
+        if (nBurnSoundLen <= 0) {
+            printf("[Metal_UpdateAudio] ERROR: nBurnSoundLen is invalid: %d\n", nBurnSoundLen);
+            printf("[Metal_UpdateAudio] Audio buffer length must be positive.\n");
+            return;
+        }
+        
+        // Check if nBurnSoundRate is valid
+        if (nBurnSoundRate <= 0) {
+            printf("[Metal_UpdateAudio] ERROR: nBurnSoundRate is invalid: %d\n", nBurnSoundRate);
+            printf("[Metal_UpdateAudio] Sound rate must be positive.\n");
+            return;
+        }
+        
+        // Analyze audio buffer for content
+        bool hasAudio = false;
+        int checksum = 0;
+        int maxSample = 0;
+        int totalSamples = nBurnSoundLen * 2; // Stereo
+        
+        // Check if we have actual audio data (scan entire buffer)
+        for (int i = 0; i < totalSamples && i < METAL_AUDIO_BUFFER_SIZE * 2; i++) {
+            int sample = abs(pBurnSoundOut[i]);
+            if (sample > 0) {
+                hasAudio = true;
+                checksum += sample;
+                if (sample > maxSample) {
+                    maxSample = sample;
+                }
+            }
+        }
+        
+        printf("[Metal_UpdateAudio] Audio buffer analysis:\n");
+        printf("  - Buffer has content: %s\n", hasAudio ? "YES" : "NO");
+        printf("  - Audio checksum: 0x%08X\n", checksum);
+        printf("  - Max sample amplitude: %d (%.1f%%)\n", maxSample, (maxSample * 100.0f) / 32768.0f);
+        printf("  - Sound buffer address: %p\n", pBurnSoundOut);
+        printf("  - Sound buffer length: %d samples (%d bytes)\n", 
+               nBurnSoundLen, nBurnSoundLen * 2 * sizeof(INT16));
+        printf("  - Sound rate: %d Hz\n", nBurnSoundRate);
+        
+        // If no audio is detected after several frames, print a warning
+        if (!hasAudio && frameCount > 30) {
+            printf("[Metal_UpdateAudio] WARNING: No audio data detected in pBurnSoundOut!\n");
+            printf("[Metal_UpdateAudio] This could indicate QSound emulation is not working correctly.\n");
+            printf("[Metal_UpdateAudio] Check that METAL_CPS_STUB is not defined and QSound emulation is enabled.\n");
+            
+            // Display additional debugging information about QSound
+            extern INT32 nQscRate;
+            extern INT32 nQscLen;
+            extern INT16 *QscBuffer;
+            
+            printf("[Metal_UpdateAudio] QSound debug info:\n");
+            printf("  - QscBuffer address: %p\n", QscBuffer);
+            if (QscBuffer) {
+                // Check QSound buffer for content
+                bool hasQscAudio = false;
+                int qscChecksum = 0;
+                int qscMaxSample = 0;
+                
+                for (int i = 0; i < nQscLen * 2 && i < 1024; i++) {
+                    int sample = abs(QscBuffer[i]);
+                    if (sample > 0) {
+                        hasQscAudio = true;
+                        qscChecksum += sample;
+                        if (sample > qscMaxSample) {
+                            qscMaxSample = sample;
+                        }
+                    }
+                }
+                
+                printf("  - QscBuffer has content: %s\n", hasQscAudio ? "YES" : "NO");
+                printf("  - QscBuffer checksum: 0x%08X\n", qscChecksum);
+                printf("  - QscBuffer max amplitude: %d\n", qscMaxSample);
+            }
+            printf("  - nQscRate: %d Hz\n", nQscRate);
+            printf("  - nQscLen: %d samples\n", nQscLen);
+            
+            // Check CPS2 driver audio interface
+            extern INT32 (*pCpsGetSoundOut)(INT32, INT32*);
+            printf("  - CPS audio interface: %p\n", pCpsGetSoundOut);
+            
+            // Check if we're using stubs
+            printf("  - QSound implementation: %s\n", 
+                   QscBuffer ? "REAL IMPLEMENTATION" : "STUB IMPLEMENTATION");
+        }
+    }
+    
+    // FBNeo core will fill pBurnSoundOut directly during BurnDrvFrame
+    // We just need to verify the buffer is ready for the next frame
+    if (pBurnSoundOut && nBurnSoundLen > 0) {
+        // Audio data should have already been transferred to the audio queue
+        // We don't need to do anything else here
+    }
+}
+
+// Get audio statistics for debugging
+void Metal_GetAudioStats(INT32* sampleRate, INT32* channels, INT32* bufferSize, bool* enabled) {
+    if (sampleRate) *sampleRate = METAL_AUDIO_SAMPLE_RATE;
+    if (channels) *channels = METAL_AUDIO_CHANNELS;
+    if (bufferSize) *bufferSize = METAL_AUDIO_BUFFER_SIZE;
+    if (enabled) *enabled = g_audioEnabled;
+}
+
+// Print audio status for debugging
+void Metal_PrintAudioStatus() {
+    printf("[Metal_PrintAudioStatus] Audio system status:\n");
+    printf("  Initialized: %s\n", g_audioInitialized ? "Yes" : "No");
+    printf("  Enabled: %s\n", g_audioEnabled ? "Yes" : "No");
+    printf("  Sample rate: %d Hz\n", METAL_AUDIO_SAMPLE_RATE);
+    printf("  Channels: %d\n", METAL_AUDIO_CHANNELS);
+    printf("  Buffer size: %d samples\n", METAL_AUDIO_BUFFER_SIZE);
+    printf("  Volume: %.2f\n", g_audioVolume);
+    printf("  FBNeo sound rate: %d Hz\n", nBurnSoundRate);
+    printf("  FBNeo sound length: %d samples\n", nBurnSoundLen);
+    printf("  FBNeo sound buffer: %p\n", pBurnSoundOut);
+}
+
+// C interface functions
+extern "C" {
+    INT32 Metal_InitAudio_C() {
+        return Metal_InitAudio();
+    }
+    
+    INT32 Metal_ExitAudio_C() {
+        return Metal_ExitAudio();
+    }
+    
+    void Metal_SetAudioEnabled_C(bool enabled) {
+        Metal_SetAudioEnabled(enabled);
+    }
+    
+    void Metal_SetAudioVolume_C(float volume) {
+        Metal_SetAudioVolume(volume);
+    }
+    
+    float Metal_GetAudioVolume_C() {
+        return Metal_GetAudioVolume();
+    }
+    
+    bool Metal_IsAudioInitialized_C() {
+        return Metal_IsAudioInitialized();
+    }
+    
+    void Metal_UpdateAudio_C() {
+        Metal_UpdateAudio();
+    }
+    
+    void Metal_PrintAudioStatus_C() {
+        Metal_PrintAudioStatus();
+    }
+} 

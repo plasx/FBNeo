@@ -17,6 +17,9 @@ typedef tms::display_info TMS34010Display;
 typedef tms::scanline_render_t pTMS34010ScanlineRender;
 // typedef void (*pTMS34010ScanlineRender)(int line, TMS34010Display *info);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void TMS34010Init();
 int TMS34010Run(int cycles);
 void TMS34010TimerSetCB(void (*timer_cb)());
@@ -44,6 +47,7 @@ void TMS34010MapHandler(uintptr_t num, UINT32 start, UINT32 end, UINT8 type);
 int TMS34010SetReadHandler(UINT32 num, pTMS34010ReadHandler handler);
 int TMS34010SetWriteHandler(UINT32 num, pTMS34010WriteHandler handler);
 int TMS34010SetHandlers(UINT32 num, pTMS34010ReadHandler rhandler, pTMS34010WriteHandler whandler);
-
-
+#ifdef __cplusplus
+}
+#endif
 #endif // TMS34010_INTF_H

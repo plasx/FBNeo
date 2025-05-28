@@ -998,26 +998,26 @@ static INT32 sprint_arg(char *buffer, UINT32 pc, const char *pre, const e_mode m
 	{
 		case MODE_NONE:     return 0;
 
-		case MODE_BIT8:     return  sprintf( buffer, "%s%d",            pre,    r                                   );
-		case MODE_I8:       return  sprintf( buffer, "%s$%02X",         pre,    r                                   );
-		case MODE_D8:       return  sprintf( buffer, "%s$%04X",         pre,    (pc+2+(r&0x7f)-(r&0x80))&0xffff     );
-		case MODE_I16:      return  sprintf( buffer, "%s$%04X",         pre,    r                                   );
-		case MODE_D16:      return  sprintf( buffer, "%s$%04X",         pre,    (pc+2+(r&0x7fff)-(r&0x8000))&0xffff );
+		case MODE_BIT8:     return  snprintf( buffer, 32, "%s%d",            pre,    r                                   );
+		case MODE_I8:       return  snprintf( buffer, 32, "%s$%02X",         pre,    r                                   );
+		case MODE_D8:       return  snprintf( buffer, 32, "%s$%04X",         pre,    (pc+2+(r&0x7f)-(r&0x80))&0xffff     );
+		case MODE_I16:      return  snprintf( buffer, 32, "%s$%04X",         pre,    r                                   );
+		case MODE_D16:      return  snprintf( buffer, 32, "%s$%04X",         pre,    (pc+2+(r&0x7fff)-(r&0x8000))&0xffff );
 		case MODE_MI16:
 			reg_name = internal_registers_names(r);
-			return  (reg_name) ?    sprintf( buffer, "%s(%s)",          pre,    reg_name                            ):
-									sprintf( buffer, "%s($%04X)",       pre,    r                                   );
-		case MODE_R8:       return  sprintf( buffer, "%s%s",            pre,    r8_names[r]                         );
-		case MODE_R16:      return  sprintf( buffer, "%s%s",            pre,    r16_names[r]                        );
-		case MODE_MR16:     return  sprintf( buffer, "%s(%s)",          pre,    r16_names[r]                        );
+			return  (reg_name) ?    snprintf( buffer, 32, "%s(%s)",          pre,    reg_name                            ):
+									snprintf( buffer, 32, "%s($%04X)",       pre,    r                                   );
+		case MODE_R8:       return  snprintf( buffer, 32, "%s%s",            pre,    r8_names[r]                         );
+		case MODE_R16:      return  snprintf( buffer, 32, "%s%s",            pre,    r16_names[r]                        );
+		case MODE_MR16:     return  snprintf( buffer, 32, "%s(%s)",          pre,    r16_names[r]                        );
 
-		case MODE_MR16R8:   return  sprintf( buffer, "%s(%s+%s)",       pre,    r16_names[r],   r8_names[rb]        );
-		case MODE_MR16D8:   return  sprintf( buffer, "%s(%s%c$%02X)",   pre,    r16_names[r],   (rb&0x80)?'-':'+',  (rb&0x80)?((rb^0xff)+1):rb  );
+		case MODE_MR16R8:   return  snprintf( buffer, 32, "%s(%s+%s)",       pre,    r16_names[r],   r8_names[rb]        );
+		case MODE_MR16D8:   return  snprintf( buffer, 32, "%s(%s%c$%02X)",   pre,    r16_names[r],   (rb&0x80)?'-':'+',  (rb&0x80)?((rb^0xff)+1):rb  );
 
-		case MODE_CC:       return  sprintf( buffer, "%s%s",            pre,    cc_names[r]                         );
+		case MODE_CC:       return  snprintf( buffer, 32, "%s%s",            pre,    cc_names[r]                         );
 
-		case MODE_R16R8:    return  sprintf( buffer, "%s%s+%s",         pre,    r16_names[r],   r8_names[rb]        );
-		case MODE_R16D8:    return  sprintf( buffer, "%s%s%c$%02X",     pre,    r16_names[r],   (rb&0x80)?'-':'+',  (rb&0x80)?((rb^0xff)+1):rb  );
+		case MODE_R16R8:    return  snprintf( buffer, 32, "%s%s+%s",         pre,    r16_names[r],   r8_names[rb]        );
+		case MODE_R16D8:    return  snprintf( buffer, 32, "%s%s%c$%02X",     pre,    r16_names[r],   (rb&0x80)?'-':'+',  (rb&0x80)?((rb^0xff)+1):rb  );
 
 		//default:
 		//	fatalerror("%04x: unimplemented addr mode = %d\n",pc,mode);
@@ -1036,7 +1036,7 @@ CPU_DISASSEMBLE( t90 )
 	decode(cpustate);
 	cpustate->op &= ~OP_16;
 
-	buffer  +=  sprintf     ( buffer,           "%-5s",             op_names[ cpustate->op ] ); // strlen("callr") == 5
+	buffer  +=  snprintf     ( buffer, 32, "%-5s",             op_names[ cpustate->op ] ); // strlen("callr") == 5
 	len     =   sprint_arg  ( buffer, pc,       " ",                cpustate->mode1, cpustate->r1, cpustate->r1b );
 	buffer  +=  len;
 	buffer  +=  sprint_arg  ( buffer, pc,       (len>1)?",":"",     cpustate->mode2, cpustate->r2, cpustate->r2b );
@@ -2930,7 +2930,7 @@ CPU_GET_INFO( tmp90840 )
 		case CPUINFO_STR_CREDITS:       strcpy(info->s, "Luca Elia");           break;
 
 		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c%c%c%c%c%c%c%c",
+			snprintf(info->s, 64, "%c%c%c%c%c%c%c%c",
 				F & 0x80 ? 'S':'.',
 				F & 0x40 ? 'Z':'.',
 				F & 0x20 ? 'I':'.',
@@ -2941,21 +2941,21 @@ CPU_GET_INFO( tmp90840 )
 				F & 0x01 ? 'C':'.');
 			break;
 
-		case CPUINFO_STR_REGISTER + T90_PC:     sprintf(info->s, "PC:%04X", cpustate->pc.w.l);  break;
-		case CPUINFO_STR_REGISTER + T90_SP:     sprintf(info->s, "SP:%04X", cpustate->sp.w.l);  break;
-		case CPUINFO_STR_REGISTER + T90_A:      sprintf(info->s, "~A:%02X", cpustate->af.b.h);  break;
-		case CPUINFO_STR_REGISTER + T90_B:      sprintf(info->s, "~B:%02X", cpustate->bc.b.h);  break;
-		case CPUINFO_STR_REGISTER + T90_C:      sprintf(info->s, "~C:%02X", cpustate->bc.b.l);  break;
-		case CPUINFO_STR_REGISTER + T90_D:      sprintf(info->s, "~D:%02X", cpustate->de.b.h);  break;
-		case CPUINFO_STR_REGISTER + T90_E:      sprintf(info->s, "~E:%02X", cpustate->de.b.l);  break;
-		case CPUINFO_STR_REGISTER + T90_H:      sprintf(info->s, "~H:%02X", cpustate->hl.b.h);  break;
-		case CPUINFO_STR_REGISTER + T90_L:      sprintf(info->s, "~L:%02X", cpustate->hl.b.l);  break;
-		case CPUINFO_STR_REGISTER + T90_AF:     sprintf(info->s, "AF:%04X", cpustate->af.w.l);  break;
-		case CPUINFO_STR_REGISTER + T90_BC:     sprintf(info->s, "BC:%04X", cpustate->bc.w.l);  break;
-		case CPUINFO_STR_REGISTER + T90_DE:     sprintf(info->s, "DE:%04X", cpustate->de.w.l);  break;
-		case CPUINFO_STR_REGISTER + T90_HL:     sprintf(info->s, "HL:%04X", cpustate->hl.w.l);  break;
-		case CPUINFO_STR_REGISTER + T90_IX:     sprintf(info->s, "IX:%04X", cpustate->ix.w.l);  break;
-		case CPUINFO_STR_REGISTER + T90_IY:     sprintf(info->s, "IY:%04X", cpustate->iy.w.l);  break;
+		case CPUINFO_STR_REGISTER + T90_PC:     snprintf(info->s, sizeof(info->s), "PC:%04X", cpustate->pc.w.l);  break;
+		case CPUINFO_STR_REGISTER + T90_SP:     snprintf(info->s, sizeof(info->s), "SP:%04X", cpustate->sp.w.l);  break;
+		case CPUINFO_STR_REGISTER + T90_A:      snprintf(info->s, sizeof(info->s), "~A:%02X", cpustate->af.b.h);  break;
+		case CPUINFO_STR_REGISTER + T90_B:      snprintf(info->s, sizeof(info->s), "~B:%02X", cpustate->bc.b.h);  break;
+		case CPUINFO_STR_REGISTER + T90_C:      snprintf(info->s, sizeof(info->s), "~C:%02X", cpustate->bc.b.l);  break;
+		case CPUINFO_STR_REGISTER + T90_D:      snprintf(info->s, sizeof(info->s), "~D:%02X", cpustate->de.b.h);  break;
+		case CPUINFO_STR_REGISTER + T90_E:      snprintf(info->s, sizeof(info->s), "~E:%02X", cpustate->de.b.l);  break;
+		case CPUINFO_STR_REGISTER + T90_H:      snprintf(info->s, sizeof(info->s), "~H:%02X", cpustate->hl.b.h);  break;
+		case CPUINFO_STR_REGISTER + T90_L:      snprintf(info->s, sizeof(info->s), "~L:%02X", cpustate->hl.b.l);  break;
+		case CPUINFO_STR_REGISTER + T90_AF:     snprintf(info->s, sizeof(info->s), "AF:%04X", cpustate->af.w.l);  break;
+		case CPUINFO_STR_REGISTER + T90_BC:     snprintf(info->s, sizeof(info->s), "BC:%04X", cpustate->bc.w.l);  break;
+		case CPUINFO_STR_REGISTER + T90_DE:     snprintf(info->s, sizeof(info->s), "DE:%04X", cpustate->de.w.l);  break;
+		case CPUINFO_STR_REGISTER + T90_HL:     snprintf(info->s, sizeof(info->s), "HL:%04X", cpustate->hl.w.l);  break;
+		case CPUINFO_STR_REGISTER + T90_IX:     snprintf(info->s, sizeof(info->s), "IX:%04X", cpustate->ix.w.l);  break;
+		case CPUINFO_STR_REGISTER + T90_IY:     snprintf(info->s, sizeof(info->s), "IY:%04X", cpustate->iy.w.l);  break;
 	}
 }
 

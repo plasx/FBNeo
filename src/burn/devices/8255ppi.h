@@ -1,3 +1,10 @@
+#ifndef _8255PPI_H_
+#define _8255PPI_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef UINT8 (*PPIPortRead)();
 typedef void (*PPIPortWrite)(UINT8 data);
 
@@ -12,4 +19,10 @@ void ppi8255_set_read_ports(INT32 which, PPIPortRead a, PPIPortRead b, PPIPortRe
 void ppi8255_set_read_port(INT32 which, INT32 port, PPIPortRead pr);
 void ppi8255_set_write_ports(INT32 which, PPIPortWrite a, PPIPortWrite b, PPIPortWrite c);
 void ppi8255_set_write_port(INT32 which, INT32 port, PPIPortWrite pw);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // _8255PPI_H_
 

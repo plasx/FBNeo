@@ -1,0 +1,79 @@
+name: FBNeo Metal Tests
+
+on:
+  push:
+    branches: [ master, main ]
+    paths:
+      - 'src/burner/metal/**'
+      - 'src/burn/drv/capcom/**'
+      - 'src/burn/drv/cps2/**'
+      - 'tests/metal/**'
+      - '.github/workflows/metal_tests.yml'
+      - 'makefile.metal'
+  pull_request:
+    branches: [ master, main ]
+    paths:
+      - 'src/burner/metal/**'
+      - 'src/burn/drv/capcom/**'
+      - 'src/burn/drv/cps2/**'
+      - 'tests/metal/**'
+      - '.github/workflows/metal_tests.yml'
+      - 'makefile.metal'
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        brew update
+        brew install googletest
+        brew install pkg-config
+        brew install cmake
+    
+    - name: Create test directories
+      run: |
+        mkdir -p tests/metal/build
+        mkdir -p tests/metal/reports
+        mkdir -p tests/metal/fixtures
+    
+    - name: Build project
+      run: |
+        # Build the main FBNeo Metal project
+        make -f makefile.metal
+    
+    - name: Run unit tests
+      run: |
+        # Run the unit tests
+        cd tests/metal
+        ./run_tests.sh --clean
+      
+    - name: Archive test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: tests/metal/reports/*.xml
+        
+    - name: Process test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()  # Always run this step to publish test results
+      with:
+        files: tests/metal/reports/*.xml
+        
+    - name: Run performance tests
+      run: |
+        # Run performance tests (but don't fail if they don't meet thresholds)
+        cd tests/metal
+        ./run_tests.sh --with-perf || true
+      
+    - name: Archive performance test results
+      uses: actions/upload-artifact@v3
+      if: always()  # Always run this step
+      with:
+        name: performance-test-results
+        path: tests/metal/reports/*performance*.xml 

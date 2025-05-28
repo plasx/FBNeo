@@ -1,3 +1,5 @@
+#include "m68kcpu.h"
+#include <stdio.h>
 #define fatalerror	printf
 
 #define FPCC_N			0x08000000

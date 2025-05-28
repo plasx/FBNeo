@@ -1818,7 +1818,7 @@ static CPU_GET_INFO( adsp21xx )
 		case DEVINFO_STR_CREDITS:					strcpy(info->s, "Copyright Aaron Giles"); break;
 
 		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c%c%c%c%c%c%c%c",
+			snprintf(info->s, sizeof(info->s), "%c%c%c%c%c%c%c%c",
 				adsp->astat & 0x80 ? 'X':'.',
 				adsp->astat & 0x40 ? 'M':'.',
 				adsp->astat & 0x20 ? 'Q':'.',

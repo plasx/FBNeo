@@ -1,6 +1,10 @@
 #include "burnint.h"
 #include "dac.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DAC_NUM		(8)	// Maximum DAC chips
 
 struct dac_info
@@ -285,7 +289,12 @@ void DACInit(INT32 Num, UINT32 Clock, INT32 bAdd, INT32 (*pCPUCyclesCB)(), INT32
 	DACInit(Num, Clock, bAdd, DACSyncInternal);
 }
 
+#ifdef __cplusplus
+}
+#endif
 
+#ifdef __cplusplus
+// C++ overloads
 void DACInit(INT32 Num, UINT32 /*Clock*/, INT32 bAdd, INT32 (*pSyncCB)())
 {
 #if defined FBNEO_DEBUG
@@ -313,6 +322,7 @@ void DACInit(INT32 Num, UINT32 /*Clock*/, INT32 bAdd, INT32 (*pSyncCB)())
 	
 	bAddSignal = bAdd;
 }
+#endif
 
 void DACSetRoute(INT32 Chip, double nVolume, INT32 nRouteDir)
 {

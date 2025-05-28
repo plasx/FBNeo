@@ -1,4 +1,9 @@
+#include "burnint.h"
 #include "cps.h"
+#include "cpst.h"  // Include CPS tile definitions
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
 
 // CPS Scroll (Background Layers)
 
@@ -63,7 +68,7 @@ INT32 Cps1Scr1Draw(UINT8 *Base,INT32 sx,INT32 sy)
       nCpstTile=t; nCpstFlip=(a>>5)&3;
 
 	  if (nBgHi) {
-		  CpstPmsk = BURN_ENDIAN_SWAP_INT16(*(UINT16*)(CpsSaveReg[0] + MaskAddr[(a & 0x180) >> 7]));
+		  CpstPmsk = BURN_ENDIAN_SWAP_INT16(*(UINT16*)((uint8_t*)CpsSaveReg[0] + MaskAddr[(a & 0x180) >> 7]));
 	  }
 
 	  if(CpstOneDoX[nBgHi]()) nKnowBlank=t;
@@ -189,7 +194,7 @@ INT32 Cps1Scr3Draw(UINT8 *Base,INT32 sx,INT32 sy)
       nCpstTile=t; nCpstFlip=(a>>5)&3;
 
 	  if (nBgHi) {
-		  CpstPmsk = BURN_ENDIAN_SWAP_INT16(*(UINT16*)(CpsSaveReg[0] + MaskAddr[(a & 0x180) >> 7]));
+		  CpstPmsk = BURN_ENDIAN_SWAP_INT16(*(UINT16*)((uint8_t*)CpsSaveReg[0] + MaskAddr[(a & 0x180) >> 7]));
 	  }
 
       if(CpstOneDoX[nBgHi]()) nKnowBlank=t;

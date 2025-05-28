@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FBNeo Memory Mapping Schema",
+  "description": "Schema for defining game-specific memory mappings for FBNeo's AI system",
+  "type": "object",
+  "required": ["game_name", "architecture", "version", "mappings"],
+  "properties": {
+    "game_name": {
+      "type": "string",
+      "description": "Name of the game (should match ROM name or a common name)"
+    },
+    "architecture": {
+      "type": "string",
+      "enum": ["CPS1", "CPS2", "CPS3", "NEOGEO", "M68K", "Z80", "OTHER"],
+      "description": "CPU architecture or system type"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the mapping file"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description of the mapping file"
+    },
+    "supported_roms": {
+      "type": "array",
+      "description": "List of ROM names this mapping supports",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mappings": {
+      "type": "object",
+      "description": "Memory mappings organized by category",
+      "patternProperties": {
+        "^[a-zA-Z0-9_]+$": {
+          "type": "array",
+          "description": "Category of mappings (e.g., player_state, game_state)",
+          "items": {
+            "$ref": "#/definitions/memory_mapping_entry"
+          }
+        }
+      }
+    },
+    "groups": {
+      "type": "object",
+      "description": "Logical groupings of mappings for easier access",
+      "patternProperties": {
+        "^[a-zA-Z0-9_]+$": {
+          "type": "array",
+          "description": "Group name (e.g., player1_health, match_info)",
+          "items": {
+            "type": "string",
+            "description": "Reference to a mapping by name"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "memory_mapping_entry": {
+      "type": "object",
+      "required": ["name", "address", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for this memory value"
+        },
+        "address": {
+          "type": "string",
+          "description": "Memory address in hex (0xXXXX) or decimal"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["byte", "word", "dword", "float", "bit"],
+          "description": "Data type of the memory value"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what this value represents"
+        },
+        "category": {
+          "type": "string",
+          "description": "Optional category for grouping related values"
+        },
+        "player_index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Player this value belongs to (if applicable)"
+        },
+        "scale": {
+          "type": "number",
+          "description": "Scaling factor to apply to the raw value"
+        },
+        "offset": {
+          "type": "number",
+          "description": "Offset to apply after scaling: result = (raw_value * scale) + offset"
+        },
+        "min_value": {
+          "type": "number",
+          "description": "Minimum valid value (for normalization)"
+        },
+        "max_value": {
+          "type": "number",
+          "description": "Maximum valid value (for normalization)"
+        },
+        "bit_position": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 31,
+          "description": "Bit position for bit type (0-31)"
+        },
+        "mask": {
+          "type": "string",
+          "description": "Bit mask to apply in hex (0xXX)"
+        },
+        "endianness": {
+          "type": "string",
+          "enum": ["big", "little"],
+          "default": "little",
+          "description": "Endianness of the memory value"
+        },
+        "relative_to": {
+          "type": "string",
+          "description": "Name of another mapping this address is relative to"
+        }
+      }
+    }
+  }
+} 

@@ -1179,9 +1179,9 @@ static void SpecTZXOperation()
 			for (int i = 0; i < entries; i++) {
 				UINT8 entrytype = tapdata(pos++);
 				if (entrytype < 9) {
-					sprintf(a_line, "%s:", archivetypes[entrytype]);
+					snprintf(a_line, sizeof(a_line), "%s:", archivetypes[entrytype]);
 				} else {
-					sprintf(a_line, "Comment:");
+					snprintf(a_line, sizeof(a_line), "Comment:");
 				}
 				UINT8 s_len = tapdata(pos++);
 				strncpy(b_line, (char*)tapptr(pos), s_len);

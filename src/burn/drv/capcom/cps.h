@@ -1,40 +1,98 @@
-// CPS ----------------------------------
+#ifndef cps_h
+#define cps_h
+
 #include "burnint.h"
 #include "m68000_intf.h"
 #include "z80_intf.h"
-
 #include "msm6295.h"
-#include "eeprom.h"
 #include "timer.h"
 #include "samples.h"
+#include "burn/devices/eeprom.h"
+
+// Include CPS stub header for Metal implementation
+#ifdef CPS_STUB_H
+#include "cps_stub.h"
+#endif
+
+// Include Metal fixes for Metal builds
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
+
+#ifndef CPS2_PRG_68K
+#define CPS2_PRG_68K  0x01
+#endif
+#ifndef CPS2_GFX
+#define CPS2_GFX      0x02
+#endif
+#ifndef CPS2_PRG_Z80
+#define CPS2_PRG_Z80  0x03
+#endif
+#ifndef CPS2_QSND
+#define CPS2_QSND     0x04
+#endif
+#ifndef CPS2_ENCRYPTION_KEY
+#define CPS2_ENCRYPTION_KEY 0x05
+#endif
+#ifndef CPS2_PRG_68K_SIMM
+#define CPS2_PRG_68K_SIMM 0x06
+#endif
+#ifndef CPS2_PRG_68K_XOR_TABLE
+#define CPS2_PRG_68K_XOR_TABLE 0x07
+#endif
+#ifndef CPS2_GFX_SIMM
+#define CPS2_GFX_SIMM 0x08
+#endif
+#ifndef CPS2_GFX_SPLIT4
+#define CPS2_GFX_SPLIT4 0x09
+#endif
+#ifndef CPS2_GFX_SPLIT8
+#define CPS2_GFX_SPLIT8 0x0A
+#endif
+#ifndef CPS2_GFX_19XXJ
+#define CPS2_GFX_19XXJ CPS2_GFX
+#endif
+#ifndef CPS2_QSND_SIMM
+#define CPS2_QSND_SIMM 0x0B
+#endif
+#ifndef CPS2_QSND_SIMM_BYTESWAP
+#define CPS2_QSND_SIMM_BYTESWAP 0x0C
+#endif
+
+// global variables used by CPS drivers
+extern INT32 Cps;								// 1 = CPS1 hardware, 2 = CPS2 hardware
+extern INT32 Cps1Qs;							// 1 = CPS1 with QSound
+extern INT32 Cps1Run;							// 1 = CPS1 Classic, 2 = CPS1 with QSound
+
+// To be defined by the CPS driver
+extern UINT8 *CpsGfx; extern UINT32 nCpsGfxLen; // All the graphics
+extern UINT8 *CpsRom; extern UINT32 nCpsRomLen; // Program Rom (as in rom)
+extern UINT8 *CpsCode; extern UINT32 nCpsCodeLen; // Mapped Program Rom
+extern UINT8 *CpsZRom; extern UINT32 nCpsZRomLen; // Z80 Roms
+extern UINT8 *CpsQSam; extern UINT32 nCpsQSamLen; // QSound Sample Roms
+extern UINT8 *CpsAd; extern UINT32 nCpsAdLen;     // ADPCM data
+extern UINT8 *CpsStar; extern UINT32 nCpsStarLen; // Star layer graphics
+extern UINT8 *CpsText; extern UINT32 nCpsTextLen; // Text layer graphics
+extern UINT8 *CpsKey; // Key data for CPS2 decryption
+extern INT32 CpsGfxScroll1; extern INT32 CpsGfxScroll2; extern INT32 CpsGfxScroll3; extern INT32 CpsGfxObject; extern INT32 CpsGfxStars;
+extern UINT32 CpsGfxScroll1Mask; extern UINT32 CpsGfxScroll2Mask; extern UINT32 CpsGfxScroll3Mask; extern UINT32 CpsGfxObjectMask; extern UINT32 CpsGfxStarsMask;
+extern INT32 CpsGfxScroll1Shift; extern INT32 CpsGfxScroll2Shift; extern INT32 CpsGfxScroll3Shift; extern INT32 CpsGfxObjectShift; extern INT32 CpsGfxStarsShift;
+extern UINT32 nCpsGfxMask;
 
 // Maximum number of beam-synchronized interrupts to check
-#define MAX_RASTER 10
+#define MAX_RASTER 16
 
-extern UINT32 CpsMProt[4];									// Mprot changes
-extern UINT32 CpsBID[3];										// Board ID changes
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Function Prototypes
 
 // cps.cpp
-extern INT32 Cps;														// 1 = CPS1, 2 = CPS2, 3 = CPS CHanger
-extern INT32 Cps1Qs;
-extern INT32 Cps1DisablePSnd;
-extern INT32 Cps2DisableQSnd;
-extern INT32 nCPS68KClockspeed;
-extern INT32 nCpsCycles;												// Cycles per frame
-extern INT32 nCpsZ80Cycles;
-extern UINT8 *CpsGfx;  extern UINT32 nCpsGfxLen;		// All the graphics
-extern UINT8 *CpsRom;  extern UINT32 nCpsRomLen;		// Program Rom (as in rom)
-extern UINT8 *CpsCode; extern UINT32 nCpsCodeLen;		// Program Rom (decrypted)
-extern UINT8 *CpsZRom; extern UINT32 nCpsZRomLen;		// Z80 Roms
-extern  INT8 *CpsQSam; extern UINT32 nCpsQSamLen;		// QSound Sample Roms
-extern UINT8 *CpsAd;   extern UINT32 nCpsAdLen;		    // ADPCM Data
-extern UINT8 *CpsKey; extern UINT32 nCpsKeyLen;
-extern UINT32 nCpsGfxScroll[4];								// Offset to Scroll tiles
-extern UINT32 nCpsGfxMask;									// Address mask
-extern UINT8* CpsStar;
 INT32 CpsInit();
 INT32 Cps2Init();
 INT32 CpsExit();
+
 INT32 CpsLoadTiles(UINT8 *Tile,INT32 nStart);
 INT32 CpsLoadTilesByte(UINT8 *Tile,INT32 nStart);
 INT32 CpsLoadTilesForgottn(INT32 nStart);
@@ -79,6 +137,10 @@ INT32 CpsLoadStarsForgottnAlt(UINT8 *pStar, INT32 nStart);
 INT32 Cps2LoadTiles(UINT8 *Tile,INT32 nStart);
 INT32 Cps2LoadTilesSIM(UINT8 *Tile,INT32 nStart);
 INT32 Cps2LoadTilesGigaman2(UINT8 *Tile, UINT8 *pSrc);
+
+#ifdef __cplusplus
+}
+#endif
 
 // cps_config.h
 #define CPS_B_01		0
@@ -154,144 +216,28 @@ INT32 Cps2LoadTilesGigaman2(UINT8 *Tile, UINT8 *pSrc);
 #define mapper_PS63B		31
 #define mapper_MB63B		32
 #define mapper_QD22B		33
-#define mapper_QD63B		34
-#define mapper_TN2292		35
-#define mapper_RCM63B		36
-#define mapper_PKB10B		37
-#define mapper_pang3		38
-#define mapper_sfzch		39
-#define mapper_cps2			40
-#define mapper_frog			41
-#define mapper_pokon		42
-#define mapper_KNM10B		43
-#define mapper_gulun		44
-#define mapper_SFZ63B		mapper_RCM63B
-#define mapper_CP1B1F		45
-#define mapper_CP1B1F_boot	46
-#define mapper_pang3b4		47
-#define mapper_TKSGZB		48
-extern void SetGfxMapper(INT32 MapperId);
-extern INT32 GfxRomBankMapper(INT32 Type, INT32 Code);
-extern void SetCpsBId(INT32 CpsBId, INT32 bStars);
 
-// cps_pal.cpp
-extern UINT32* CpsPal;										// Hicolor version of palette
-extern INT32 nCpsPalCtrlReg;
-extern INT32 bCpsUpdatePalEveryFrame;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void SetGfxMapper(INT32 MapperId);
+INT32 GfxRomBankMapper(INT32 Type, INT32 Code);
+void SetCpsBId(INT32 CpsBId, INT32 bStars);
+
 INT32 CpsPalInit();
 INT32 CpsPalExit();
 INT32 CpsPalUpdate(UINT8 *pNewPal);
 
-// cps_mem.cpp
-extern UINT8 *CpsRam90;
-extern UINT8 *CpsZRamC0,*CpsZRamF0;
-extern UINT8 *CpsSavePal;
-extern UINT8 *CpsRam708,*CpsReg,*CpsFrg;
-extern UINT8 *CpsSaveReg[MAX_RASTER + 1];
-extern UINT8 *CpsSaveFrg[MAX_RASTER + 1];
-extern UINT8 *CpsRamFF;
 void CpsMapObjectBanks(INT32 nBank);
 INT32 CpsMemInit();
 INT32 CpsMemExit();
 INT32 CpsAreaScan(INT32 nAction,INT32 *pnMin);
 
-typedef INT32 (*CpsMemScanCallback)(INT32, INT32*);
-extern CpsMemScanCallback CpsMemScanCallbackFunction;
-
-// cps_run.cpp
-extern UINT8 CpsReset;
-extern INT32 nCpsCyclesExtra;
-extern UINT8 Cpi01A, Cpi01C, Cpi01E;
-extern UINT8 fFakeDip;
-extern INT32 nIrqLine50, nIrqLine52;								// The scanlines at which the interrupts are triggered
-extern INT32 nCpsNumScanlines;
-extern INT32 Cps1VBlankIRQLine;
-extern INT32 CpsDrawSpritesInReverse;
-extern INT32 Cps1DrawAtVblank;
 INT32 CpsRunInit();
 INT32 CpsRunExit();
 INT32 Cps1Frame();
 INT32 Cps2Frame();
-typedef INT32 (*CpsRunInitCallback)();
-extern CpsRunInitCallback CpsRunInitCallbackFunction;
-typedef INT32 (*CpsRunExitCallback)();
-extern CpsRunExitCallback CpsRunExitCallbackFunction;
-typedef INT32 (*CpsRunResetCallback)();
-extern CpsRunResetCallback CpsRunResetCallbackFunction;
-typedef void (*CpsRunFrameStartCallback)();
-extern CpsRunFrameStartCallback CpsRunFrameStartCallbackFunction;
-typedef void (*CpsRunFrameMiddleCallback)();
-extern CpsRunFrameMiddleCallback CpsRunFrameMiddleCallbackFunction;
-typedef void (*CpsRunFrameEndCallback)();
-extern CpsRunFrameEndCallback CpsRunFrameEndCallbackFunction;
-
-inline static UINT8* CpsFindGfxRam(INT32 nAddr,INT32 nLen)
-{
-  nAddr&=0xffffff; // 24-bit bus
-  if (nAddr>=0x900000 && nAddr+nLen<=0x930000) return CpsRam90+nAddr-0x900000;
-  return NULL;
-}
-
-inline static void GetPalette(INT32 nStart, INT32 nCount)
-{
-	// Update Palette (Ghouls points to the wrong place on boot up I think)
-	INT32 nPal = (BURN_ENDIAN_SWAP_INT16(*((UINT16*)(CpsReg + 0x0A))) << 8) & 0xFFFC00;
-	
-	UINT8* Find = CpsFindGfxRam(nPal, 0xc00 << 1);
-	if (Find) {
-		memcpy(CpsSavePal + (nStart << 10), Find + (nStart << 10), nCount << 10);
-	}
-}
-
-// cps_rw.cpp
-// Treble Winner - Added INP(1FD) for sf2ue
-#define CPSINPSET INP(000) INP(001) INP(006) INP(007) INP(008) INP(010) INP(011) INP(012) INP(018) INP(019) INP(01B) INP(020) INP(021) INP(029) INP(176) INP(177) INP(179) INP(186) INP(1fd)
-
-// prototype for input bits
-#define INP(nnn) extern UINT8 CpsInp##nnn[8];
-CPSINPSET
-#undef  INP
-
-#define INP(nnn) extern UINT8 Inp##nnn;
-CPSINPSET
-#undef  INP
-
-#define CPSINPEX INP(c000) INP(c001) INP(c002) INP(c003)
-
-#define INP(nnnn) extern UINT8 CpsInp##nnnn[8];
-CPSINPEX
-#undef  INP
-
-// For the Forgotten Worlds analog controls
-extern UINT16 CpsInp055, CpsInp05d;
-extern INT16 CpsInpPaddle1, CpsInpPaddle2;
-extern UINT8 CpsDigUD[4];
-
-extern INT32 PangEEP;
-extern INT32 Forgottn;
-extern INT32 Cps1QsHack;
-extern INT32 Kodh;
-extern INT32 Cawingb;
-extern INT32 Sf2thndr;
-extern INT32 Pzloop2;
-extern INT32 Hkittymp;
-extern INT32 Sfa2ObjHack;
-extern INT32 Ssf2tb;
-extern INT32 Dinohunt;
-extern INT32 Port6SoundWrite;
-extern INT32 CpsBootlegEEPROM;
-extern INT32 Cps2Turbo;
-extern INT32 Jurassic99;
-extern INT32 Dinoh;
-extern INT32 Wofhfh;
-extern INT32 Wofsgzb;
-extern INT32 Wof3js;
-extern INT32 Knightsh;
-extern INT32 Ecofght;
-
-extern ClearOpposite<4, UINT8> clear_opposite;
-
-extern UINT8* CpsEncZRom;
 
 INT32 CpsRwInit();
 INT32 CpsRwExit();
@@ -303,53 +249,25 @@ void __fastcall CpsWriteByte(UINT32 a, UINT8 d);
 UINT16 __fastcall CpsReadWord(UINT32 a);
 void __fastcall CpsWriteWord(UINT32 a, UINT16 d);
 
-typedef void (*CpsRWSoundCommandCallback)(UINT16);
-extern CpsRWSoundCommandCallback CpsRWSoundCommandCallbackFunction;
-
-// cps_draw.cpp
-extern UINT8 CpsRecalcPal;				// Flag - If it is 1, recalc the whole palette
-extern INT32 nCpsLcReg;							// Address of layer controller register
-extern INT32 CpsLayEn[6];							// bits for layer enable
-extern INT32 nStartline, nEndline;				// specify the vertical slice of the screen to render
-extern INT32 nRasterline[MAX_RASTER + 2];			// The lines at which an interrupt occurs
-extern INT32 MaskAddr[4];
-extern INT32 CpsLayer1XOffs;
-extern INT32 CpsLayer2XOffs;
-extern INT32 CpsLayer3XOffs;
-extern INT32 CpsLayer1YOffs;
-extern INT32 CpsLayer2YOffs;
-extern INT32 CpsLayer3YOffs;
-extern INT32 Cps1DisableBgHi;
-extern INT32 CpsDisableRowScroll;
-extern INT32 Cps1OverrideLayers;
-extern INT32 nCps1Layers[4];
-extern INT32 nCps1LayerOffs[3];
-extern INT32 nCpsScreenWidth;
-extern INT32 nCpsScreenHeight;
-extern INT32 nCpsGlobalXOffset;
-extern INT32 nCpsGlobalYOffset;
 void DrawFnInit();
 INT32  CpsDraw();
 INT32  CpsRedraw();
 
-#define BURN_SND_QSND_OUTPUT_1			0
-#define BURN_SND_QSND_OUTPUT_2			1
-
 INT32 QsndInit();
 void QsndSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir);
-void QsndExit();
-void QsndReset();
 void QsndNewFrame();
 void QsndEndFrame();
+#if defined USE_SPEEDHACKS
 void QsndSyncZ80();
+#else
+INT32 QsndSyncZ80();
+#endif
 INT32 QsndScan(INT32 nAction);
 
-// qs_z.cpp
 INT32 QsndZInit();
 INT32 QsndZExit();
 INT32 QsndZScan(INT32 nAction);
 
-// qs_c.cpp
 INT32 QscInit(INT32 nRate);
 void QscSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir);
 void QscReset();
@@ -360,183 +278,65 @@ void QscWrite(INT32 a, INT32 d);
 UINT8 QscRead();
 INT32 QscUpdate(INT32 nEnd);
 
-// cps_tile.cpp
-extern UINT32* CpstPal;
-extern UINT32 nCpstType; extern INT32 nCpstX,nCpstY;
-extern UINT32 nCpstTile; extern INT32 nCpstFlip;
-extern UINT32 nCpsBlend;
-extern short* CpstRowShift;
-extern UINT32 CpstPmsk; // Pixel mask
+#ifdef __cplusplus
+}
+#endif
 
+// CpsOneDoX functions
+INT32 CpsOneDoX();
+INT32 CpsBgOneDoX();
+INT32 CpsRowOneDoX();
+INT32 Cps2OneDoX();
+
+// Cpsr functions/variables that whole driver needs
+extern UINT8 *CpsrBase;			// Tile data base
+extern INT32 nCpsrScrX, nCpsrScrY;	// Basic scroll info
+extern UINT16 *CpsrRows;		// Row scroll table, 0x400 words long
+extern INT32 nCpsrRowStart;		// Start of row scroll (can be negative)
+
+extern INT32 CpsrBgHack;
+
+extern INT32 nEndline;
+
+// Prototype for Cpst function
+INT32 Cps1Tile16(void);
+INT32 Cps1Tile16_Metal(void);
+INT32 Cps2Tile16(void);
+INT32 Cps2Tile32(void);
+INT32 Cps2FastTile32(void);
+
+// CpsrLineInfo structure definition for row scroll
+struct CpsrLineInfo {
+    INT32 nStart;       // Start position
+    INT32 nWidth;       // Width
+    INT32 nTileStart;   // Tile Start position
+    INT32 nTileEnd;     // Tile End position
+    INT16 Rows[16];     // Row shift data
+    INT32 nMaxLeft;     // Maximum row scroll left
+    INT32 nMaxRight;    // Maximum row scroll right
+};
+
+extern struct CpsrLineInfo CpsrLineInfo[32];
+
+// Palette stuff
+extern INT32 nCpsPalCtrlReg;
+extern INT32 bCpsUpdatePalEveryFrame;
+
+// Screen Control
+#define CPSSCR_DARK(x)		((x >> 6) & 3)
+
+// Handle CPS_STUB_H implementation differently
+#ifndef CPS_STUB_H
+extern UINT16 nCpstPal;
 inline static void CpstSetPal(INT32 nPal)
 {
-	nPal <<= 4;
-	nPal &= 0x7F0;
-	CpstPal= CpsPal + nPal;
+    nCpstPal = nPal;
 }
+#else
+// CpstSetPal is defined in cps_stub.h
+#endif
 
-// ctv.cpp
-extern INT32 nBgHi;
-extern UINT16  ZValue;
-extern UINT16 *ZBuf;
-extern UINT16 *pZVal;
-extern UINT32    nCtvRollX,nCtvRollY;
-extern UINT8  *pCtvTile;					// Pointer to tile data
-extern INT32             nCtvTileAdd;					// Amount to add after each tile line
-extern UINT8  *pCtvLine;					// Pointer to output bitmap
-typedef INT32 (*CtvDoFn)();
-typedef INT32 (*CpstOneDoFn)();
-extern CtvDoFn CtvDoX[0x20];
-extern CtvDoFn CtvDoXM[0x20];
-extern CtvDoFn CtvDoXB[0x20];
-extern CpstOneDoFn CpstOneDoX[3];
-extern CpstOneDoFn CpstOneObjDoX[2];
-INT32 CtvReady();
+void CpsFastVidCheck();
+void CpsFastVidDefault();
 
-// nCpstType constants
-// To get size do (nCpstType & 24) + 8
-#define CTT_FLIPX ( 1)
-#define CTT_CARE  ( 2)
-#define CTT_ROWS  ( 4)
-#define CTT_8X8   ( 0)
-#define CTT_16X16 ( 8)
-#define CTT_32X32 (24)
-
-// cps_obj.cpp
-extern INT32 nCpsObjectBank;
-extern UINT8 *CpsBootlegSpriteRam;
-extern INT32 Cps1LockSpriteList910000;
-extern INT32 Cps1DetectEndSpriteList8000;
-
-typedef INT32 (*Cps1ObjGetCallback)();
-extern Cps1ObjGetCallback Cps1ObjGetCallbackFunction;
-typedef INT32 (*Cps1ObjDrawCallback)(INT32, INT32);
-extern Cps1ObjDrawCallback Cps1ObjDrawCallbackFunction;
-
-INT32  CpsObjInit();
-INT32  CpsObjExit();
-INT32  CpsObjGet();
-INT32 FcrashObjGet();
-INT32 KodbObjGet();
-INT32 DinopicObjGet();
-INT32 DaimakaibObjGet();
-INT32 WofhObjGet();
-INT32 Sf2mdtObjGet();
-void CpsObjDrawInit();
-INT32  Cps1ObjDraw(INT32 nLevelFrom,INT32 nLevelTo);
-INT32  Cps2ObjDraw(INT32 nLevelFrom,INT32 nLevelTo);
-INT32  FcrashObjDraw(INT32 nLevelFrom,INT32 nLevelTo);
-
-// cps_scr.cpp
-#define SCROLL_2 0
-#define SCROLL_3 1
-extern INT32 Ghouls;
-extern INT32 Ssf2t;
-extern INT32 Xmcota;
-
-extern INT32 Scroll1TileMask;
-extern INT32 Scroll2TileMask;
-extern INT32 Scroll3TileMask;
-INT32 Cps1Scr1Draw(UINT8 *Base,INT32 sx,INT32 sy);
-INT32 Cps1Scr3Draw(UINT8 *Base,INT32 sx,INT32 sy);
-INT32 Cps2Scr1Draw(UINT8 *Base,INT32 sx,INT32 sy);
-INT32 Cps2Scr3Draw(UINT8 *Base,INT32 sx,INT32 sy);
-
-// cpsr.cpp
-extern UINT8 *CpsrBase;						// Tile data base
-extern INT32 nCpsrScrX,nCpsrScrY;						// Basic scroll info
-extern UINT16 *CpsrRows;					// Row scroll table, 0x400 words long
-extern INT32 nCpsrRowStart;							// Start of row scroll (can wrap?)
-
-// Information needed to draw a line
-struct CpsrLineInfo {
-	INT32 nStart;										// 0-0x3ff - where to start drawing tiles from
-	INT32 nWidth;										// 0-0x400 - width of scroll shifts
-													// e.g. for no rowscroll at all, nWidth=0
-	INT32 nTileStart;									// Range of tiles which are visible onscreen
-	INT32 nTileEnd;									// (e.g. 0x20 -> 0x50 , wraps around to 0x10)
-	INT16 Rows[16];									// 16 row scroll values for this line
-	INT32 nMaxLeft, nMaxRight;						// Maximum row shifts left and right
-};
-extern struct CpsrLineInfo CpsrLineInfo[32];
-INT32 Cps1rPrepare();
-INT32 Cps2rPrepare();
-
-// cpsrd.cpp
-INT32 Cps1rRender();
-INT32 Cps2rRender();
-
-// dc_input.cpp
-extern struct BurnInputInfo CpsFsi[0x1B];
-
-// ps.cpp
-extern UINT8 PsndCode, PsndFade;			// Sound code/fade sent to the z80 program
-INT32 PsndInit();
-INT32 PsndExit();
-void PsndNewFrame();
-INT32 PsndSyncZ80(INT32 nCycles);
-INT32 PsndScan(INT32 nAction, INT32 *pnMin);
-
-// ps_z.cpp
-INT32 PsndZInit();
-INT32 PsndZExit();
-INT32 PsndZScan(INT32 nAction, INT32 *pnMin);
-extern INT32 Kodb;
-
-// ps_m.cpp
-extern INT32 bPsmOkay;								// 1 if the module is okay
-INT32 PsmInit();
-INT32 PsmExit();
-void PsmNewFrame();
-INT32 PsmUpdate(INT32 nEnd);
-INT32 PsmUpdateEnd();
-void PsndEndFrame();
-
-// kabuki.cpp
-void wof_decode();
-void dino_decode();
-void punisher_decode();
-void slammast_decode();
-
-// cps2_crypt.cpp
-void cps2_decrypt_game_data();
-
-// fcrash_snd.cpp
-void FcrashSoundCommand(UINT16 d);
-INT32 FcrashSoundInit();
-INT32 FcrashSoundReset();
-INT32 FcrashSoundExit();
-void FcrashSoundFrameStart();
-void FcrashSoundFrameEnd();
-INT32 FcrashScanSound(INT32 nAction, INT32 *pnMin);
-
-// sf2mdt_snd.cpp
-void Sf2mdtSoundCommand(UINT16 d);
-INT32 Sf2mdtSoundInit();
-INT32 Sf2mdtSoundReset();
-INT32 Sf2mdtSoundExit();
-void Sf2mdtSoundFrameStart();
-void Sf2mdtSoundFrameEnd();
-INT32 Sf2mdtScanSound(INT32 nAction, INT32 *pnMin);
-
-// d_cps2.cpp
-#define CPS2_PRG_68K						1
-#define CPS2_PRG_68K_SIMM					2
-#define CPS2_PRG_68K_XOR_TABLE				3
-#define CPS2_GFX							5
-#define CPS2_GFX_SIMM						6
-#define CPS2_GFX_SPLIT4						7
-#define CPS2_GFX_SPLIT8						8
-#define CPS2_GFX_19XXJ						9
-#define CPS2_PRG_Z80						10
-#define CPS2_QSND							12
-#define CPS2_QSND_SIMM						13
-#define CPS2_QSND_SIMM_BYTESWAP				14
-#define CPS2_ENCRYPTION_KEY					15
-
-extern INT32 Cps2Volume;
-extern UINT16 Cps2VolumeStates[40];
-extern INT32 Cps2DisableDigitalVolume;
-extern UINT8 Cps2VolUp;
-extern UINT8 Cps2VolDwn;
-extern UINT8 AspectDIP;
+#endif // cps_h

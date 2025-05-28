@@ -1,0 +1,131 @@
+#
+#	Rules
+#
+#
+
+.PHONY:	all init cleandep touch clean
+
+ifeq ($(MAKELEVEL),1)
+ifdef DEPEND
+
+all:	init $(drvdep) $(autdep) $(autobj) $(autdrv)
+	@$(MAKE) -f makefile.metal -s
+
+else
+
+all:	init $(autobj) $(autdrv)
+	@$(MAKE) -f makefile.metal -s
+
+endif
+else
+
+all:	$(NAME)
+
+endif
+
+#
+#	Rule for linking the executable
+#
+#
+
+ifeq ($(MAKELEVEL),2)
+
+$(objdir)drivers.o:		$(autdrv)
+	@echo Linking drivers...
+	@$(LD) -r -nostdlib -o $@ $^
+
+$(NAME):	$(allobj) $(objdir)drivers.o
+	@echo
+	@echo Linking executable... $(NAME)
+	@$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(lib)
+
+ifdef	DEBUG
+#	Don't compress when making a debug build
+else
+ifdef	COMPRESS
+	@upx --best $@
+endif
+endif
+endif
+
+#
+#	Generic rules for C/C++ files
+#
+#
+
+ifeq ($(MAKELEVEL),1)
+
+%.o:	%.cpp
+	@echo Compiling $<...
+	@$(CC) $(CXXFLAGS) -c $< -o $(subst $(srcdir),$(objdir),$(<D))/$(@F)
+
+%.o:	%.c
+	@echo Compiling $<...
+	@$(CC) $(CFLAGS) -c $< -o $(subst $(srcdir),$(objdir),$(<D))/$(@F)
+
+%.o:	%.asm | init
+	@echo Assembling $<...
+	@$(AS) $(ASFLAGS) $< -o $(subst $(srcdir),$(objdir),$(<D))/$(@F)
+
+else
+
+%.o:	%.c
+	@echo Compiling $<...
+	@$(CC) $(CFLAGS) -c $< -o $(subst $(srcdir),$(objdir),$(<D))/$(@F)
+
+%.o:	%.asm | init
+	@echo Assembling $<...
+	@$(AS) $(ASFLAGS) $< -o $(subst $(srcdir),$(objdir),$(<D))/$(@F)
+
+%.o:
+	@echo Compiling $<...
+	@$(CC) $(CXXFLAGS) -c $< -o $@
+
+endif
+
+#
+#	Generate dependencies for C/C++ files
+#
+#
+
+ifdef DEPEND
+
+%.d:	%.c
+	@echo Generating depend file for $<...
+	@$(CC) -MM -MT "$(subst $(srcdir),$(objdir),$(<D))/$(*F).o $(subst $(srcdir),$(objdir),$(<D))/$(@F)" -x c++ $(CXXFLAGS) $< >$(subst $(srcdir),$(objdir),$(<D))/$(@F)
+
+%.d:	%.cpp
+	@echo Generating depend file for $<...
+	@$(CC) -MM -MT "$(subst $(srcdir),$(objdir),$(<D))/$(*F).o $(subst $(srcdir),$(objdir),$(<D))/$(@F)" -x c++ $(CXXFLAGS) $< >$(subst $(srcdir),$(objdir),$(<D))/$(@F)
+
+%.d:	%.rc
+	@echo Generating depend file for $<...
+	@$(CC) -MM -MT "$(subst $(srcdir),$(objdir),$(<D))/$(*F).o $(subst $(srcdir),$(objdir),$(<D))/$(@F)" -x c++ $(CXXFLAGS) $< >$(subst $(srcdir),$(objdir),$(<D))/$(@F)
+
+endif
+
+#
+#	Phony targets
+#
+#
+
+init:
+	@echo Making normal build...
+	@echo
+	@mkdir -p $(foreach dir, $(alldir),$(objdir)$(dir))
+	@mkdir -p $(srcdir)dep/generated
+
+cleandep:
+	@echo Removing depend files from $(objdir)...
+	-@for dir in $(alldir); do rm -f $(objdir)$$dir/*.d; done
+
+touch:
+	@echo Marking all targets for $(NAME) as uptodate...
+	-@touch $(NAME)
+	-@touch -c -r $(NAME) $(srcdir)/dep/generated/*
+	-@for dir in $(alldir); do touch -c  -r $(NAME) $(objdir)$$dir/*; done
+
+# Remove duplicate clean target
+# clean:
+# 	@echo Removing build files...
+# 	@rm -rf $(objdir) $(NAME) 

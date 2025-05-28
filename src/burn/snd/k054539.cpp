@@ -23,6 +23,7 @@
 #include "k054539.h"
 #include "biquad.h"
 #include "dtimer.h"
+#include "burn_sound.h"  // Include burn_sound.h for INTERPOLATE4PS_16BIT macro
 
 static INT32 nNumChips = 0;
 
@@ -803,28 +804,28 @@ void K054539Scan(INT32 nAction, INT32 *)
 		info = &Chips[i];
 
 		memset(&ba, 0, sizeof(ba));
-		sprintf(szName, "K054539 Latch %d", i);
+		snprintf(szName, sizeof(szName), "K054539 Latch %d", i);
 		ba.Data		= info->k054539_posreg_latch;
 		ba.nLen		= sizeof(info->k054539_posreg_latch);
 		ba.nAddress = 0;
 		ba.szName	= szName;
 		BurnAcb(&ba);
 
-		sprintf(szName, "K054539 Regs # %d", i);
+		snprintf(szName, sizeof(szName), "K054539 Regs # %d", i);
 		ba.Data		= info->regs;
 		ba.nLen		= sizeof(info->regs);
 		ba.nAddress = 0;
 		ba.szName	= szName;
 		BurnAcb(&ba);
 
-		sprintf(szName, "K054539 DelayRam # %d", i);
+		snprintf(szName, sizeof(szName), "K054539 DelayRam # %d", i);
 		ba.Data		= info->delay_ram;
 		ba.nLen		= DELAYRAM_SIZE;
 		ba.nAddress = 0;
 		ba.szName	= szName;
 		BurnAcb(&ba);
 
-		sprintf(szName, "K054539 Channels # %d", i);
+		snprintf(szName, sizeof(szName), "K054539 Channels # %d", i);
 		ba.Data		= &info->channels;
 		ba.nLen		= sizeof(info->channels);
 		ba.nAddress = 0;

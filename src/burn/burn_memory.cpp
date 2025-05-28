@@ -5,166 +5,124 @@
 // leaks and non-null pointers on game exit.
 
 #include "burnint.h"
+#include "burn_memory.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 #define LOG_MEMORY_USAGE    0
-#define OOB_CHECKER         1
-#define OOB_CHECK			0x200 // default oob detection range (512bytes)
+#define OOB_CHECKER         0  // Disable for simplicity
+#define OOB_CHECK           0x200
 
-#define MAX_MEM_PTR	0x400 // more than 1024 malloc calls should be insane...
+#define MAX_MEM_PTR         0x400
 
-static UINT8 *memptr[MAX_MEM_PTR]; // pointer to allocated memory
-static INT32 memsize[MAX_MEM_PTR];
-static INT32 mem_allocated;
+// Memory tracking
+static UINT8* memptr[1024];
+static INT32 memsize[1024];
+static INT32 mem_allocated = 0;
 
-// this should be called early on... BurnDrvInit?
+// FBNeo memory management implementation
+// Used for tracking allocations and properly freeing memory
 
+// Memory allocation tracker
+static INT32 nTotalMemory = 0;
+static INT32 nMemoryAllocated = 0;
+
+// Initialize memory manager
 void BurnInitMemoryManager()
 {
-	memset (memptr, 0, sizeof(memptr));
-	memset (memsize, 0, sizeof(memsize));
+	memset(memptr, 0, sizeof(memptr));
+	memset(memsize, 0, sizeof(memsize));
 	mem_allocated = 0;
+	nTotalMemory = 0;
+	nMemoryAllocated = 0;
 }
 
-// call BurnMalloc() instead of 'malloc' (see macro in burnint.h)
-UINT8 *_BurnMalloc(INT32 size, char *file, INT32 line)
-{
-	for (INT32 i = 0; i < MAX_MEM_PTR; i++)
-	{
-		if (memptr[i] == NULL) {
-			INT32 spill = (OOB_CHECKER) ? OOB_CHECK : 0;
-			memptr[i] = (UINT8*)malloc(size + spill);
-
-			if (memptr[i] == NULL) {
-				bprintf (0, _T("BurnMalloc failed to allocate %d bytes of memory!\n"), size);
-				return NULL;
-			}
-
-			memset (memptr[i], 0, size + spill); // set contents to 0
-
-			mem_allocated += size; // important: do not record "spill" here (see check_overwrite())
-			memsize[i] = size;
-
-#if LOG_MEMORY_USAGE
-			bprintf (0, _T("(%S:%d) BurnMalloc(%x): index %d.  %d total!\n"), file, line, size, i, mem_allocated);
-#endif
-
-			return memptr[i];
-		}
-	}
-
-	bprintf (0, _T("BurnMalloc called too many times!\n"));
-
-	return NULL; // Freak out!
-}
-
-enum {
-	MEM_FREE = 0,
-	MEM_REALLOC
-};
-
-static void check_overwrite(INT32 i, INT32 type)
-{
-	if (OOB_CHECKER == 0) return;
-
-	UINT8 *p = memptr[i];
-	INT32 size = memsize[i];
-
-	INT32 found_oob = 0;
-
-	for (INT32 z = 0; z < OOB_CHECK; z++) {
-		if (p[size + z] != 0) {
-			bprintf(0, _T("burn_memory.cpp(%s): OOB detected in allocated index %d @ %x!!\n"), (type == MEM_FREE) ? _T("BurnFree()") : _T("BurnRealloc()"), i, z);
-			found_oob = 1;
-		}
-	}
-
-	if (found_oob) {
-		bprintf(0, _T("->OOB memory issue detected in allocated index %d, please let FBNeo team know!\n"), i);
-	}
-}
-
-UINT8 *BurnRealloc(void *ptr, INT32 size)
-{
-	UINT8 *mptr = (UINT8*)ptr;
-
-	for (INT32 i = 0; i < MAX_MEM_PTR; i++)
-	{
-		if (memptr[i] == mptr) {
-			check_overwrite(i, MEM_REALLOC);
-			INT32 spill = (OOB_CHECKER) ? OOB_CHECK : 0;
-			memptr[i] = (UINT8*)realloc(ptr, size + spill);
-			if (spill) memset (memptr[i] + size, 0, spill);
-			mem_allocated -= memsize[i];
-			mem_allocated += size;
-			memsize[i] = size;
-			return memptr[i];
-		}
-	}
-
-	return NULL;
-}
-
-// call BurnFree() instead of "free" (see macro in burnint.h)
-void _BurnFree(void *ptr)
-{
-	UINT8 *mptr = (UINT8*)ptr;
-
-	for (INT32 i = 0; i < MAX_MEM_PTR; i++)
-	{
-		if (mptr != NULL && memptr[i] == mptr) {
-			check_overwrite(i, MEM_FREE);
-			free (memptr[i]);
-			memptr[i] = NULL;
-
-			mem_allocated -= memsize[i];
-#if LOG_MEMORY_USAGE
-			bprintf(0, _T("BurnFree(): index %d, size %x.  %d total!\n"), i, memsize[i], mem_allocated);
-#endif
-			memsize[i] = 0;
-			break;
-		}
-	}
-}
-
-// Swap contents of src with dst
-void BurnSwapMemBlock(UINT8 *src, UINT8 *dst, INT32 size)
-{
-	UINT8 *temp = BurnMalloc(size);
-
-	memcpy(temp,	src,	size);
-	memcpy(src,		dst,	size);
-	memcpy(dst,		temp,	size);
-
-	BurnFree(temp);
-}
-
-
-// call in BurnDrvExit?
-
+// Clean up memory manager
 void BurnExitMemoryManager()
 {
-	for (INT32 i = 0; i < MAX_MEM_PTR; i++)
-	{
+	for (INT32 i = 0; i < 1024; i++) {
 		if (memptr[i] != NULL) {
-#if defined FBNEO_DEBUG
-			bprintf(PRINT_ERROR, _T("BurnExitMemoryManager had to free mem pointer %i (%d bytes)\n"), i, memsize[i]);
-#endif
-			free (memptr[i]);
+			free(memptr[i]);
 			memptr[i] = NULL;
-
 			mem_allocated -= memsize[i];
 			memsize[i] = 0;
 		}
 	}
-
 	mem_allocated = 0;
+	if (nMemoryAllocated > 0) {
+		printf("Warning! %d memory allocations still active\n", nMemoryAllocated);
+	}
 }
 
+// Memory allocation functions
+UINT8* _BurnMalloc(INT32 size, const char* file, INT32 line)
+{
+	if (size <= 0) {
+		return NULL;
+	}
+
+	void* ptr = malloc(size);
+	
+	if (ptr) {
+		nMemoryAllocated++;
+		nTotalMemory += size;
+	} else {
+		printf("Error! BurnMalloc failed to allocate %d bytes [%s:%d]\n", size, file, line);
+	}
+	
+	return (UINT8*)ptr;
+}
+
+// Free memory
+void _BurnFree(void* ptr)
+{
+	if (!ptr) {
+		return;
+	}
+	
+	free(ptr);
+	
+	if (nMemoryAllocated > 0) {
+		nMemoryAllocated--;
+	}
+}
+
+// Reallocate memory
+void* BurnRealloc(void* ptr, UINT32 size)
+{
+	void* newPtr = realloc(ptr, size);
+	if (!newPtr && size) {
+		printf("Error! BurnRealloc failed to allocate %d bytes\n", size);
+	}
+	return newPtr;
+}
+
+// Memory block swapping
+void BurnSwapMemBlock(UINT8* src, UINT8* dst, INT32 size)
+{
+	UINT8* temp = (UINT8*)malloc(size);
+	
+	if (temp) {
+		memcpy(temp, src, size);
+		memcpy(src, dst, size);
+		memcpy(dst, temp, size);
+		free(temp);
+	}
+}
+
+// Simple power of 2 rounding
 UINT32 BurnRoundPowerOf2(UINT32 in)
-{ // bonus feature: even rounds 0 up to 1! -dink
-	unsigned int t = 1;
+{
+	UINT32 t = 1;
 	while (in > t) {
 		t <<= 1;
 	}
 	return t;
+}
+
+// Return total memory allocated
+INT32 BurnGetMemoryUsage()
+{
+	return nTotalMemory;
 }

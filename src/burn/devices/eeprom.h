@@ -1,3 +1,5 @@
+#ifndef FBNEO_EEPROM_H
+#define FBNEO_EEPROM_H
 
 typedef struct _eeprom_interface eeprom_interface;
 struct _eeprom_interface
@@ -32,6 +34,10 @@ const eeprom_interface eeprom_interface_93C46 =
 #define EEPROM_ASSERT_LINE	1
 #define EEPROM_PULSE_LINE	2
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void EEPROMInit(const eeprom_interface *interface);
 void EEPROMReset();
 void EEPROMExit();
@@ -59,3 +65,9 @@ void EEPROMScan(INT32 nAction, INT32* pnMin);
 
 // Some buggy games throw a lot of garbage at the EEPROM (Taito F3)
 void EEPROMIgnoreErrMessage(INT32 onoff);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // FBNEO_EEPROM_H

@@ -56,7 +56,10 @@ endif
 FORCE_UPDATE = 1
 
 # Use the __fastcall calling convention when interfacing with A68K/Musashi/Doze
+# Disable fastcall for Metal builds on ARM64 as it's not needed and causes issues
+ifndef MACOS_METAL_BUILD
 FASTCALL = 1
+endif
 
 # Compress executable with upx (the DEBUG option ignores this)
 # COMPRESS = 1
@@ -76,6 +79,13 @@ INCLUDE_LIB_PNGH = 1
 #
 #	execute an appropriate system-specific makefile
 #
+
+# --- FBNeo: Prevent MinGW targets for Metal build ---
+ifdef MACOS_METAL_BUILD
+# Only allow Metal build, skip all mingw* targets
+# Enable Metal-specific build
+BUILD_METAL = 1
+else
 
 mingw345: FORCE
 	@$(MAKE) -s -f makefile.mingw GCC345=1
@@ -116,5 +126,7 @@ vc: FORCE
 
 pi: FORCE
 	@$(MAKE) -s -f makefile.pi
+
+endif
 
 FORCE:

@@ -3400,7 +3400,7 @@ static void WwallyMakeAnalogInputs()
 	BurnTrackballUpdate(1);
 
 	BurnTrackballConfig(2, AXIS_REVERSED, AXIS_NORMAL);
-	BurnTrackballFrame(2, Analog[4], Analog[5], 0x01, 0x3f);
+	BurnTrackballFrame(2, Analog[4], Analog[5], 0x01, 0x3f, 0);
 	BurnTrackballUDLR(2, System16InputPort6[3], System16InputPort6[4], System16InputPort6[1], System16InputPort6[2], 8);
 	BurnTrackballUpdate(2);
 }

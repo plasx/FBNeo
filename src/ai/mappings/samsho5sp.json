@@ -1,0 +1,405 @@
+{
+  "game_name": "Samurai Shodown V Special",
+  "architecture": "NEO-GEO",
+  "version": "1.0.0",
+  "description": "Memory mapping for Samurai Shodown V Special (NEO-GEO)",
+  "supported_roms": ["samsho5sp", "samsho5sph", "samsh5spho"],
+  
+  "mappings": {
+    "player_state": [
+      {
+        "name": "p1_health",
+        "address": "0x10861C",
+        "type": "word",
+        "description": "Player 1 health",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 16000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_health",
+        "address": "0x10961C",
+        "type": "word",
+        "description": "Player 2 health",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 16000,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_rage",
+        "address": "0x108624",
+        "type": "word",
+        "description": "Player 1 rage gauge",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 16000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_rage",
+        "address": "0x109624",
+        "type": "word",
+        "description": "Player 2 rage gauge",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 16000,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_sword_gauge",
+        "address": "0x10862C",
+        "type": "word",
+        "description": "Player 1 sword gauge (durability)",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 16000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_sword_gauge",
+        "address": "0x10962C",
+        "type": "word",
+        "description": "Player 2 sword gauge (durability)",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 16000,
+        "endianness": "big"
+      }
+    ],
+    "position": [
+      {
+        "name": "p1_x_pos",
+        "address": "0x108600",
+        "type": "word",
+        "description": "Player 1 X position",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -20000,
+        "max_value": 20000,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_y_pos",
+        "address": "0x108604",
+        "type": "word",
+        "description": "Player 1 Y position",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -20000,
+        "max_value": 20000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_x_pos",
+        "address": "0x109600",
+        "type": "word",
+        "description": "Player 2 X position",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -20000,
+        "max_value": 20000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_y_pos",
+        "address": "0x109604",
+        "type": "word",
+        "description": "Player 2 Y position",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -20000,
+        "max_value": 20000,
+        "endianness": "big"
+      }
+    ],
+    "game_state": [
+      {
+        "name": "timer",
+        "address": "0x10D040",
+        "type": "word",
+        "description": "Round timer (in frames)",
+        "scale": 0.0166,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 3600,
+        "endianness": "big"
+      },
+      {
+        "name": "current_round",
+        "address": "0x10D044",
+        "type": "byte",
+        "description": "Current round number (0-indexed)",
+        "scale": 1.0,
+        "offset": 1.0,
+        "min_value": 1,
+        "max_value": 5
+      },
+      {
+        "name": "p1_rounds_won",
+        "address": "0x10D048",
+        "type": "byte",
+        "description": "Rounds won by Player 1",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 3
+      },
+      {
+        "name": "p2_rounds_won",
+        "address": "0x10D049",
+        "type": "byte",
+        "description": "Rounds won by Player 2",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 3
+      },
+      {
+        "name": "match_state",
+        "address": "0x10D050",
+        "type": "byte",
+        "description": "Match state (0=fighting, 1=round over, 2=match over)",
+        "min_value": 0,
+        "max_value": 2
+      }
+    ],
+    "character_state": [
+      {
+        "name": "p1_char_id",
+        "address": "0x108000",
+        "type": "byte",
+        "description": "Player 1 character ID",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 28
+      },
+      {
+        "name": "p2_char_id",
+        "address": "0x109000",
+        "type": "byte",
+        "description": "Player 2 character ID",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 28
+      },
+      {
+        "name": "p1_rage_mode",
+        "address": "0x108630",
+        "type": "byte",
+        "description": "Player 1 rage mode active",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_rage_mode",
+        "address": "0x109630",
+        "type": "byte",
+        "description": "Player 2 rage mode active",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p1_weapon_state",
+        "address": "0x108634",
+        "type": "byte",
+        "description": "Player 1 weapon state (0=armed, 1=disarmed)",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_weapon_state",
+        "address": "0x109634",
+        "type": "byte",
+        "description": "Player 2 weapon state (0=armed, 1=disarmed)",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p1_state",
+        "address": "0x108610",
+        "type": "word",
+        "description": "Player 1 animation state",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 65535,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_state",
+        "address": "0x109610",
+        "type": "word",
+        "description": "Player 2 animation state",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 65535,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_facing",
+        "address": "0x108608",
+        "type": "byte",
+        "description": "Player 1 facing direction (0=right, 1=left)",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_facing",
+        "address": "0x109608",
+        "type": "byte",
+        "description": "Player 2 facing direction (0=right, 1=left)",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      }
+    ],
+    "concentration_mode": [
+      {
+        "name": "p1_concentration",
+        "address": "0x108640",
+        "type": "byte",
+        "description": "Player 1 concentration mode active",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_concentration",
+        "address": "0x109640",
+        "type": "byte",
+        "description": "Player 2 concentration mode active",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p1_concentration_timer",
+        "address": "0x108644",
+        "type": "word",
+        "description": "Player 1 concentration timer",
+        "player_index": 0,
+        "scale": 0.0166,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 1200,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_concentration_timer",
+        "address": "0x109644",
+        "type": "word",
+        "description": "Player 2 concentration timer",
+        "player_index": 1,
+        "scale": 0.0166,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 1200,
+        "endianness": "big"
+      }
+    ],
+    "fatality_state": [
+      {
+        "name": "p1_fatality_window",
+        "address": "0x108650",
+        "type": "byte",
+        "description": "Player 1 fatality window active",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_fatality_window",
+        "address": "0x109650",
+        "type": "byte",
+        "description": "Player 2 fatality window active",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p1_fatality_type",
+        "address": "0x108654",
+        "type": "byte",
+        "description": "Player 1 fatality type executed",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 3
+      },
+      {
+        "name": "p2_fatality_type",
+        "address": "0x109654",
+        "type": "byte",
+        "description": "Player 2 fatality type executed",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 3
+      }
+    ]
+  },
+  
+  "groups": {
+    "player1_info": [
+      "p1_health",
+      "p1_rage",
+      "p1_sword_gauge",
+      "p1_x_pos",
+      "p1_y_pos",
+      "p1_char_id",
+      "p1_state",
+      "p1_facing",
+      "p1_weapon_state",
+      "p1_rage_mode"
+    ],
+    "player2_info": [
+      "p2_health",
+      "p2_rage",
+      "p2_sword_gauge",
+      "p2_x_pos",
+      "p2_y_pos",
+      "p2_char_id",
+      "p2_state",
+      "p2_facing",
+      "p2_weapon_state",
+      "p2_rage_mode"
+    ],
+    "match_info": [
+      "timer",
+      "current_round",
+      "p1_rounds_won",
+      "p2_rounds_won",
+      "match_state"
+    ],
+    "concentration_info": [
+      "p1_concentration",
+      "p1_concentration_timer",
+      "p2_concentration",
+      "p2_concentration_timer"
+    ],
+    "fatality_info": [
+      "p1_fatality_window",
+      "p1_fatality_type",
+      "p2_fatality_window",
+      "p2_fatality_type"
+    ]
+  }
+} 

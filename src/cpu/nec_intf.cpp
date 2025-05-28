@@ -23,20 +23,6 @@ void necScan(INT32 cpu, INT32 nAction);
 void necRunEnd();
 void necIdle(INT32 cycles);
 
-// v25.cpp
-INT32 v25_reset();
-void v25_open(INT32 cpu);
-void v25_close();
-void v25_set_irq_line_and_vector(INT32 irqline, INT32 vector, INT32 state);
-INT32 v25_execute(INT32 cycles);
-void v25Init(INT32 cpu, INT32 type, INT32 clock);
-void v25_set_decode(UINT8 *table);
-UINT32 v25_total_cycles();
-void v25_new_frame();
-INT32 v25GetPC(INT32 n);
-void v25Scan(INT32 cpu, INT32 nAction);
-void v25RunEnd();
-void v25Idle(INT32 cycles);
 
 //----------------------------------------------------------------------------------
 
@@ -399,19 +385,7 @@ INT32 VezInit(INT32 cpu, INT32 type, INT32 clock)
 		case V25_TYPE:
 		case V35_TYPE:
 		{
-			v25Init(cpu, type&0xff, clock);
 
-			VezCurrentCPU->cpu_open = v25_open;
-			VezCurrentCPU->cpu_close = v25_close;
-			VezCurrentCPU->cpu_reset = v25_reset;
-			VezCurrentCPU->cpu_execute = v25_execute;
-			VezCurrentCPU->cpu_set_irq_line = v25_set_irq_line_and_vector;
-			VezCurrentCPU->decode = v25_set_decode;
-			VezCurrentCPU->total_cycles = v25_total_cycles;
-			VezCurrentCPU->get_pc = v25GetPC;
-			VezCurrentCPU->scan = v25Scan;
-			VezCurrentCPU->runend = v25RunEnd;
-			VezCurrentCPU->idle = v25Idle;
 
 		}
 		break;
@@ -492,7 +466,6 @@ void VezNewFrame()
 #endif
 
 	// should be separated?
-	v25_new_frame();
 	nec_new_frame();
 }
 

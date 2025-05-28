@@ -446,8 +446,8 @@ struct threadystruct
 
 		INT32 our_thread_rv = pthread_create(&our_thread, NULL, ThreadyProc, NULL);
 
-		sprintf(our_event_str, "/fbn_our_event%x", getpid());
-		sprintf(wait_event_str, "/fbn_wait_event%x", getpid());
+		snprintf(our_event_str, sizeof(our_event_str), "/fbn_our_event%x", getpid());
+		snprintf(wait_event_str, sizeof(wait_event_str), "/fbn_wait_event%x", getpid());
 
 		INT32 our_event_rv = ((our_event = sem_open(our_event_str, O_CREAT, 0644, 1)) == SEM_FAILED) ? -1 : 0;
 		INT32 wait_event_rv = ((wait_event = sem_open(wait_event_str, O_CREAT, 0644, 1)) == SEM_FAILED) ? -1 : 0;

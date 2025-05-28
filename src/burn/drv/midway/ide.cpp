@@ -343,7 +343,7 @@ bool ide_disk::load_disk_image(const char *filename)
 {
 	char szFilePath[MAX_PATH];
 
-	sprintf(szFilePath, "%s%s", _TtoA(szAppHDDPath), filename);
+	snprintf(szFilePath, sizeof(szFilePath), "%s%s", _TtoA(szAppHDDPath), filename);
 
 	m_disk_image = fopen(szFilePath, "r+b");
 	if (!m_disk_image) {
@@ -371,7 +371,7 @@ int ide_disk::load_hdd_image(int idx)
 	
 	// make the path
 	char path[256];
-	sprintf(path, "%s/%s", setname, szHDDNameTmp);
+	snprintf(path, sizeof(path), "%s/%s", setname, szHDDNameTmp);
 	
 	// null terminate
 	path[strlen(path)] = '\0';

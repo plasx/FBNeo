@@ -1857,7 +1857,7 @@ static void FMsave_state_channel(const char *name,int num,FM_CH *CH,int num_ch)
 	for(ch=0;ch<num_ch;ch++,CH++)
 	{
 		/* channel */
-		sprintf(state_name,"%s.CH%d",name,ch);
+		snprintf(state_name, sizeof(state_name), "%s.CH%d", name, ch);
 		state_save_register_INT32(state_name, num, "feedback" , CH->op1_out , 2);
 		state_save_register_UINT32(state_name, num, "phasestep"   , &CH->fc , 1);
 		/* slots */
@@ -1865,7 +1865,7 @@ static void FMsave_state_channel(const char *name,int num,FM_CH *CH,int num_ch)
 		{
 			FM_SLOT *SLOT = &CH->SLOT[slot];
 
-			sprintf(state_name,"%s.CH%d.SLOT%d",name,ch,slot_array[slot]);
+			snprintf(state_name, sizeof(state_name), "%s.CH%d.SLOT%d", name, ch, slot_array[slot]);
 			state_save_register_UINT32(state_name, num, "phasecount" , &SLOT->phase, 1);
 			state_save_register_UINT8 (state_name, num, "state"      , &SLOT->state, 1);
 			state_save_register_INT32 (state_name, num, "volume"     , &SLOT->volume, 1);
@@ -2903,7 +2903,7 @@ static void FMsave_state_adpcma(const char *name,int num,ADPCM_CH *adpcm)
 
 	for(ch=0;ch<6;ch++,adpcm++)
 	{
-		sprintf(state_name,"%s.CH%d",name,ch);
+		snprintf(state_name, sizeof(state_name), "%s.CH%d", name, ch);
 
 		state_save_register_UINT8 (state_name, num, "flag"      , &adpcm->flag      , 1);
 		state_save_register_UINT8 (state_name, num, "flagMask"  , &adpcm->flagMask  , 1);

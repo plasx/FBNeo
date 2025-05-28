@@ -1,0 +1,254 @@
+{
+  "game_name": "sf3s",
+  "architecture": "CPS3",
+  "version": "1.0",
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0x02068C68",
+      "type": "word",
+      "description": "Player 1 health",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 160,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_health",
+      "address": "0x02069108",
+      "type": "word",
+      "description": "Player 2 health",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 160,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0x02068C10",
+      "type": "dword",
+      "description": "Player 1 X position",
+      "category": "player1",
+      "scale": 0.01
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0x02068C14",
+      "type": "dword",
+      "description": "Player 1 Y position",
+      "category": "player1",
+      "scale": 0.01
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0x020690B0",
+      "type": "dword",
+      "description": "Player 2 X position",
+      "category": "player2",
+      "scale": 0.01
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0x020690B4",
+      "type": "dword",
+      "description": "Player 2 Y position",
+      "category": "player2",
+      "scale": 0.01
+    },
+    {
+      "name": "p1_super_meter",
+      "address": "0x02068D80",
+      "type": "word",
+      "description": "Player 1 super meter",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 144,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_super_meter",
+      "address": "0x02069220",
+      "type": "word",
+      "description": "Player 2 super meter",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 144,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_character",
+      "address": "0x0202238C",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 19,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_character",
+      "address": "0x0202238D",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 19,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_state",
+      "address": "0x02068C04",
+      "type": "word",
+      "description": "Player 1 animation state",
+      "category": "player1",
+      "scale": 1.0
+    },
+    {
+      "name": "p2_state",
+      "address": "0x020690A4",
+      "type": "word",
+      "description": "Player 2 animation state",
+      "category": "player2",
+      "scale": 1.0
+    },
+    {
+      "name": "p1_stun",
+      "address": "0x02068C6C",
+      "type": "word",
+      "description": "Player 1 stun value",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 64,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_stun",
+      "address": "0x0206910C",
+      "type": "word",
+      "description": "Player 2 stun value",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 64,
+      "scale": 1.0
+    },
+    {
+      "name": "timer",
+      "address": "0x02022590",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 99,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_facing",
+      "address": "0x02068C02",
+      "type": "byte",
+      "description": "Player 1 facing direction (0=right, 1=left)",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_facing",
+      "address": "0x020690A2",
+      "type": "byte",
+      "description": "Player 2 facing direction (0=right, 1=left)",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_rounds_won",
+      "address": "0x02022325",
+      "type": "byte",
+      "description": "Player 1 rounds won",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 2,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_rounds_won",
+      "address": "0x02022326",
+      "type": "byte",
+      "description": "Player 2 rounds won",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 2,
+      "scale": 1.0
+    },
+    {
+      "name": "screen_freeze",
+      "address": "0x02022ED8",
+      "type": "byte",
+      "description": "Screen freeze state (super/parry/hit)",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_parry_window",
+      "address": "0x02068DD4",
+      "type": "byte",
+      "description": "Player 1 parry window frames",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 8,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_parry_window",
+      "address": "0x02069274",
+      "type": "byte",
+      "description": "Player 2 parry window frames",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 8,
+      "scale": 1.0
+    }
+  ],
+  "groups": [
+    {
+      "name": "player1",
+      "mappings": [
+        "p1_health",
+        "p1_x_position",
+        "p1_y_position",
+        "p1_character",
+        "p1_state",
+        "p1_super_meter",
+        "p1_stun",
+        "p1_facing",
+        "p1_rounds_won",
+        "p1_parry_window"
+      ]
+    },
+    {
+      "name": "player2",
+      "mappings": [
+        "p2_health",
+        "p2_x_position",
+        "p2_y_position",
+        "p2_character",
+        "p2_state",
+        "p2_super_meter",
+        "p2_stun",
+        "p2_facing",
+        "p2_rounds_won",
+        "p2_parry_window"
+      ]
+    },
+    {
+      "name": "game_state",
+      "mappings": [
+        "timer",
+        "screen_freeze"
+      ]
+    }
+  ]
+} 

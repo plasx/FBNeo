@@ -180,7 +180,7 @@ static void vamphalf_io_write(UINT32 address, UINT32 data)
 
 		case 0x140:
 		case 0x144:
-			BurnYM2151Write((address / 4) & 1, data & 0xff);
+			BurnYM2151Write(0, (address / 4) & 1, data & 0xff);
 		return;
 
 		case 0x240:
@@ -249,7 +249,7 @@ static void coolmini_io_write(UINT32 address, UINT32 data)
 
 		case 0x540:
 		case 0x544:
-			BurnYM2151Write((address / 4) & 1, data & 0xff);
+			BurnYM2151Write(0, (address / 4) & 1, data & 0xff);
 		return;
 	}
 }
@@ -302,7 +302,7 @@ static void jmpbreak_io_write(UINT32 address, UINT32 data)
 
 		case 0x680:
 		case 0x684:
-			BurnYM2151Write((address / 2) & 1, data & 0xff);
+			BurnYM2151Write(0, (address / 2) & 1, data & 0xff);
 		return;
 
 		case 0x240:
@@ -356,7 +356,7 @@ static void suplup_io_write(UINT32 address, UINT32 data)
 
 		case 0x0c0:
 		case 0x0c4:
-			BurnYM2151Write((address / 2) & 1, data & 0xff);
+			BurnYM2151Write(0, (address / 2) & 1, data & 0xff);
 		return;
 
 		case 0x240:
@@ -398,7 +398,7 @@ static void mrdig_io_write(UINT32 address, UINT32 data)
 
 		case 0x0c0:
 		case 0x0c4:
-			BurnYM2151Write((address / 2) & 1, data & 0xff);
+			BurnYM2151Write(0, (address / 2) & 1, data & 0xff);
 		return;
 
 		case 0x3c0:
@@ -448,7 +448,7 @@ static void worldadv_io_write(UINT32 address, UINT32 data)
 
 		case 0x700:
 		case 0x704:
-			BurnYM2151Write((address / 2) & 1, data & 0xff);
+			BurnYM2151Write(0, (address / 4) & 1, (data >> 8) & 0xff);
 		return;
 	}
 }
@@ -509,7 +509,7 @@ static void boonggab_io_write(UINT32 address, UINT32 data)
 
 		case 0x740:
 		case 0x744:
-			BurnYM2151Write((address / 2) & 1, data & 0xff);
+			BurnYM2151Write(0, (address / 2) & 1, data & 0xff);
 		return;
 	}
 }
@@ -604,7 +604,7 @@ static void aoh_io_write(UINT32 address, UINT32 data)
 
 		case 0x640:
 		case 0x644:
-			BurnYM2151Write((address / 4) & 1, (data >> 8) & 0xff);
+			BurnYM2151Write(0, (address / 4) & 1, (data >> 8) & 0xff);
 		return;
 
 		case 0x680:

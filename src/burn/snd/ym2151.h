@@ -32,6 +32,10 @@
 #ifndef _H_YM2151_
 #define _H_YM2151_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* 16- and 8-bit samples (signed) are supported*/
 #define SAMPLE_BITS 16
 
@@ -85,4 +89,7 @@ void YM2151SetPortWriteHandler(int n, write8_handler handler);
 /* FBAlpha-style savestate function for ym2151.c internal registers & operators */
 void BurnYM2151Scan_int(INT32 nAction);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /*_H_YM2151_*/

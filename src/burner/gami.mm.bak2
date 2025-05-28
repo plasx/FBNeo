@@ -1,0 +1,34 @@
+// Burner Game Input
+#include "burner.h"
+
+#include <cstring>
+#include <cctype>
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "metal/tchar.h"
+
+// Define macOS compatibility functions for Windows text functions
+#define _stprintf(buffer, format, ...) snprintf(buffer, 256, format, ##__VA_ARGS__)
+#define _tfopen fopen
+#define _fgetts fgets
+#define _tcslen strlen
+#define _tcstol strtol
+#define _ftprintf fprintf
+#define _T(x) x
+#define _tcscmp strcmp
+#define _tcsicmp strcasecmp
+#define _tcscpy strcpy
+
+// Add the InputSetCooperativeLevel function for Metal build with INT32 return type
+#ifdef BUILD_METAL
+INT32 InputSetCooperativeLevel(const bool bExclusive, const bool bForeground)
+{
+    // Stub implementation for Metal build
+    return 0;
+}
+#endif

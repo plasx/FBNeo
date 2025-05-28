@@ -1,8 +1,15 @@
+#include "burnint.h"
 #include "cps.h"
+
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
+
 // CPS - Memory
 
-UINT32 CpsMProt[4];
-UINT32 CpsBID[3];
+#ifndef DONT_DECLARE_GLOBALS
+INT32 CpsMProt[4];
+#endif
 
 static UINT8 *CpsMem=NULL,*CpsMemEnd=NULL;
 UINT8 *CpsRam90=NULL;

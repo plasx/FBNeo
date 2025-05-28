@@ -688,7 +688,7 @@ static CPU_GET_INFO( nec )
 
 		case CPUINFO_STR_FLAGS:
             flags = CompressFlags();
-            sprintf(info->s, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+            snprintf(info->s, 64, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
                 flags & 0x8000 ? 'N':'E',
                 flags & 0x4000 ? '?':'.',
                 flags & 0x2000 ? '?':'.',
@@ -707,21 +707,21 @@ static CPU_GET_INFO( nec )
                 flags & 0x0001 ? 'C':'.');
             break;
 
-        case CPUINFO_STR_REGISTER + NEC_PC:				sprintf(info->s, "PC:%05X", (Sreg(PS)<<4) + nec_state->ip); break;
-        case CPUINFO_STR_REGISTER + NEC_IP:				sprintf(info->s, "IP:%04X", nec_state->ip); break;
-        case CPUINFO_STR_REGISTER + NEC_SP:				sprintf(info->s, "SP:%04X", Wreg(SP)); break;
-        case CPUINFO_STR_REGISTER + NEC_FLAGS:			sprintf(info->s, "F:%04X", CompressFlags()); break;
-        case CPUINFO_STR_REGISTER + NEC_AW:				sprintf(info->s, "AW:%04X", Wreg(AW)); break;
-        case CPUINFO_STR_REGISTER + NEC_CW:				sprintf(info->s, "CW:%04X", Wreg(CW)); break;
-        case CPUINFO_STR_REGISTER + NEC_DW:				sprintf(info->s, "DW:%04X", Wreg(DW)); break;
-        case CPUINFO_STR_REGISTER + NEC_BW:				sprintf(info->s, "BW:%04X", Wreg(BW)); break;
-        case CPUINFO_STR_REGISTER + NEC_BP:				sprintf(info->s, "BP:%04X", Wreg(BP)); break;
-        case CPUINFO_STR_REGISTER + NEC_IX:				sprintf(info->s, "IX:%04X", Wreg(IX)); break;
-        case CPUINFO_STR_REGISTER + NEC_IY:				sprintf(info->s, "IY:%04X", Wreg(IY)); break;
-        case CPUINFO_STR_REGISTER + NEC_ES:				sprintf(info->s, "DS1:%04X", Sreg(DS1)); break;
-        case CPUINFO_STR_REGISTER + NEC_CS:				sprintf(info->s, "PS:%04X", Sreg(PS)); break;
-        case CPUINFO_STR_REGISTER + NEC_SS:				sprintf(info->s, "SS:%04X", Sreg(SS_)); break;
-        case CPUINFO_STR_REGISTER + NEC_DS:				sprintf(info->s, "DS0:%04X", Sreg(DS0)); break;
+        case CPUINFO_STR_REGISTER + NEC_PC:				snprintf(info->s, 64, "PC:%05X", (Sreg(PS)<<4) + nec_state->ip); break;
+        case CPUINFO_STR_REGISTER + NEC_IP:				snprintf(info->s, 64, "IP:%04X", nec_state->ip); break;
+        case CPUINFO_STR_REGISTER + NEC_SP:				snprintf(info->s, 64, "SP:%04X", Wreg(SP)); break;
+        case CPUINFO_STR_REGISTER + NEC_FLAGS:			snprintf(info->s, 64, "F:%04X", CompressFlags()); break;
+        case CPUINFO_STR_REGISTER + NEC_AW:				snprintf(info->s, 64, "AW:%04X", Wreg(AW)); break;
+        case CPUINFO_STR_REGISTER + NEC_CW:				snprintf(info->s, 64, "CW:%04X", Wreg(CW)); break;
+        case CPUINFO_STR_REGISTER + NEC_DW:				snprintf(info->s, 64, "DW:%04X", Wreg(DW)); break;
+        case CPUINFO_STR_REGISTER + NEC_BW:				snprintf(info->s, 64, "BW:%04X", Wreg(BW)); break;
+        case CPUINFO_STR_REGISTER + NEC_BP:				snprintf(info->s, 64, "BP:%04X", Wreg(BP)); break;
+        case CPUINFO_STR_REGISTER + NEC_IX:				snprintf(info->s, 64, "IX:%04X", Wreg(IX)); break;
+        case CPUINFO_STR_REGISTER + NEC_IY:				snprintf(info->s, 64, "IY:%04X", Wreg(IY)); break;
+        case CPUINFO_STR_REGISTER + NEC_ES:				snprintf(info->s, 64, "DS1:%04X", Sreg(DS1)); break;
+        case CPUINFO_STR_REGISTER + NEC_CS:				snprintf(info->s, 64, "PS:%04X", Sreg(PS)); break;
+        case CPUINFO_STR_REGISTER + NEC_SS:				snprintf(info->s, 64, "SS:%04X", Sreg(SS_)); break;
+        case CPUINFO_STR_REGISTER + NEC_DS:				snprintf(info->s, 64, "DS0:%04X", Sreg(DS0)); break;
 	}
 }
 

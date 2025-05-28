@@ -72,6 +72,9 @@ INT32 EEPROMAvailable()
 	return neeprom_available;
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void EEPROMInit(const eeprom_interface *interface)
 {
 	DebugDev_EEPROMInitted = 1;
@@ -94,19 +97,27 @@ void EEPROMInit(const eeprom_interface *interface)
 	else locked = 0;
 
 	TCHAR output[MAX_PATH];
+#ifdef _MSC_VER
 	_stprintf (output, _T("%s%s.nv"), szAppEEPROMPath, BurnDrvGetText(DRV_NAME));
+	FILE *fz = _tfopen(output, _T("rb"));
+#else
+	snprintf(output, MAX_PATH, "%s%s.nv", szAppEEPROMPath, BurnDrvGetText(DRV_NAME));
+	FILE *fz = fopen(output, "rb");
+#endif
 
 	neeprom_available = 0;
 
 	INT32 len = ((1 << intf->address_bits) * (intf->data_bits >> 3)) & (MEMORY_SIZE-1);
 
-	FILE *fz = _tfopen(output, _T("rb"));
 	if (fz != NULL) {
 		neeprom_available = 1;
 		fread (eeprom_data, len, 1, fz);
 		fclose (fz);
 	}
 }
+#ifdef __cplusplus
+}
+#endif
 
 void EEPROMExit()
 {
@@ -117,13 +128,18 @@ void EEPROMExit()
 	if (!DebugDev_EEPROMInitted) return;
 
 	TCHAR output[MAX_PATH];
+#ifdef _MSC_VER
 	_stprintf (output, _T("%s%s.nv"), szAppEEPROMPath, BurnDrvGetText(DRV_NAME));
+	FILE *fz = _tfopen(output, _T("wb"));
+#else
+	snprintf(output, MAX_PATH, "%s%s.nv", szAppEEPROMPath, BurnDrvGetText(DRV_NAME));
+	FILE *fz = fopen(output, "wb");
+#endif
 
 	neeprom_available = 0;
 
 	INT32 len = ((1 << intf->address_bits) * (intf->data_bits >> 3)) & (MEMORY_SIZE-1);
 
-	FILE *fz = _tfopen(output, _T("wb"));
 	if (fz) {
 		fwrite (eeprom_data, len, 1, fz);
 		fclose (fz);

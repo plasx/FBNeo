@@ -477,9 +477,18 @@ int StartRecord();
 int StartReplay(const TCHAR* szFileName = NULL);
 void StopReplay();
 INT32 FreezeInputSize();
-int FreezeInput(unsigned char** buf, int* size);
-int UnfreezeInput(const unsigned char* buf, int size);
-void DisplayReplayProperties(HWND hDlg, bool bClear);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+INT32 FreezeInputSize();
+void FreezeInput(unsigned char **buf, int *size);
+int UnfreezeInput(const unsigned char *buf, int size);
+
+#ifdef __cplusplus
+}
+#endif
 
 // memcard.cpp
 extern int nMemoryCardStatus;						// & 1 = file selected, & 2 = inserted

@@ -151,8 +151,8 @@
 #include <math.h>
 
 #ifndef __RAINE__
-#include "driver.h"		/* use M.A.M.E. */
-#include "state.h"
+#include "../../burn/driver.h"		/* use M.A.M.E. */
+#include "../../burn/state.h"
 #else
 #include "deftypes.h"		/* use RAINE */
 #include "support.h"		/* use RAINE */
@@ -2199,7 +2199,7 @@ static void scan_ym2612_internal()
 			struct BurnArea ba;
 			char szName[64];
 
-			sprintf(szName, "ym2612 slot %d", i);
+			snprintf(szName, sizeof(szName), "ym2612 slot %d", i);
 
 			memset(&ba, 0, sizeof(ba));
 			ba.Data	  = &ym2612.CH[i].SLOT[j];

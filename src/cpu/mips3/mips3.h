@@ -116,7 +116,7 @@ public:
     void bp_insert(addr_t address);
     void bp_remove(addr_t address);
 #endif
-private:
+public:
     int m_counter;
     addr_t tlb_translate(addr_t address);
 

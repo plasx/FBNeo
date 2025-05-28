@@ -1,0 +1,9 @@
+CXXFLAGS=-O2 -std=c++17 -arch arm64 -fomit-frame-pointer -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -Wno-unused -Wno-conversion -Wno-attributes -Wno-unused-parameter -Wno-unused-value -Wno-unused-result -Wno-macro-redefined -DUSE_METAL -DBUILD_METAL -DFILENAME=fbneo_metal -Isrc/burn/drv/capcom/wrappers -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/snd -Isrc/burn/sound -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/intf/audio -Isrc/intf/input -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes
+
+all: c_symbols.o
+
+c_symbols.o: c_symbols.cpp
+	clang++ $(CXXFLAGS) -c c_symbols.cpp -o c_symbols.o
+
+clean:
+	rm -f c_symbols.o 

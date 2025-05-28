@@ -309,7 +309,7 @@ static void __fastcall hyperduel_sub_write_word(UINT32 address, UINT16 data)
 // hyprduel
 		case 0x400000:
 		case 0x400002:
-			if (game_select == 0) BurnYM2151Write((address / 2) & 1, data);
+			if (game_select == 0) BurnYM2151Write(0, (address / 2) & 1, data);
 		return;
 
 // magerror
@@ -334,7 +334,7 @@ static void __fastcall hyperduel_sub_write_byte(UINT32 address, UINT8 data)
 		case 0x400001:
 		case 0x400002:
 		case 0x400003:
-			if (game_select == 0) BurnYM2151Write((address / 2) & 1, data);
+			if (game_select == 0) BurnYM2151Write(0, (address / 2) & 1, data);
 		return;
 		
 		case 0x800000:

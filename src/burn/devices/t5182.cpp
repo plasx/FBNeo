@@ -87,7 +87,7 @@ static UINT8 __fastcall t5182_port_read(UINT16 p)
 	{
 		case 0x00:
 		case 0x01:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0x20:
 			return t5182_semaphore_main | (irqstate & 2);
@@ -163,10 +163,10 @@ void t5182Init(INT32 nZ80CPU, INT32 clock)
 	ZetSetInHandler(t5182_port_read);
 	ZetClose();
 
-	BurnYM2151Init(clock);
-	BurnYM2151SetIrqHandler(&t5182YM2151IrqHandler);
-	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_1, 1.00, BURN_SND_ROUTE_LEFT);
-	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_2, 1.00, BURN_SND_ROUTE_RIGHT);
+	BurnYM2151Init(clock, 0);
+	BurnYM2151SetIrqHandler(0, &t5182YM2151IrqHandler);
+	BurnYM2151SetRoute(0, BURN_SND_YM2151_YM2151_ROUTE_1, 1.00, BURN_SND_ROUTE_LEFT);
+	BurnYM2151SetRoute(0, BURN_SND_YM2151_YM2151_ROUTE_2, 1.00, BURN_SND_ROUTE_RIGHT);
 }
 
 void t5182Exit()

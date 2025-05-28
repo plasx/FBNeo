@@ -5,6 +5,13 @@
  #define __fastcall
 #endif
 
+#ifndef M68000_INTF_H
+#define M68000_INTF_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined BUILD_A68K
  #define EMU_A68K								// Use A68K Assembler 68000 emulator
 #endif
@@ -32,8 +39,8 @@
 #endif
 
 #ifdef EMU_A68K
- extern "C" void __cdecl M68000_RUN();
- extern "C" void __cdecl M68000_RESET();
+ extern void __cdecl M68000_RUN();
+ extern void __cdecl M68000_RESET();
 #endif
 
 #ifdef EMU_A68K
@@ -49,19 +56,19 @@
 	UINT32 sfc, dfc, usp, vbr;
 	UINT32 nAsmBank, nCpuVersion;
  };
- extern "C" struct A68KContext M68000_regs;
- extern     struct A68KContext* SekRegs[SEK_MAX];
+ extern struct A68KContext M68000_regs;
+ extern struct A68KContext* SekRegs[SEK_MAX];
 
- extern "C" UINT8* OP_ROM;
- extern "C" UINT8* OP_RAM;
+ extern UINT8* OP_ROM;
+ extern UINT8* OP_RAM;
 
  void __fastcall AsekChangePc(UINT32 pc);
 #endif
 
 #ifdef EMU_M68K
- extern "C" INT32 nSekM68KContextSize[SEK_MAX];
- extern "C" INT8* SekM68KContext[SEK_MAX];
- extern "C" INT32 m68k_ICount;
+ extern INT32 nSekM68KContextSize[SEK_MAX];
+ extern INT8* SekM68KContext[SEK_MAX];
+ extern INT32 m68k_ICount;
 #endif
 
 typedef UINT8 (__fastcall *pSekReadByteHandler)(UINT32 a);
@@ -137,6 +144,7 @@ INT32 SekGetActive();
 INT32 SekShouldInterrupt(); // megadrive
 void SekBurnUntilInt();
 
+// Push/Pop the CPU state
 void SekCPUPush(INT32 nCPU);
 void SekCPUPop();
 INT32 SekCPUGetStackNum();
@@ -146,29 +154,38 @@ INT32 SekCPUGetStackNum();
 #define SEK_IRQSTATUS_AUTO  (0x2000)
 #define SEK_IRQSTATUS_ACK   (0x1000)
 
+// Define SekRegister enumeration
+typedef enum {
+    SEK_REG_D0, SEK_REG_D1, SEK_REG_D2, SEK_REG_D3,
+    SEK_REG_D4, SEK_REG_D5, SEK_REG_D6, SEK_REG_D7,
+    SEK_REG_A0, SEK_REG_A1, SEK_REG_A2, SEK_REG_A3,
+    SEK_REG_A4, SEK_REG_A5, SEK_REG_A6, SEK_REG_A7,
+    SEK_REG_PC, SEK_REG_SR, SEK_REG_SP, SEK_REG_USP,
+    SEK_REG_ISP, SEK_REG_MSP, SEK_REG_VBR
+} SekRegister;
+
 void SekSetIRQLine(const INT32 line, INT32 status);
-void SekSetIRQLine(INT32 nCPU, const INT32 line, INT32 status);
 void SekSetVIRQLine(const INT32 line, INT32 nstatus);
-void SekSetVIRQLine(INT32 nCPU, const INT32 line, INT32 status);
 
 void SekReset();
-void SekReset(INT32 nCPU);
-
 void SekRunEnd();
 void SekRunAdjust(const INT32 nCycles);
 INT32 SekRun(const INT32 nCycles);
-INT32 SekRun(INT32 nCPU, INT32 nCycles);
 void SekSetRESETLine(INT32 nStatus);
-void SekSetRESETLine(INT32 nCPU, INT32 nStatus);
 INT32 SekGetRESETLine();
-INT32 SekGetRESETLine(INT32 nCPU);
 
 void SekSetHALT(INT32 nStatus);
-void SekSetHALT(INT32 nCPU, INT32 nStatus);
 INT32 SekGetHALT();
-INT32 SekGetHALT(INT32 nCPU);
 
-INT32 SekIdle(INT32 nCPU, INT32 nCycles);
+// Fix for the conflicting SekGetPC declaration
+#ifdef UINT32_SekGetPC
+#undef UINT32_SekGetPC
+#endif
+UINT32 SekGetPC(INT32 n);
+INT32 SekDbgGetCPUType();
+INT32 SekDbgGetPendingIRQ();
+UINT32 SekDbgGetRegister(SekRegister nRegister);
+bool SekDbgSetRegister(SekRegister nRegister, UINT32 nValue);
 
 inline static INT32 SekIdle(INT32 nCycles)
 {
@@ -256,11 +273,9 @@ INT32 SekSetCmpCallback(pSekCmpCallback pCallback);
 INT32 SekSetTASCallback(pSekTASCallback pCallback);
 
 // Get a CPU's PC
-UINT32 SekGetPC(INT32 n);
 UINT32 SekGetPPC(INT32);
 
 INT32 SekScan(INT32 nAction);
-
 
 UINT8 SekCheatRead(UINT32 a); // cheat core
 
@@ -269,3 +284,9 @@ extern struct cpu_core_config SekConfig;
 // depreciate this and use BurnTimerAttach directly!
 #define BurnTimerAttachSek(clock)	\
 	BurnTimerAttach(&SekConfig, clock)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // M68000_INTF_H

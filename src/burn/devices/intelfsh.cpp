@@ -506,7 +506,7 @@ INT32 intelflash_scan(INT32 nAction, INT32 *pnMin)
 			struct flash_chip *c = &chips[i];
 
 			memset(&ba, 0, sizeof(ba));
-			sprintf (name, "Intel FLASH ROM #%d", i);
+			snprintf(name, sizeof(name), "Intel FLASH ROM #%d", i);
 			ba.Data		= (UINT8*)c->flash_memory;
 			ba.nLen		= c->size;
 			ba.szName	= name;

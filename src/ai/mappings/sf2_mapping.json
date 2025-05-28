@@ -1,0 +1,212 @@
+{
+  "game": "sf2",
+  "architecture": "CPS1",
+  "version": "1.0.0",
+  "description": "Memory mapping for Street Fighter II: The World Warrior",
+  "author": "FBNeo Team",
+  "created": "2023-06-15T12:00:00Z",
+  "updated": "2023-06-15T12:00:00Z",
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0xFF83F2",
+      "type": "byte",
+      "description": "Player 1 health",
+      "category": "health",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 176,
+      "is_signed": false,
+      "notes": "Health decreases from 176 to 0"
+    },
+    {
+      "name": "p2_health",
+      "address": "0xFF86F2",
+      "type": "byte",
+      "description": "Player 2 health",
+      "category": "health",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 176,
+      "is_signed": false,
+      "notes": "Health decreases from 176 to 0"
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0xFF83C2",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "position",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "little",
+      "is_signed": false
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0xFF83C4",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "position",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "little",
+      "is_signed": false
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0xFF86C2",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "position",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "little",
+      "is_signed": false
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0xFF86C4",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "position",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "little",
+      "is_signed": false
+    },
+    {
+      "name": "p1_character",
+      "address": "0xFF8374",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "state",
+      "player": 1,
+      "is_signed": false
+    },
+    {
+      "name": "p2_character",
+      "address": "0xFF8674",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "state",
+      "player": 2,
+      "is_signed": false
+    },
+    {
+      "name": "p1_state",
+      "address": "0xFF83BD",
+      "type": "byte",
+      "description": "Player 1 action state",
+      "category": "state",
+      "player": 1,
+      "is_signed": false,
+      "notes": "0=standing, 2=crouching, 4=jumping, etc."
+    },
+    {
+      "name": "p2_state",
+      "address": "0xFF86BD",
+      "type": "byte",
+      "description": "Player 2 action state",
+      "category": "state",
+      "player": 2,
+      "is_signed": false,
+      "notes": "0=standing, 2=crouching, 4=jumping, etc."
+    },
+    {
+      "name": "timer",
+      "address": "0xFF8ABE",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "state",
+      "player": 0,
+      "is_signed": false,
+      "notes": "Starts at 99, counts down to 0"
+    },
+    {
+      "name": "round_state",
+      "address": "0xFF8AB4",
+      "type": "byte",
+      "description": "Current state of the round",
+      "category": "state",
+      "player": 0,
+      "is_signed": false,
+      "notes": "0=not started, 4=in progress, 8=round over"
+    },
+    {
+      "name": "p1_wins",
+      "address": "0xFF8ABB",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "score",
+      "player": 1,
+      "is_signed": false
+    },
+    {
+      "name": "p2_wins",
+      "address": "0xFF8ABC",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "score",
+      "player": 2,
+      "is_signed": false
+    },
+    {
+      "name": "p1_input",
+      "address": "0xFF803E",
+      "type": "word",
+      "description": "Player 1 input state",
+      "category": "input",
+      "player": 1,
+      "endianness": "little",
+      "is_signed": false,
+      "notes": "Bit field: 0=Up, 1=Down, 2=Left, 3=Right, 4=LP, 5=MP, 6=HP, 7=LK, 8=MK, 9=HK"
+    },
+    {
+      "name": "p2_input",
+      "address": "0xFF803F",
+      "type": "word",
+      "description": "Player 2 input state",
+      "category": "input",
+      "player": 2,
+      "endianness": "little",
+      "is_signed": false,
+      "notes": "Bit field: 0=Up, 1=Down, 2=Left, 3=Right, 4=LP, 5=MP, 6=HP, 7=LK, 8=MK, 9=HK"
+    }
+  ],
+  "groups": [
+    {
+      "name": "health",
+      "description": "Health-related mappings",
+      "mappings": ["p1_health", "p2_health"]
+    },
+    {
+      "name": "position",
+      "description": "Position-related mappings",
+      "mappings": ["p1_x_position", "p1_y_position", "p2_x_position", "p2_y_position"]
+    },
+    {
+      "name": "state",
+      "description": "Game state mappings",
+      "mappings": ["p1_state", "p2_state", "timer", "round_state", "p1_character", "p2_character"]
+    },
+    {
+      "name": "input",
+      "description": "Input-related mappings",
+      "mappings": ["p1_input", "p2_input"]
+    },
+    {
+      "name": "score",
+      "description": "Score-related mappings",
+      "mappings": ["p1_wins", "p2_wins"]
+    }
+  ]
+} 

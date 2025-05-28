@@ -308,7 +308,7 @@ static int __cdecl BzipBurnLoadRom(unsigned char* Dest, int* pnWrote, int i)
 	if (pszRomName == NULL) {
 		TCHAR szTempName[100];
 		_stprintf(szTempName, _T("%s"), FBALoadStringEx(hAppInst, IDS_ERR_UNKNOWN, true));
-		sprintf(pszRomName, "%s", TCHARToANSI(szTempName, NULL, 0));
+		snprintf(pszRomName, 255, "%s", TCHARToANSI(szTempName, NULL, 0));
 	}
 
 	TCHAR szTempLoading[100];
@@ -647,7 +647,7 @@ int BzipOpen(bool bootApp)
 			}
 
 			char szHDDPath[MAX_PATH];
-			sprintf(szHDDPath, "%s%s/%s", _TtoA(szAppHDDPath), szHddFolderName, szHDDNameTmp);
+			snprintf(szHDDPath, sizeof(szHDDPath), "%s%s/%s", _TtoA(szAppHDDPath), szHddFolderName, szHDDNameTmp);
 
 			FILE *test = fopen(szHDDPath, "rb");
 			if (test) {
@@ -677,7 +677,7 @@ int BzipOpen(bool bootApp)
 			}
 
 			char szHDDPath[MAX_PATH];
-			sprintf(szHDDPath, "%s%s/%s", _TtoA(szAppHDDPath), szHddFolderName, szHDDNameTmp);
+			snprintf(szHDDPath, sizeof(szHDDPath), "%s%s/%s", _TtoA(szAppHDDPath), szHddFolderName, szHDDNameTmp);
 
 			FILE *test = fopen(szHDDPath, "rb");
 			if (test) {

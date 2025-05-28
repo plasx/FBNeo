@@ -104,14 +104,14 @@ static INT_PTR CALLBACK DialogProc(HWND hDlg, UINT Msg, WPARAM wParam, LPARAM lP
 
 		for (int i = 0; i < 16; i++) { // X - headings
 			char t[1024];
-			sprintf(t, "%X", i);
+			snprintf(t, sizeof(t), "%X", i);
 			HWND hW =
 				CreateWindowEx(0, _T("STATIC"), ANSIToTCHAR(t, NULL, 0), ES_CENTER | WS_CHILD | WS_VISIBLE | SS_NOTIFY, (i * _21) + _st, _02, _20, _20, hPaletteViewerDlg, NULL, NULL, NULL);
 			SendMessage(hW, WM_SETFONT, (LPARAM)hFont, TRUE);
 		}
 		for (int i = 0; i < 16; i++) { // Y - headings
 			char t[1024];
-			sprintf(t, "%04X0", i);
+			snprintf(t, sizeof(t), "%04X0", i);
 			hYHeadings[i] =
 				CreateWindowEx(0, _T("STATIC"), ANSIToTCHAR(t, NULL, 0), ES_LEFT | WS_CHILD | WS_VISIBLE | SS_NOTIFY, _02, (i * _21) + _21, _lh, _20, hPaletteViewerDlg, NULL, NULL, NULL);
 			SendMessage(hYHeadings[i], WM_SETFONT, (LPARAM)hFont, TRUE);

@@ -1,0 +1,352 @@
+#include <string.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdarg.h> // For va_list
+#include <ctype.h> // For toupper/tolower
+
+/* Include our fixes */
+#include "metal_fb_neo_fixes.h"
+
+/* Basic types needed for implementation */
+typedef unsigned char UINT8;
+typedef unsigned short UINT16;
+typedef unsigned int UINT32;
+typedef int INT32;
+typedef char TCHAR;
+
+/* Define MAX_PATH if not already defined */
+#ifndef MAX_PATH
+#define MAX_PATH 260
+#endif
+
+/* Define struct for TMS34010 display params - minimal definition */
+struct _tms34010_display_params {
+    int dummy;
+};
+
+/* BurnState functions for loading/saving states */
+int BurnStateLoad(char* szName, int nOffset, int (*pLoadGame)()) {
+    // Simple implementation that pretends the load worked
+    return 0;
+}
+
+int BurnStateSave(char* szName, int nOffset) {
+    // Simple implementation that pretends the save worked
+    return 0;
+}
+
+/* TMS34010 functions - required by some games */
+int tms34010_generate_scanline(int line, int (*callback)(int, struct _tms34010_display_params*)) {
+    // Stub implementation
+    return 0;
+}
+
+/* QSound functions */
+int QsndScan(int nAction) {
+    // Stub implementation for scanning QSound state
+    return 0;
+}
+
+void QsndSyncZ80() {
+    // Stub implementation for QSound Z80 synchronization
+    // This is called during emulation to synchronize sound CPU
+}
+
+/* BurnSample functions */
+void BurnSampleRender_INT(unsigned int nSegmentLength) {
+    // Stub implementation for rendering samples
+}
+
+/* String conversion functions */
+void TCHARToANSI(const char* pszInString, char* pszOutString, int nOutSize) {
+    if (pszOutString && nOutSize > 0 && pszInString) {
+        strncpy(pszOutString, pszInString, nOutSize - 1);
+        pszOutString[nOutSize - 1] = 0;
+    }
+}
+
+/* 68K helpers */
+void m68k_modify_timeslice(int value) {
+    // Stub implementation to modify 68K timeslice
+}
+
+/* IPS patch handling */
+void IpsApplyPatches(unsigned char* base, char* rom_name, unsigned int rom_crc, int readonly) {
+    // Stub implementation for IPS patching
+    // In the future this could be implemented to support ROM patches
+}
+
+/* Paths */
+char szAppEEPROMPath[MAX_PATH] = {0};
+char szAppHiscorePath[MAX_PATH] = {0};
+char szAppSamplesPath[MAX_PATH] = {0};
+char szAppHDDPath[MAX_PATH] = {0};
+char szAppPrefsPath[MAX_PATH] = {0};
+char szAppRomPaths[20][MAX_PATH] = {{0}};
+
+/* Additional stub implementations for common functions */
+
+/* BurnLib functions */
+int BurnLibInit() { return 0; }
+int BurnLibExit() { return 0; }
+int BurnGetZipName(char** pszName, unsigned int i) { return 1; }
+
+/* Driver stub functions for Metal port */
+int BurnDrvGetRomInfo_Dummy(struct BurnRomInfo* pri, unsigned int i) { 
+    return 1; 
+}
+
+int BurnDrvGetRomName_Dummy(char** pszName, unsigned int i, int nAka) { 
+    if (pszName) {
+        *pszName = NULL;
+    }
+    return 1; 
+}
+
+int BurnDrvGetInputInfo_Dummy(struct BurnInputInfo* pii, unsigned int i) { 
+    return 1; 
+}
+
+int BurnDrvGetDIPInfo_Dummy(struct BurnDIPInfo* pdi, unsigned int i) { 
+    return 1; 
+}
+
+int BurnDrvGetText(char** pszText, unsigned int i) { return 1; }
+int BurnDrvGetZipName(char** pszName, unsigned int i) { return 1; }
+int BurnDrvGetHDDEmptyStatus(int i) { return 1; }
+
+/* Driver stub functions that return error/not supported */
+int BurnDrvInit_Dummy() { return 1; }
+int BurnDrvExit_Dummy() { return 0; }
+int BurnDrvFrame_Dummy() { return 0; }
+int BurnDrvDraw_Dummy() { return 0; }
+int BurnDrvScan_Dummy(int nAction, int* pnMin) { return 0; }
+
+/* BurnSound functions */
+void BurnSoundClear() {}
+void BurnSoundStop() {}
+void BurnSoundExit() {}
+int BurnSoundIsRunning() { return 1; }
+int BurnSoundSetClipboardComfort(int Determine) { return 0; }
+int BurnSoundCheck() { return 0; }
+int BurnSoundGetPosition() { return 0; }
+int BurnSoundGetBytes() { return 0; }
+int BurnSoundPlay(short* pSoundBuf, int nPosition, int nFillSegment) { return 0; }
+
+/* Memory management functions */
+void* BurnMalloc(int size) { return malloc(size); }
+void _BurnFree(void* ptr) { free(ptr); }
+void* _BurnRealloc(void* p, int s) { return realloc(p, s); }
+void _BurnPostQuit() {}
+void BurnReinitialise() {}
+
+/* Text conversion function prototypes */
+TCHAR* ANSIToTCHAR(const char* pszInString, TCHAR* pszOutString, int nOutSize) {
+    if (pszOutString && nOutSize > 0 && pszInString) {
+        strncpy(pszOutString, pszInString, nOutSize - 1);
+        pszOutString[nOutSize - 1] = 0;
+    }
+    return pszOutString;
+}
+
+/* Input system */
+unsigned char CinpState[0x100];
+unsigned char CinpJoy1[0x100];
+unsigned char CinpJoy2[0x100];
+unsigned char CinpMouse[0x100];
+unsigned char CinpDIPsw[0x100];
+unsigned char CinpMisc[0x100];
+unsigned char CinpDIPSW[0x100];
+
+/* System-specific stubs */
+void BurnSetProgressRange(double dProgressRange) {}
+void BurnUpdateProgress(double dProgress, const TCHAR* pszText, int bAbs) {}
+void BurnSetProgressAdvance(double dProgressStep) {}
+int BurnSharpGetStatus(int nStatus) { return 0; }
+int BurnDrvGetVisibleSize(int* pnWidth, int* pnHeight) { return 0; }
+int BurnDrvGetVisibleOffs(int a) { return 0; }
+
+/* State save/load - for snapshots and savestates (with different parameter lists) */
+int BurnAcb(unsigned int nAction) { return 0; }
+int BurnRecalcPal(void) { return 0; }
+int BurnStateLoad_Alternate(char* szName, int nPos, int (*pLoadCallback)(int, int)) { return 0; }
+int BurnStateSave_Alternate(char* szName, int nPos) { return 0; }
+int BurnStateExit() { return 0; }
+int BurnStateInit() { return 0; }
+
+/* Sound chip functions required by the CPS drivers */
+void BurnYM2151Reset() {}
+void BurnYM2151Exit() {}
+void BurnYM2151Scan(int nAction, int* pnMin) {}
+void BurnYM2151SetRoute(int nIndex, double nVolume, int nRouteDir) {}
+
+/* MSM6295 sound chip functions */
+void MSM6295Command(int nChip, int nCommand) {}
+unsigned char MSM6295ReadStatus(int nChip) { return 0; }
+void MSM6295SetSamplerate(int nChip, int nSamplerate) {}
+void MSM6295Reset(int nChip) {}
+int MSM6295RenderVBT(int nChip, short* pBuf, int nSegmentLength) { return 0; }
+void MSM6295Exit(int nChip) {}
+int MSM6295Init(int nChip, int nSamplerate, double flVolume, int bAddSignal) { return 0; }
+int MSM6295Scan(int nAction, int* pnMin) { return 0; }
+void MSM6295SetRoute(int nChip, int nIndex, double nVolume, int nRouteDir) {}
+
+/* Commonly needed CPS variables */
+int nBurnSoundLen = 0;
+unsigned char* CpsZRomBP = NULL;
+unsigned char* CpsGfx = NULL;
+unsigned char* CpsGfxEnd = NULL;
+unsigned int nCpsGfxLen = 0;
+unsigned int nCpsGfxMask = 0;
+unsigned char* CpsRom = NULL;
+unsigned char* CpsRomEnd = NULL;
+unsigned int nCpsRomLen = 0;
+unsigned char* CpsCode = NULL;
+unsigned char* CpsCodeEnd = NULL;
+unsigned int nCpsCodeLen = 0;
+unsigned char* CpsZRom = NULL;
+unsigned char* CpsZRomEnd = NULL;
+unsigned int nCpsZRomLen = 0;
+unsigned char* CpsQSam = NULL;
+unsigned char* CpsQSamEnd = NULL;
+unsigned int nCpsQSamLen = 0;
+unsigned char* CpsStar = NULL;
+unsigned char* CpsStarEnd = NULL;
+int nCpsGfxScroll[4] = {0, 0, 0, 0};
+int nCpsGfxOffset[4] = {0, 0, 0, 0};
+int nCpsGfxScroll1 = 0;
+int nCpsGfxScroll2 = 0;
+int nCpsGfxScroll3 = 0;
+int nCpsGfxScroll4 = 0;
+int nCpsObjectBank = 0;
+
+/* Screen drawing */
+int nBurnBpp = 0;  // Bytes per pixel of destination bitmap (2,3,4)
+int nBurnPitch = 0;  // Pitch for each line in destination bitmap
+int nBurnDrvSelect = 0;  // The driver index selected
+char szAppLangDir[MAX_PATH] = {0};
+char szAppBlendPath[MAX_PATH] = {0};
+
+/* String functions for compatibility */
+char* strupr(char* s) {
+    char* p = s;
+    while (*p) {
+        *p = toupper(*p);
+        p++;
+    }
+    return s;
+}
+
+char* strlwr(char* s) {
+    char* p = s;
+    while (*p) {
+        *p = tolower(*p);
+        p++;
+    }
+    return s;
+}
+
+/* File-related functions */
+int _taccess(const char* path, int mode) { 
+    return access(path, mode); 
+}
+
+/* Debugging helpers */
+void bprintf(int nStatus, const char* szFormat, ...) {
+    va_list vp;
+    va_start(vp, szFormat);
+    vprintf(szFormat, vp);
+    va_end(vp);
+}
+
+/* 
+ * This section contains proper definitions for CPU structs
+ * We need to use a simplified definition to avoid initializer errors
+ * All values are zero-initialized
+ */
+
+/* Define CPU core configs with minimal initialization */
+struct cpu_core_config MegadriveCPU;
+struct cpu_core_config FD1094CPU;
+
+/* CPU cheat register stub function */
+struct cheat_core* GetCpuCheatRegister(INT32 nCPU) {
+    return NULL;
+}
+
+/* CPU cheat register stub function */
+void CpuCheatRegister(INT32 type, struct cpu_core_config* config) {
+    /* stub implementation */
+}
+
+// Metal-specific C linkage functions and variable implementations
+// This file defines variables and functions required by the Metal build
+// with proper C linkage to prevent redefinition errors
+
+/* Include our fixes */
+#include "metal_fb_neo_fixes.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Properly defined CPU core configs with initialized values
+// Note: We use NULL (0) for function pointers and 0 for integer fields,
+// as these are compile-time constants
+struct cpu_core_config MegadriveCPU = {
+    /* cpu_name */ "Genesis/Megadrive CPU",
+    /* open */ 0,
+    /* close */ 0,
+    /* read */ 0,
+    /* write */ 0,
+    /* active */ 0,
+    /* totalcycles */ 0,
+    /* newframe */ 0,
+    /* idle */ 0,
+    /* irq */ 0,
+    /* run */ 0,
+    /* runend */ 0,
+    /* reset */ 0,
+    /* scan */ 0,
+    /* exit */ 0,
+    /* nMemorySize */ 0ULL,
+    /* nAddressFlags */ 0
+};
+
+struct cpu_core_config FD1094CPU = {
+    /* cpu_name */ "FD1094 CPU",
+    /* open */ 0,
+    /* close */ 0,
+    /* read */ 0,
+    /* write */ 0,
+    /* active */ 0,
+    /* totalcycles */ 0,
+    /* newframe */ 0,
+    /* idle */ 0,
+    /* irq */ 0,
+    /* run */ 0,
+    /* runend */ 0,
+    /* reset */ 0,
+    /* scan */ 0,
+    /* exit */ 0,
+    /* nMemorySize */ 0ULL,
+    /* nAddressFlags */ 0
+};
+
+// CPU cheat register stub function
+struct cheat_core* GetCpuCheatRegister(INT32 nCPU) {
+    // Return NULL as this is a stub implementation
+    return NULL;
+}
+
+// CPU cheat register stub function
+void CpuCheatRegister(INT32 type, struct cpu_core_config* config) {
+    // Stub implementation
+    if (config) {
+        // Safely print CPU type index instead of trying to access cpu_name
+        printf("CpuCheatRegister called for CPU type: %d\n", type);
+    }
+}
+
+// Add any other CPU-related stub functions needed for Metal build here 

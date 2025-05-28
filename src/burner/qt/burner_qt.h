@@ -7,6 +7,10 @@ typedef unsigned short WORD;
 */
 typedef unsigned long DWORD;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int bDrvOkay;
 extern int bRunPause;
 extern bool bAlwaysProcessKeyboardInput;
@@ -16,11 +20,12 @@ extern int nAppVirtualFps;
 extern bool AppProcessKeyboardInput();
 extern void InpDIPSWResetDIPs (void);
 extern void IpsApplyPatches(UINT8 *, char *, bool);
-extern void IpsPatchInit()
+extern void IpsPatchInit();
 extern void Reinitialise(void);
 extern TCHAR *GetIsoPath();
-extern int VidRecalcPal();
+extern INT32 VidRecalcPal();
 extern void wav_pause(bool bResume);
+extern char* TCHARToANSI(const TCHAR* pszInString, char* pszOutString, int nOutSize);
 
 extern TCHAR szAppRomPaths[DIRS_MAX][MAX_PATH];
 // drv.cpp
@@ -39,9 +44,6 @@ bool ProgressIsRunning();
 #define ANSIToTCHAR(str, foo, bar) (str)
 #endif
 
-extern char *TCHARToANSI(const TCHAR* pszInString, char* pszOutString, int nOutSize);
-
-
 class StringSet {
 public:
     TCHAR* szText;
@@ -55,5 +57,9 @@ public:
 
 extern StringSet BzipText;
 extern StringSet BzipDetail;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -72,7 +72,10 @@ void BurnSoundTweakVolume(INT16 *sndout, INT32 len, double volume)
 		if (sample < -0x8000) clip = 1;
 		sndout[i] = BURN_SND_CLIP(sample);
 	}
-	if (clip) bprintf(0, _T("BurnSoundTweakVolume(): CLIPPING @ frame %x\n"), nCurrentFrame);
+	if (clip) {
+		static TCHAR clipMsg[] = _T("BurnSoundTweakVolume(): CLIPPING @ frame %x\n");
+		bprintf(0, clipMsg, nCurrentFrame);
+	}
 }
 
 void BurnSoundLimiter(INT16 *sndout, INT32 len, double percent, double make_up_gain)
@@ -146,3 +149,16 @@ void BurnSoundClear()
 		memset(pBurnSoundOut, 0, nBurnSoundLen * 2 * sizeof(INT16));
 	}
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+INT32 BurnSoundRender(INT16* pDst, INT32 nLen)
+{
+	// TODO: Implement or forward to the real sound rendering logic
+	// This is a stub for now, but should be replaced with the real implementation if not already present
+	return 0;
+}
+#ifdef __cplusplus
+}
+#endif

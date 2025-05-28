@@ -1,3 +1,6 @@
+#ifndef _BURN_CHEAT_H
+#define _BURN_CHEAT_H
+
 #define CHEAT_MAX_ADDRESS (512)
 #define CHEAT_MAX_OPTIONS (512)
 #define CHEAT_MAX_NAME	  (128)
@@ -78,3 +81,5 @@ bool WriteValueAtHardwareAddress(HWAddressType address, unsigned int value, unsi
 bool WriteValueAtHardwareAddress_audio(HWAddressType address, unsigned int value, unsigned int size, int isLittleEndian);
 
 bool IsHardwareAddressValid(HWAddressType address);
+
+#endif // _BURN_CHEAT_H

@@ -1,6 +1,10 @@
 #ifndef TMS34010_INTF_H
 #define TMS34010_INTF_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include "tms34/tms34010.h"
 
@@ -66,4 +70,7 @@ register defines: (from tms34/tms34010.h)
 void TMS34010HostWrite(INT32 reg, UINT16 data);
 UINT16 TMS34010HostRead(INT32 reg);
 
+#ifdef __cplusplus
+}
+#endif
 #endif // TMS34010_INTF_H

@@ -85,7 +85,19 @@ private:
 
 };
 
+} // namespace ide
+
+// C-compatible interface functions for use from C code
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Add any extern "C" function declarations here if needed
+// Example: void IDE_Reset(int device_index);
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif // IDE
 

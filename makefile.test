@@ -1,0 +1,62 @@
+# Simple test makefile
+CC = clang
+CXX = clang++
+OBJC = clang
+
+# Include paths
+INCLUDES = -Isrc/dep/generated -Isrc -Isrc/burn -Isrc/burn/devices -Isrc/burn/snd \
+          -Isrc/burn/drv -Isrc/burn/drv/capcom -Isrc/burner -Isrc/burner/metal \
+          -Isrc/burner/metal/app -Isrc/burner/metal/fixes -Isrc/cpu -Isrc/cpu/m68k \
+          -Isrc/cpu/z80 -Isrc/intf/video -Isrc/intf/audio -Isrc/intf/input \
+          -I/opt/homebrew/include -Isrc/burn/cpu_generated -Isrc/burner/metal/ai \
+          -Isrc/burner/metal/input -Isrc/burner/metal/audio -Isrc/burner/metal/renderer \
+          -Isrc/ai -Isrc/burner/metal/tests
+
+# Flags
+CFLAGS = -g -O2 -Wall $(INCLUDES) -DMETAL_BUILD -fcommon -Wno-everything
+CXXFLAGS = -g -O2 -Wall $(INCLUDES) -DMETAL_BUILD -fcommon -Wno-everything -std=c++17 \
+           -Wno-deprecated-declarations -Wno-writable-strings -Wno-c++11-narrowing \
+           -Wno-missing-braces -Wno-incompatible-pointer-types -fpermissive
+OBJCFLAGS = -g -O2 -Wall $(INCLUDES) -DMETAL_BUILD -fcommon -Wno-everything -fobjc-arc
+
+# Libraries and frameworks
+LDFLAGS = -framework Metal -framework MetalKit -framework Cocoa -framework CoreGraphics \
+          -framework CoreML -lz -lstdc++
+
+# Target
+TARGET = test_fbneo_metal
+
+# Object files
+STUBS_OBJ = build/test/metal_stubs.o
+MAIN_OBJ = build/test/metal_main.o
+BRIDGE_OBJ = build/test/metal_test_bridge.o
+OBJS = $(STUBS_OBJ) $(MAIN_OBJ) $(BRIDGE_OBJ)
+
+all: $(TARGET)
+
+# Create build directory
+build/test:
+	mkdir -p build/test
+
+# Compile metal_stubs.c as C++
+$(STUBS_OBJ): src/burner/metal/metal_stubs.c | build/test
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compile metal_main.mm as Objective-C++
+$(MAIN_OBJ): src/burner/metal/metal_main.mm | build/test
+	$(OBJC) $(OBJCFLAGS) -c $< -o $@
+
+# Compile metal_test_bridge.cpp as C++
+$(BRIDGE_OBJ): src/burner/metal/metal_test_bridge.cpp | build/test
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Link test binary
+$(TARGET): $(OBJS)
+	$(CXX) -o $@ $(OBJS) $(LDFLAGS)
+	@echo "Build complete: $(TARGET)"
+
+clean:
+	rm -rf build/test
+	rm -f $(TARGET)
+
+.PHONY: all clean 

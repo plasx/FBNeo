@@ -220,7 +220,7 @@ static void tceptor_m6502_0_write(UINT16 address, UINT8 data)
 	{
 		case 0x2000:
 		case 0x2001:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0x3c01:
@@ -231,14 +231,7 @@ static void tceptor_m6502_0_write(UINT16 address, UINT8 data)
 
 static UINT8 tceptor_m6502_0_read(UINT16 address)
 {
-	switch (address)
-	{
-		case 0x2000:
-		case 0x2001:
-			return BurnYM2151Read();
-	}
-
-	return 0;
+	return BurnYM2151Read(0);
 }
 
 static void tceptor_m6502_1_write(UINT16 address, UINT8 data)

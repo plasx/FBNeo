@@ -571,7 +571,7 @@ static void __fastcall wecleman_sound_write(UINT16 address, UINT8 data)
 
 		case 0xc000:
 		case 0xc001:
-			BurnYM2151Write(address, data);
+			BurnYM2151Write(0, address, data);
 		return;
 
 		case 0xf000:

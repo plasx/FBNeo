@@ -302,3 +302,13 @@ void BurnPaletteWrite_RRRGGGBB_inverted(INT32 offset)
 {
 	palette_write_8bit(offset, 3, 3, 2, 5, 2, 0, 1);
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+UINT32* GetPalettePtr() {
+    return pBurnDrvPalette;
+}
+#ifdef __cplusplus
+}
+#endif

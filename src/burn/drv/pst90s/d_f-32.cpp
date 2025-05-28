@@ -65,7 +65,7 @@ static void f32_io_write(UINT32 port, UINT32 data)
 
 		case 0x6800:
 		case 0x6810:
-			BurnYM2151Write((port / 0x10) & 1, data);
+			BurnYM2151Write(0, (port / 0x10) & 1, data);
 		return;
 
 		case 0x7000:

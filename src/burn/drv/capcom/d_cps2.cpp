@@ -1,7 +1,6 @@
 #include "cps.h"
 #include "burn_gun.h" // ecofght optional spinner dev.
 #include "bitswap.h"
-
 // Input Definitions
 
 static struct BurnInputInfo Cps2FightingInputList[] = {
@@ -34,8 +33,6 @@ static struct BurnInputInfo Cps2FightingInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 7" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 8" },
 };
 
 STDINPUTINFO(Cps2Fighting)
@@ -70,9 +67,6 @@ static struct BurnInputInfo Sfz3mixInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 7" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 8" },
-	{"Dip A"            , BIT_DIPSWITCH, &AspectDIP , "dip"       },
 };
 
 STDINPUTINFO(Sfz3mix)
@@ -113,8 +107,6 @@ static struct BurnInputInfo NineXXInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 3" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 4" },
 };
 
 STDINPUTINFO(NineXX)
@@ -141,8 +133,6 @@ static struct BurnInputInfo Nine44InputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 3" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 4" },
 };
 
 STDINPUTINFO(Nine44)
@@ -181,8 +171,6 @@ static struct BurnInputInfo ArmwarInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Armwar)
@@ -221,8 +209,6 @@ static struct BurnInputInfo AvspInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Avsp)
@@ -267,8 +253,6 @@ static struct BurnInputInfo BatcirInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 3" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 4" },
 };
 
 STDINPUTINFO(Batcir)
@@ -289,8 +273,6 @@ static struct BurnInputInfo ChokoInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Choko)
@@ -319,8 +301,6 @@ static struct BurnInputInfo CsclubInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Csclub)
@@ -351,8 +331,6 @@ static struct BurnInputInfo CybotsInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 5" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 6" },
 };
 
 STDINPUTINFO(Cybots)
@@ -405,8 +383,6 @@ static struct BurnInputInfo DdsomInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 5" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 6" },
 };
 
 STDINPUTINFO(Ddsom)
@@ -460,8 +436,6 @@ static struct BurnInputInfo DdtodInputList[] =
 	{"Reset"            , BIT_DIGITAL  , &CpsReset,   "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 5" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 6" },
 };
 
 STDINPUTINFO(Ddtod)
@@ -490,8 +464,6 @@ static struct BurnInputInfo DimahooInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Dimahoo)
@@ -684,19 +656,19 @@ static void ProcessAnalogInputs() {
 	}
 
 	BurnTrackballConfig(0, AXIS_NORMAL, AXIS_NORMAL);
-	BurnTrackballFrame(0, Analog[4], Analog[5], 0x00, 0xff);
+	BurnTrackballFrame(0, Analog[4], Analog[5], 0x00, 0xff, 0);
 	BurnTrackballUpdate(0);
 
-	nDial055 += BurnTrackballReadSigned(0) * 4;
-	nDial05d += BurnTrackballReadSigned(1) * 4;
-	if (BurnTrackballReadSigned(0) != 0) {
+	nDial055 += BurnTrackballReadSigned(0, 0) * 4;
+	nDial05d += BurnTrackballReadSigned(0, 1) * 4;
+	if (BurnTrackballReadSigned(0, 0) != 0) {
 		nDial055_dir = BurnTrackballGetDirection(0) > 0;
 	}
-	if (BurnTrackballReadSigned(1) != 0) {
+	if (BurnTrackballReadSigned(0, 1) != 0) {
 		nDial055_dir = BurnTrackballGetDirection(1) > 0;
 	}
-
-	BurnTrackballReadReset();
+	BurnTrackballReadReset(0, 0);
+	BurnTrackballReadReset(0, 1);
 }
 
 static void SuperJoy2Rotate() {
@@ -820,8 +792,6 @@ static struct BurnInputInfo EcofghtrInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 	{"Dip A"            , BIT_DIPSWITCH, &fFakeDip  , "dip"      },
 };
 
@@ -882,8 +852,6 @@ static struct BurnInputInfo Ffightaec2InputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Ffightaec2)
@@ -910,8 +878,6 @@ static struct BurnInputInfo GigawingInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 3" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 4" },
 };
 
 STDINPUTINFO(Gigawing)
@@ -929,8 +895,6 @@ static struct BurnInputInfo JyangokuInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 3" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 4" },
 };
 
 STDINPUTINFO(Jyangoku)
@@ -959,8 +923,6 @@ static struct BurnInputInfo Megaman2InputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Megaman2)
@@ -989,8 +951,6 @@ static struct BurnInputInfo Mmancp2uInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Mmancp2u)
@@ -1015,8 +975,6 @@ static struct BurnInputInfo MmatrixInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 2" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 3" },
 };
 
 STDINPUTINFO(Mmatrix)
@@ -1043,8 +1001,6 @@ static struct BurnInputInfo MpangInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 3" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 4" },
 };
 
 STDINPUTINFO(Mpang)
@@ -1073,8 +1029,6 @@ static struct BurnInputInfo ProgearInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Progear)
@@ -1103,8 +1057,6 @@ static struct BurnInputInfo Pzloop2InputList[] = {
 	{"Reset"            , BIT_DIGITAL   , &CpsReset     , "reset"       },
 	{"Diagnostic"       , BIT_DIGITAL   , CpsInp021+1   , "diag"        },
 	{"Service"          , BIT_DIGITAL   , CpsInp021+2   , "service"     },
-	{"Volume Up"        , BIT_DIGITAL   , &Cps2VolUp    , "p1 fire 2"   },
-	{"Volume Down"      , BIT_DIGITAL   , &Cps2VolDwn   , "p1 fire 3"   },
 };
 
 #undef A
@@ -1129,8 +1081,6 @@ static struct BurnInputInfo QndreamInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset,   "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 5" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 6" },
 };
 
 STDINPUTINFO(Qndream)
@@ -1165,8 +1115,6 @@ static struct BurnInputInfo RingdestInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 7" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 8" },
 };
 
 STDINPUTINFO(Ringdest)
@@ -1195,8 +1143,6 @@ static struct BurnInputInfo SgemfInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 4" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 5" },
 };
 
 STDINPUTINFO(Sgemf)
@@ -1223,8 +1169,6 @@ static struct BurnInputInfo Spf2tInputList[] = {
 	{"Reset"            , BIT_DIGITAL  , &CpsReset  , "reset"     },
 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp021+1, "diag"      },
 	{"Service"          , BIT_DIGITAL  , CpsInp021+2, "service"   },
-	{"Volume Up"        , BIT_DIGITAL  , &Cps2VolUp , "p1 fire 3" },
-	{"Volume Down"      , BIT_DIGITAL  , &Cps2VolDwn, "p1 fire 4" },
 };
 
 STDINPUTINFO(Spf2t)

@@ -1,25 +1,38 @@
-#include "cps.h"
+#include "burnint.h"
+#include "m68000_intf.h"
+#include "z80_intf.h"
+
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
+
 // CPS (general)
 
 INT32 Cps = 0;							// 1 = CPS1, 2 = CPS2, 3 = CPS Changer
 INT32 Cps1Qs = 0;
-INT32 Cps1DisablePSnd = 0;				// Disables the Z80 as well
 INT32 Cps2DisableQSnd = 0;				// Disables the Z80 as well
 
 INT32 nCPS68KClockspeed = 0;
 INT32 nCpsCycles = 0;						// 68K Cycles per frame
-INT32	nCpsZ80Cycles;
+INT32	nCpsZ80Cycles = 0;
 
-UINT8 *CpsGfx =NULL; UINT32 nCpsGfxLen =0; // All the graphics
-UINT8 *CpsRom =NULL; UINT32 nCpsRomLen =0; // Program Rom (as in rom)
-UINT8 *CpsCode=NULL; UINT32 nCpsCodeLen=0; // Program Rom (decrypted)
-UINT8 *CpsZRom=NULL; UINT32 nCpsZRomLen=0; // Z80 Roms
-INT8 *CpsQSam=NULL; UINT32 nCpsQSamLen=0;	// QSound Sample Roms
-UINT8 *CpsAd  =NULL; UINT32 nCpsAdLen  =0; // ADPCM Data
-UINT8 *CpsStar=NULL;
-UINT8 *CpsKey=NULL; UINT32 nCpsKeyLen = 0;
+UINT8 *CpsGfx=NULL;        UINT32 nCpsGfxLen=0;
+UINT8 *CpsRom=NULL;        UINT32 nCpsRomLen=0;
+UINT8 *CpsCode=NULL;       UINT32 nCpsCodeLen=0;
+UINT8 *CpsZRom=NULL;       UINT32 nCpsZRomLen=0;
+UINT8 *CpsQSam=NULL;       UINT32 nCpsQSamLen=0;       // QSound Sample Roms
+UINT8 *CpsAd=NULL;         UINT32 nCpsAdLen=0;         // ADPCM data
+UINT8 *CpsStar=NULL;       UINT32 nCpsStarLen=0;
+UINT8 *CpsKey=NULL;        UINT32 nCpsKeyLen = 0;
+
+// These are defined in cps_fixes.h for Metal builds
+#ifndef USE_METAL_FIXES
 UINT32 nCpsGfxScroll[4]={0,0,0,0}; // Offset to Scroll tiles
+#endif
+
 UINT32 nCpsGfxMask=0;	  // Address mask
+
+UINT8 *CpsText=NULL;       UINT32 nCpsTextLen=0;
 
 // Separate out the bits of a byte
 inline static UINT32 Separate(UINT32 b)
@@ -2278,7 +2291,7 @@ INT32 CpsInit()
 	} else {
 		CpsZRom = CpsCode + nCpsCodeLen;
 	}
-	CpsQSam =(INT8*)(CpsZRom + nCpsZRomLen);
+	CpsQSam =(UINT8*)(CpsZRom + nCpsZRomLen);
 	CpsAd   =(UINT8*)(CpsQSam + nCpsQSamLen);
 	CpsKey  =(UINT8*)(CpsAd + nCpsAdLen);
 
@@ -2376,3 +2389,7 @@ INT32 CpsExit()
 
 	return 0;
 }
+
+INT32 CpsBID[3] = {0};
+INT32 CpsMProt[4] = {0};
+INT32 Cps1DisablePSnd = 0;

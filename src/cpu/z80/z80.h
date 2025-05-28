@@ -1,6 +1,16 @@
 #ifndef _Z80_H_
 #define _Z80_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Define __fastcall as empty for platforms that don't support it
+#if defined(__APPLE__) || defined(__aarch64__) || defined(__arm64__)
+#undef __fastcall
+#define __fastcall
+#endif
+
 #define	CPUINFO_PTR_CPU_SPECIFIC	0x18000
 #define Z80_CLEAR_LINE		0
 #define Z80_ASSERT_LINE		1
@@ -68,171 +78,37 @@ enum
 	CPUINFO_PTR_Z80_CYCLE_TABLE_LAST = CPUINFO_PTR_Z80_CYCLE_TABLE + Z80_TABLE_ex
 };
 
-void Z80Init();
-void Z80InitContention(int is_on_type, void (*rastercallback)(int));
-void Z80Contention_set_bank(int bankno);
-void Z80Reset();
-void Z80Exit();
-int  Z80Execute(int cycles);
-void Z80Burn(int cycles);
-void Z80SetIrqLine(int irqline, int state);
-void Z80GetContext (void *dst);
-void Z80SetContext (void *src);
-int Z80Scan(int nAction);
-INT32 z80TotalCycles();
-INT32 z80TstateCounter();
-void Z80StopExecute();
-void z80_set_spectrum_tape_callback(int (*tape_cb)());
-void z80_set_cycle_tables_msx();
-void z80_set_cycle_tables(const UINT8 *op, const UINT8 *cb, const UINT8 *ed, const UINT8 *xy, const UINT8 *xycb, const UINT8 *ex);
+extern void Z80Init();
+extern void Z80InitContention(int is_on_type, void (*rastercallback)(int));
+extern void Z80Contention_set_bank(int bankno);
+extern void Z80Reset();
+extern void Z80Exit();
+extern int Z80Execute(int cycles);
+extern void Z80Burn(int cycles);
+extern void Z80SetIRQLine(int irqline, int state);
+extern void Z80GetContext(void *pcontext);
+extern void Z80SetContext(void *pcontext);
+extern int Z80GetPC();
+extern void Z80Scan(int nAction);
+extern unsigned char Z80ReadByte(unsigned short address);
+extern void Z80WriteByte(unsigned short address, unsigned char data);
+extern unsigned char Z80ReadIO(unsigned short port);
+extern void Z80WriteIO(unsigned short port, unsigned char data);
+extern unsigned char Z80ReadCheat(unsigned short address);
+extern void Z80WriteCheat(unsigned short address, unsigned char data);
+extern void Z80SetIOReadHandler(unsigned char (*pread)(unsigned short));
+extern void Z80SetIOWriteHandler(void (*pwrite)(unsigned short, unsigned char));
+extern void Z80SetProgramReadHandler(unsigned char (*pread)(unsigned short));
+extern void Z80SetProgramWriteHandler(void (*pwrite)(unsigned short, unsigned char));
+extern void Z80SetCPUOpReadHandler(unsigned char (*pread)(unsigned short));
+extern void Z80SetCPUOpArgReadHandler(unsigned char (*pread)(unsigned short));
 
-extern unsigned char Z80Vector;
-extern void (*z80edfe_callback)(Z80_Regs *Regs);
-extern int z80_ICount;
-extern UINT32 EA;
+extern int nZ80ICount, nZ80Cycles;
+extern unsigned char **Z80CPUContext;
 
-typedef unsigned char (__fastcall *Z80ReadIoHandler)(unsigned int a);
-typedef void (__fastcall *Z80WriteIoHandler)(unsigned int a, unsigned char v);
-typedef unsigned char (__fastcall *Z80ReadProgHandler)(unsigned int a);
-typedef void (__fastcall *Z80WriteProgHandler)(unsigned int a, unsigned char v);
-typedef unsigned char (__fastcall *Z80ReadOpHandler)(unsigned int a);
-typedef unsigned char (__fastcall *Z80ReadOpArgHandler)(unsigned int a);
-
-void Z80SetIOReadHandler(Z80ReadIoHandler handler);
-void Z80SetIOWriteHandler(Z80WriteIoHandler handler);
-void Z80SetProgramReadHandler(Z80ReadProgHandler handler);
-void Z80SetProgramWriteHandler(Z80WriteProgHandler handler);
-void Z80SetCPUOpReadHandler(Z80ReadOpHandler handler);
-void Z80SetCPUOpArgReadHandler(Z80ReadOpArgHandler handler);
-
-void ActiveZ80SetPC(int pc);
-int ActiveZ80GetPC();
-int ActiveZ80GetAF();
-int ActiveZ80GetAF2();
-void ActiveZ80SetAF2(int af2);
-int ActiveZ80GetBC();
-int ActiveZ80GetDE();
-int ActiveZ80GetHL();
-int ActiveZ80GetLastOp();
-int ActiveZ80GetI();
-int ActiveZ80GetR();
-int ActiveZ80GetIX();
-int ActiveZ80GetIM();
-int ActiveZ80GetSP();
-int ActiveZ80GetPrevPC();
-void ActiveZ80SetCarry(int carry);
-int ActiveZ80GetCarry();
-int ActiveZ80GetCarry2();
-void ActiveZ80EXAF();
-int ActiveZ80GetPOP();
-int ActiveZ80GetA();
-void ActiveZ80SetA(int a);
-int ActiveZ80GetF();
-void ActiveZ80SetF(int f);
-int ActiveZ80GetIFF1();
-int ActiveZ80GetIFF2();
-void ActiveZ80SetDE(int de);
-void ActiveZ80SetHL(int hl);
-void ActiveZ80SetIX(int ix);
-void ActiveZ80SetSP(int sp);
-
-void ActiveZ80SetIRQHold();
-int ActiveZ80GetVector();
-void ActiveZ80SetVector(INT32 vector);
-
-#define MAX_CMSE	9	//Maximum contended memory script elements
-#define MAX_RWINFO	6	//Maximum reads/writes per opcode
-#define MAX_CM_SCRIPTS 37
-
-enum CMSE_TYPES
-{
-	CMSE_TYPE_MEMORY,
-	CMSE_TYPE_IO_PORT,
-	CMSE_TYPE_IR_REGISTER,
-	CMSE_TYPE_BC_REGISTER,
-	CMSE_TYPE_UNCONTENDED
-};
-
-enum ULA_VARIANT_TYPES
-{
-	ULA_VARIANT_NONE,
-	ULA_VARIANT_SINCLAIR,
-	ULA_VARIANT_AMSTRAD
-};
-
-enum RWINFO_FLAGS
-{
-	RWINFO_READ      = 0x01,
-	RWINFO_WRITE     = 0x02,
-	RWINFO_IO_PORT   = 0x04,
-	RWINFO_MEMORY    = 0x08,
-	RWINFO_PROCESSED = 0x10
-};
-
-typedef struct ContendedMemoryScriptElement
-{
-	int	rw_ix;
-	int	inst_cycles;
-	int     type;
-	int	multiplier;
-	bool	is_optional;
-}CMSE;
-
-typedef struct ContendedMemoryScriptBreakdown
-{
-	CMSE elements[MAX_CMSE];
-	int  number_of_elements;
-	int  inst_cycles_mandatory;
-	int  inst_cycles_optional;
-	int  inst_cycles_total;
-}CM_SCRIPT_BREAKDOWN;
-
-typedef struct ContendedMemoryScriptDescription
-{
-	const char*		sinclair;
-	const char*		amstrad;
-}CM_SCRIPT_DESCRIPTION;
-
-typedef struct ContendedMemoryScript
-{
-	int 			id;
-	const char*		desc;
-	CM_SCRIPT_BREAKDOWN	breakdown;
-}CM_SCRIPT;
-
-typedef struct MemoryReadWriteInformation
-{
-	UINT16   addr;
-	UINT8    val;
-        UINT16   flags;
-	const char *dbg;
-} RWINFO;
-
-typedef struct OpcodeHistory
-{
-	bool     capturing;
-	RWINFO   rw[MAX_RWINFO];
-	int      rw_count;
-	int      tstate_start;
-	UINT16 register_ir;
-	UINT16 register_bc;
-
-	int 	 uncontended_cycles_predicted;
-	int      uncontended_cycles_eaten;
-	bool     do_optional;
-
-	CM_SCRIPT           *script;
-	CM_SCRIPT_BREAKDOWN *breakdown;
-	int                 element;
-}OPCODE_HISTORY;
-
-enum CYCLES_TYPE
-{
-	CYCLES_ISR,		// Cycles eaten when processing interrupts
-	CYCLES_EXEC,		// Cycles eaten when the EXEC() macro is called
-	CYCLES_CONTENDED,	// Contended cycles eaten when processing opcode history (specz80_device only)
-	CYCLES_UNCONTENDED	// Uncontended cycles eaten when processing opcode history (specz80_device only)
-};
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* _Z80_H_ */
 

@@ -292,7 +292,7 @@ static UINT8 __fastcall bionicc_sound_read(UINT16 address)
 	switch (address)
 	{
 		case 0x8001:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0xa000:
 			return mcu_to_audiocpu;
@@ -307,7 +307,7 @@ static void __fastcall bionicc_sound_write(UINT16 address, UINT8 data)
 	{
 		case 0x8000:
 		case 0x8001:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0xa000:

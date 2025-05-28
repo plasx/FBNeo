@@ -1002,7 +1002,7 @@ void AY8910Scan(INT32 nAction, INT32* pnMin)
 	for (i = 0; i < num; i++) {
 		char szName[32];
 
-		sprintf(szName, "AY8910 #%d", i);
+		snprintf(szName, sizeof(szName), "AY8910 #%d", i);
 
 		ba.Data		= &AYPSG[i];
 		ba.nLen		= STRUCT_SIZE_HELPER(struct AY8910, RNG);

@@ -1,0 +1,420 @@
+{
+  "game_name": "kof2002",
+  "architecture": "NEOGEO",
+  "version": "1.0",
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0x108340",
+      "type": "word",
+      "description": "Player 1 health",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 0.00970873786408
+    },
+    {
+      "name": "p2_health",
+      "address": "0x108540",
+      "type": "word",
+      "description": "Player 2 health",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 0.00970873786408
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0x108308",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "player1",
+      "scale": 0.01
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0x10830C",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "player1",
+      "scale": 0.01
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0x108508",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "player2",
+      "scale": 0.01
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0x10850C",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "player2",
+      "scale": 0.01
+    },
+    {
+      "name": "p1_power_gauge",
+      "address": "0x10834A",
+      "type": "word",
+      "description": "Player 1 power gauge",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 5000,
+      "scale": 0.0002
+    },
+    {
+      "name": "p2_power_gauge",
+      "address": "0x10854A",
+      "type": "word",
+      "description": "Player 2 power gauge",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 5000,
+      "scale": 0.0002
+    },
+    {
+      "name": "p1_current_character",
+      "address": "0x10A84C",
+      "type": "byte",
+      "description": "Player 1 current character (1, 2, or 3)",
+      "category": "player1",
+      "min_value": 1,
+      "max_value": 3,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_current_character",
+      "address": "0x10A84D",
+      "type": "byte",
+      "description": "Player 2 current character (1, 2, or 3)",
+      "category": "player2",
+      "min_value": 1,
+      "max_value": 3,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_character1_id",
+      "address": "0x10A800",
+      "type": "byte",
+      "description": "Player 1 character 1 ID",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 66,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_character2_id",
+      "address": "0x10A801",
+      "type": "byte",
+      "description": "Player 1 character 2 ID",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 66,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_character3_id",
+      "address": "0x10A802",
+      "type": "byte",
+      "description": "Player 1 character 3 ID",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 66,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_character1_id",
+      "address": "0x10A810",
+      "type": "byte",
+      "description": "Player 2 character 1 ID",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 66,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_character2_id",
+      "address": "0x10A811",
+      "type": "byte",
+      "description": "Player 2 character 2 ID",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 66,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_character3_id",
+      "address": "0x10A812",
+      "type": "byte",
+      "description": "Player 2 character 3 ID",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 66,
+      "scale": 1.0
+    },
+    {
+      "name": "timer",
+      "address": "0x10A8AA",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 99,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_state",
+      "address": "0x108318",
+      "type": "word",
+      "description": "Player 1 animation state",
+      "category": "player1",
+      "scale": 1.0
+    },
+    {
+      "name": "p2_state",
+      "address": "0x108518",
+      "type": "word",
+      "description": "Player 2 animation state",
+      "category": "player2",
+      "scale": 1.0
+    },
+    {
+      "name": "p1_guard_crush",
+      "address": "0x108354",
+      "type": "word",
+      "description": "Player 1 guard crush meter",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 100,
+      "scale": 0.01
+    },
+    {
+      "name": "p2_guard_crush",
+      "address": "0x108554",
+      "type": "word",
+      "description": "Player 2 guard crush meter",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 100,
+      "scale": 0.01
+    },
+    {
+      "name": "p1_max_mode",
+      "address": "0x108364",
+      "type": "byte",
+      "description": "Player 1 MAX mode active",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_max_mode",
+      "address": "0x108564",
+      "type": "byte",
+      "description": "Player 2 MAX mode active",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_max_timer",
+      "address": "0x108366",
+      "type": "word",
+      "description": "Player 1 MAX mode timer",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 900,
+      "scale": 0.00111111111
+    },
+    {
+      "name": "p2_max_timer",
+      "address": "0x108566",
+      "type": "word",
+      "description": "Player 2 MAX mode timer",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 900,
+      "scale": 0.00111111111
+    },
+    {
+      "name": "p1_x_velocity",
+      "address": "0x108310",
+      "type": "word",
+      "description": "Player 1 X velocity",
+      "category": "player1",
+      "scale": 0.01
+    },
+    {
+      "name": "p1_y_velocity",
+      "address": "0x108314",
+      "type": "word",
+      "description": "Player 1 Y velocity",
+      "category": "player1",
+      "scale": 0.01
+    },
+    {
+      "name": "p2_x_velocity",
+      "address": "0x108510",
+      "type": "word",
+      "description": "Player 2 X velocity",
+      "category": "player2",
+      "scale": 0.01
+    },
+    {
+      "name": "p2_y_velocity",
+      "address": "0x108514",
+      "type": "word",
+      "description": "Player 2 Y velocity",
+      "category": "player2",
+      "scale": 0.01
+    },
+    {
+      "name": "stage_id",
+      "address": "0x10A870",
+      "type": "byte",
+      "description": "Current stage ID",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 15,
+      "scale": 1.0
+    },
+    {
+      "name": "game_state",
+      "address": "0x10A882",
+      "type": "byte",
+      "description": "Current game state",
+      "category": "game_state",
+      "scale": 1.0
+    },
+    {
+      "name": "round_number",
+      "address": "0x10A8A8",
+      "type": "byte",
+      "description": "Current round number",
+      "category": "game_state",
+      "min_value": 1,
+      "max_value": 5,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_wins",
+      "address": "0x10A8A4",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 3,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_wins",
+      "address": "0x10A8A6",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 3,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_striker_stock",
+      "address": "0x108368",
+      "type": "byte",
+      "description": "Player 1 striker calls remaining",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 3,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_striker_stock",
+      "address": "0x108568",
+      "type": "byte",
+      "description": "Player 2 striker calls remaining",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 3,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_active_character_health",
+      "address": "0x108340",
+      "type": "word",
+      "description": "Player 1 active character health",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 0.00970873786408
+    },
+    {
+      "name": "p2_active_character_health",
+      "address": "0x108540",
+      "type": "word",
+      "description": "Player 2 active character health",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 0.00970873786408
+    }
+  ],
+  "groups": [
+    {
+      "name": "player1",
+      "mappings": [
+        "p1_health",
+        "p1_x_position",
+        "p1_y_position",
+        "p1_power_gauge",
+        "p1_current_character",
+        "p1_character1_id",
+        "p1_character2_id",
+        "p1_character3_id",
+        "p1_state",
+        "p1_guard_crush",
+        "p1_max_mode",
+        "p1_max_timer",
+        "p1_x_velocity",
+        "p1_y_velocity",
+        "p1_striker_stock",
+        "p1_active_character_health"
+      ]
+    },
+    {
+      "name": "player2",
+      "mappings": [
+        "p2_health",
+        "p2_x_position",
+        "p2_y_position",
+        "p2_power_gauge",
+        "p2_current_character",
+        "p2_character1_id",
+        "p2_character2_id",
+        "p2_character3_id",
+        "p2_state",
+        "p2_guard_crush",
+        "p2_max_mode",
+        "p2_max_timer",
+        "p2_x_velocity",
+        "p2_y_velocity",
+        "p2_striker_stock",
+        "p2_active_character_health"
+      ]
+    },
+    {
+      "name": "game_state",
+      "mappings": [
+        "timer",
+        "stage_id",
+        "game_state",
+        "round_number",
+        "p1_wins",
+        "p2_wins"
+      ]
+    }
+  ]
+} 

@@ -1,0 +1,293 @@
+{
+  "game": "kof98",
+  "architecture": "Neo-Geo",
+  "version": "1.0.0",
+  "description": "Memory mapping for The King of Fighters '98",
+  "author": "FBNeo Team",
+  "created": "2023-06-16T12:00:00Z",
+  "updated": "2023-06-16T12:00:00Z",
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0x10843C",
+      "type": "word",
+      "description": "Player 1 health",
+      "category": "health",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 103,
+      "endianness": "big",
+      "is_signed": false,
+      "notes": "Health decreases from 103 to 0"
+    },
+    {
+      "name": "p2_health",
+      "address": "0x10883C",
+      "type": "word",
+      "description": "Player 2 health",
+      "category": "health",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 103,
+      "endianness": "big",
+      "is_signed": false,
+      "notes": "Health decreases from 103 to 0"
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0x108404",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "position",
+      "player": 1,
+      "scale": 0.125,
+      "offset": 0.0,
+      "endianness": "big",
+      "is_signed": false
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0x108408",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "position",
+      "player": 1,
+      "scale": 0.125,
+      "offset": 0.0,
+      "endianness": "big",
+      "is_signed": false
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0x108804",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "position",
+      "player": 2,
+      "scale": 0.125,
+      "offset": 0.0,
+      "endianness": "big",
+      "is_signed": false
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0x108808",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "position",
+      "player": 2,
+      "scale": 0.125,
+      "offset": 0.0,
+      "endianness": "big",
+      "is_signed": false
+    },
+    {
+      "name": "p1_character",
+      "address": "0x108173",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "state",
+      "player": 1,
+      "is_signed": false,
+      "notes": "Character ID for the active fighter"
+    },
+    {
+      "name": "p2_character",
+      "address": "0x108573",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "state",
+      "player": 2,
+      "is_signed": false,
+      "notes": "Character ID for the active fighter"
+    },
+    {
+      "name": "p1_state",
+      "address": "0x108172",
+      "type": "byte",
+      "description": "Player 1 action state",
+      "category": "state",
+      "player": 1,
+      "is_signed": false,
+      "notes": "Various action states (standing, jumping, attacking, etc.)"
+    },
+    {
+      "name": "p2_state",
+      "address": "0x108572",
+      "type": "byte",
+      "description": "Player 2 action state",
+      "category": "state",
+      "player": 2,
+      "is_signed": false,
+      "notes": "Various action states (standing, jumping, attacking, etc.)"
+    },
+    {
+      "name": "p1_power_gauge",
+      "address": "0x108428",
+      "type": "word",
+      "description": "Player 1 power gauge",
+      "category": "meter",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 128,
+      "endianness": "big",
+      "is_signed": false,
+      "notes": "Power meter increases from 0 to 128 for MAX mode activation"
+    },
+    {
+      "name": "p2_power_gauge",
+      "address": "0x108828",
+      "type": "word",
+      "description": "Player 2 power gauge",
+      "category": "meter",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 128,
+      "endianness": "big",
+      "is_signed": false,
+      "notes": "Power meter increases from 0 to 128 for MAX mode activation"
+    },
+    {
+      "name": "timer",
+      "address": "0x10E403",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "state",
+      "player": 0,
+      "is_signed": false,
+      "notes": "Starts at 60, counts down to 0"
+    },
+    {
+      "name": "round_state",
+      "address": "0x10E402",
+      "type": "byte",
+      "description": "Current match state",
+      "category": "state",
+      "player": 0,
+      "is_signed": false,
+      "notes": "Various game states (round start, fighting, round over, etc.)"
+    },
+    {
+      "name": "p1_wins",
+      "address": "0x10E405",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "score",
+      "player": 1,
+      "is_signed": false
+    },
+    {
+      "name": "p2_wins",
+      "address": "0x10E406",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "score",
+      "player": 2,
+      "is_signed": false
+    },
+    {
+      "name": "p1_max_mode",
+      "address": "0x108434",
+      "type": "byte",
+      "description": "Player 1 MAX mode active",
+      "category": "state",
+      "player": 1,
+      "is_signed": false,
+      "notes": "Non-zero when MAX mode is active"
+    },
+    {
+      "name": "p2_max_mode",
+      "address": "0x108834",
+      "type": "byte",
+      "description": "Player 2 MAX mode active",
+      "category": "state",
+      "player": 2,
+      "is_signed": false,
+      "notes": "Non-zero when MAX mode is active"
+    },
+    {
+      "name": "p1_team_index",
+      "address": "0x10816D",
+      "type": "byte",
+      "description": "Player 1 current team member index",
+      "category": "state",
+      "player": 1,
+      "is_signed": false,
+      "notes": "Index of current character in team (0-2)"
+    },
+    {
+      "name": "p2_team_index",
+      "address": "0x10856D",
+      "type": "byte",
+      "description": "Player 2 current team member index",
+      "category": "state",
+      "player": 2,
+      "is_signed": false,
+      "notes": "Index of current character in team (0-2)"
+    },
+    {
+      "name": "p1_input",
+      "address": "0x10E000",
+      "type": "word",
+      "description": "Player 1 input state",
+      "category": "input",
+      "player": 1,
+      "endianness": "big",
+      "is_signed": false,
+      "bit_mask": "0xFFFF",
+      "notes": "Bit field for input buttons (A, B, C, D, etc.)"
+    },
+    {
+      "name": "p2_input",
+      "address": "0x10E002",
+      "type": "word",
+      "description": "Player 2 input state",
+      "category": "input",
+      "player": 2,
+      "endianness": "big",
+      "is_signed": false,
+      "bit_mask": "0xFFFF",
+      "notes": "Bit field for input buttons (A, B, C, D, etc.)"
+    }
+  ],
+  "groups": [
+    {
+      "name": "health",
+      "description": "Health-related mappings",
+      "mappings": ["p1_health", "p2_health"]
+    },
+    {
+      "name": "meter",
+      "description": "Power gauge mappings",
+      "mappings": ["p1_power_gauge", "p2_power_gauge", "p1_max_mode", "p2_max_mode"]
+    },
+    {
+      "name": "position",
+      "description": "Position-related mappings",
+      "mappings": ["p1_x_position", "p1_y_position", "p2_x_position", "p2_y_position"]
+    },
+    {
+      "name": "state",
+      "description": "Game state mappings",
+      "mappings": ["p1_state", "p2_state", "timer", "round_state", "p1_character", "p2_character", "p1_team_index", "p2_team_index"]
+    },
+    {
+      "name": "input",
+      "description": "Input-related mappings",
+      "mappings": ["p1_input", "p2_input"]
+    },
+    {
+      "name": "score",
+      "description": "Score-related mappings",
+      "mappings": ["p1_wins", "p2_wins"]
+    }
+  ]
+} 

@@ -1,4 +1,3 @@
-
 #include "debugger.h"
 #include "v60.h"
 
@@ -31,15 +30,15 @@ static void out_AM_RegisterIndirect(int reg, int opsize, char *out)
 {
 	if(opsize & 0x80)
 		*out++ = '@';
-	sprintf(out, "[%s]", v60_reg_names[reg]);
+	snprintf(out, 64, "[%s]", v60_reg_names[reg]);
 }
 
 static void out_AM_RegisterIndirectIndexed(int rn, int rx, int opsize, char *out)
 {
 	if(opsize & 0x80)
-		sprintf(out, "%s@[%s]", v60_reg_names[rx], v60_reg_names[rn]);
+		snprintf(out, 64, "%s@[%s]", v60_reg_names[rx], v60_reg_names[rn]);
 	else
-		sprintf(out, "[%s](%s)", v60_reg_names[rn], v60_reg_names[rx]);
+		snprintf(out, 64, "[%s](%s)", v60_reg_names[rn], v60_reg_names[rx]);
 
 }
 
@@ -47,19 +46,19 @@ static void out_AM_Autoincrement(int reg, int opsize, char *out)
 {
 	if(opsize & 0x80)
 		*out++ = '@';
-	sprintf(out, "[%s+]", v60_reg_names[reg]);
+	snprintf(out, 64, "[%s+]", v60_reg_names[reg]);
 }
 
 static void out_AM_Autodecrement(int reg, int opsize, char *out)
 {
 	if(opsize & 0x80)
 		*out++ = '@';
-	sprintf(out, "[-%s]", v60_reg_names[reg]);
+	snprintf(out, 64, "[-%s]", v60_reg_names[reg]);
 }
 
 static void out_AM_Displacement(int reg, int disp, int opsize, char *out)
 {
-	sprintf(out, "%s%X%s[%s]",
+	snprintf(out, 64, "%s%X%s[%s]",
 			disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,
 			opsize & 0x80 ? "@" : "",
 			v60_reg_names[reg]);
@@ -68,27 +67,27 @@ static void out_AM_Displacement(int reg, int disp, int opsize, char *out)
 static void out_AM_DisplacementIndexed(int rn, int rx, int disp, int opsize, char *out)
 {
 	if(opsize & 0x80)
-		sprintf(out, "%s@%s%X[%s]", v60_reg_names[rx], disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,v60_reg_names[rn]);
+		snprintf(out, 64, "%s@%s%X[%s]", v60_reg_names[rx], disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,v60_reg_names[rn]);
 	else
-		sprintf(out, "%s%X[%s](%s)", disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,v60_reg_names[rn], v60_reg_names[rx]);
+		 snprintf(out, 64, "%s%X[%s](%s)", disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,v60_reg_names[rn], v60_reg_names[rx]);
 }
 
 static void out_AM_PCDisplacement(unsigned pc, int disp, int opsize, char *out)
 {
-	sprintf(out, "%X%s[PC]", pc+disp, opsize & 0x80 ? "@" : "");
+	snprintf(out, 64, "%X%s[PC]", pc+disp, opsize & 0x80 ? "@" : "");
 }
 
 static void out_AM_PCDisplacementIndexed(unsigned pc, int disp, int rx, int opsize, char *out)
 {
 	if(opsize & 0x80)
-		sprintf(out, "%s@%X[PC]", v60_reg_names[rx], pc+disp);
+		snprintf(out, 64, "%s@%X[PC]", v60_reg_names[rx], pc+disp);
 	else
-		sprintf(out, "%X[PC](%s)", pc+disp, v60_reg_names[rx]);
+		snprintf(out, 64, "%X[PC](%s)", pc+disp, v60_reg_names[rx]);
 }
 
 static void out_AM_DisplacementIndirect(int reg, int disp, int opsize, char *out)
 {
-	sprintf(out, "%s[%s%X[%s]]",
+	snprintf(out, 64, "%s[%s%X[%s]]",
 			opsize & 0x80 ? "@" : "",
 			disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,
 			v60_reg_names[reg]);
@@ -97,27 +96,27 @@ static void out_AM_DisplacementIndirect(int reg, int disp, int opsize, char *out
 static void out_AM_DisplacementIndirectIndexed(int rn, int rx, int disp, int opsize, char *out)
 {
 	if(opsize & 0x80)
-		sprintf(out, "%s@[%s%X[%s]]", v60_reg_names[rx], disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,v60_reg_names[rn]);
+		snprintf(out, 64, "%s@[%s%X[%s]]", v60_reg_names[rx], disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,v60_reg_names[rn]);
 	else
-		sprintf(out, "[%s%X[%s]](%s)", disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,v60_reg_names[rn], v60_reg_names[rx]);
+		 snprintf(out, 64, "[%s%X[%s]](%s)", disp >= 0 ? "" : "-", disp >= 0 ? disp : -disp,v60_reg_names[rn], v60_reg_names[rx]);
 }
 
 static void out_AM_PCDisplacementIndirect(unsigned pc, int disp, int opsize, char *out)
 {
-	sprintf(out, "%s[%X[PC]]", opsize & 0x80 ? "@" : "", pc+disp);
+	snprintf(out, 64, "%s[%X[PC]]", opsize & 0x80 ? "@" : "", pc+disp);
 }
 
 static void out_AM_PCDisplacementIndirectIndexed(unsigned pc, int disp, int rx, int opsize, char *out)
 {
 	if(opsize & 0x80)
-		sprintf(out, "%s@[%X[PC]]", v60_reg_names[rx], pc+disp);
+		snprintf(out, 64, "%s@[%X[PC]]", v60_reg_names[rx], pc+disp);
 	else
-		sprintf(out, "[%X[PC]](%s)", pc+disp, v60_reg_names[rx]);
+		snprintf(out, 64, "[%X[PC]](%s)", pc+disp, v60_reg_names[rx]);
 }
 
 static void out_AM_DoubleDisplacement(int reg, int disp2, int disp1, int opsize, char *out)
 {
-	sprintf(out, "%s%X%s[%s%X[%s]]",
+	snprintf(out, 64, "%s%X%s[%s%X[%s]]",
 			disp1 >= 0 ? "" : "-", disp1 >= 0 ? disp1 : -disp1,
 			opsize & 0x80 ? "@" : "",
 			disp2 >= 0 ? "" : "-", disp2 >= 0 ? disp2 : -disp2,
@@ -126,7 +125,7 @@ static void out_AM_DoubleDisplacement(int reg, int disp2, int disp1, int opsize,
 
 static void out_AM_PCDoubleDisplacement(unsigned pc, int disp2, int disp1, int opsize, char *out)
 {
-	sprintf(out, "%s%X%s[%X[PC]]",
+	snprintf(out, 64, "%s%X%s[%X[PC]]",
 			disp1 >= 0 ? "" : "-", disp1 >= 0 ? disp1 : -disp1,
 			opsize & 0x80 ? "@" : "",
 			disp2 + pc);
@@ -136,30 +135,30 @@ static void out_AM_DirectAddress(unsigned addr, int opsize, char *out)
 {
 	if(opsize & 0x80)
 		*out++ = '@';
-	sprintf(out, "%X", addr);
+	snprintf(out, 64, "%X", addr);
 }
 
 static void out_AM_DirectAddressIndexed(unsigned addr, int rx, int opsize, char *out)
 {
 	if(opsize & 0x80)
-		sprintf(out, "%s@%X", v60_reg_names[rx], addr);
+		snprintf(out, 64, "%s@%X", v60_reg_names[rx], addr);
 	else
-		sprintf(out, "%X(%s)", addr, v60_reg_names[rx]);
+		snprintf(out, 64, "%X(%s)", addr, v60_reg_names[rx]);
 }
 
 static void out_AM_DirectAddressDeferred(unsigned addr, int opsize, char *out)
 {
 	if(opsize & 0x80)
 		*out++ = '@';
-	sprintf(out, "[%X]", addr);
+	snprintf(out, 64, "[%X]", addr);
 }
 
 static void out_AM_DirectAddressDeferredIndexed(unsigned addr, int rx, int opsize, char *out)
 {
 	if(opsize & 0x80)
-		sprintf(out, "%s@[%X]", v60_reg_names[rx], addr);
+		snprintf(out, 64, "%s@[%X]", v60_reg_names[rx], addr);
 	else
-		sprintf(out, "[%X](%s)", addr, v60_reg_names[rx]);
+		snprintf(out, 64, "[%X](%s)", addr, v60_reg_names[rx]);
 }
 
 static void out_AM_Immediate(unsigned value, int opsize, char *out)
@@ -169,7 +168,7 @@ static void out_AM_Immediate(unsigned value, int opsize, char *out)
 	else if(opsize == 1)
 		value &= 0xffff;
 
-	sprintf(out, "#%X", value);
+	snprintf(out, 64, "#%X", value);
 }
 
 static int decode_AM(unsigned ipc, unsigned pc, int m, int opsize, char *out)
@@ -411,33 +410,40 @@ static int decode_AM(unsigned ipc, unsigned pc, int m, int opsize, char *out)
 
 static int decode_F1(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
-	unsigned char code = readop(pc);
-	sprintf(out, "%-8s", opnm);
-	if(code & 0x20) {
-		int ret = decode_AM(ipc, pc+1, code & 0x40, opsize1, out + strlen(out)) + 2;
+	int r1, r2;
+	out[0] = 0;
+
+	snprintf(out, 64, "%-8s", opnm);
+	r1 = readop(pc);
+	r2 = readop(pc+1);
+	if(r2 & 0x20) {
+		int ret = decode_AM(ipc, pc+1, r1 & 0x40, opsize1, out + strlen(out)) + 2;
 		strcat(out, ", ");
-		out_AM_Register(code & 0x1f, out + strlen(out));
+		out_AM_Register(r1 & 0x1f, out + strlen(out));
 		return ret;
 	} else {
-		out_AM_Register(code & 0x1f, out + strlen(out));
+		out_AM_Register(r1 & 0x1f, out + strlen(out));
 		strcat(out, ", ");
-		return decode_AM(ipc, pc+1, code & 0x40, opsize1, out + strlen(out)) + 2;
+		return decode_AM(ipc, pc+1, r1 & 0x40, opsize1, out + strlen(out)) + 2;
 	}
 }
 
 static int decode_F2(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
-	int ret;
-	unsigned char code = readop(pc);
-	sprintf(out, "%-8s", opnm);
-	ret = decode_AM(ipc, pc+1, code & 0x40, opsize1, out + strlen(out));
+	out[0] = 0;
+
+	snprintf(out, 64, "%-8s", opnm);
+	int ret = decode_AM(ipc, pc+1, readop(pc) & 0x40, opsize1, out + strlen(out));
 	strcat(out, ", ");
-	ret += decode_AM(ipc, pc+1+ret, code & 0x20, opsize2, out + strlen(out));
+	ret += decode_AM(ipc, pc+1+ret, readop(pc) & 0x20, opsize2, out + strlen(out));
 	return ret+2;
 }
 
 static int decode_F1F2(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
+	out[0] = 0;
+
+	snprintf(out, 64, "%-8s", opnm);
 	if(readop(pc) & 0x80)
 		return decode_F2(opnm, opsize1, opsize2, ipc, pc, out);
 	else
@@ -446,19 +452,23 @@ static int decode_F1F2(const char *opnm, int opsize1, int opsize2, unsigned ipc,
 
 static int decode_F3(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "%-8s", opnm);
+	snprintf(out, 64, "%-8s", opnm);
 	return decode_AM(ipc, pc, readop(pc-1) & 1, opsize1, out + strlen(out)) + 1;
 }
 
 static int decode_F4a(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "%-8s%X", opnm, ipc+read8(pc));
+	out[0] = 0;
+
+	snprintf(out, 64, "%-8s%X", opnm, ipc+read8(pc));
 	return 2;
 }
 
 static int decode_F4b(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "%-8s%X", opnm, ipc+read16(pc));
+	out[0] = 0;
+
+	snprintf(out, 64, "%-8s%X", opnm, ipc+read16(pc));
 	return 3;
 }
 
@@ -470,134 +480,154 @@ static int decode_F5(const char *opnm, int opsize1, int opsize2, unsigned ipc, u
 
 static int decode_F6(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "%-8s%s, %X[PC]", opnm, v60_reg_names[readop(pc) & 0x1f], ipc+read16(pc+1));
+	out[0] = 0;
+
+	snprintf(out, 64, "%-8s%s, %X[PC]", opnm, v60_reg_names[readop(pc) & 0x1f], ipc+read16(pc+1));
 	return 4;
 }
 
 static int decode_F7a(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
-	int ret;
-	unsigned char code = readop(pc);
-	unsigned char code2;
+	int phase;
+	int cnt;
+	int a, b = 0;
 
-	sprintf(out, "%-8s", opnm);
-	ret = decode_AM(ipc, pc+1, code & 0x40, opsize1, out + strlen(out));
+	out[0] = 0;
+
+	snprintf(out, 64, "%-8s", opnm);
+	int ret = decode_AM(ipc, pc+1, readop(pc) & 0x40, opsize1, out + strlen(out));
 	strcat(out, ", ");
 
-	code2 = readop(pc+1+ret);
-	if(code2 & 0x80)
-		out_AM_Register(code2 & 0x1f, out + strlen(out));
+	phase = readop(pc+1+ret);
+	if(phase & 0x80)
+		out_AM_Register(phase & 0x1f, out + strlen(out));
 	else
-		out_AM_Immediate(code2, 1, out + strlen(out));
+		out_AM_Immediate(phase, 1, out + strlen(out));
 	strcat(out, ", ");
 
-	ret += decode_AM(ipc, pc+2+ret, code & 0x20, opsize2, out + strlen(out));
-	strcat(out, ", ");
-
-	code2 = readop(pc+2+ret);
-	if(code2 & 0x80)
-		out_AM_Register(code2 & 0x1f, out + strlen(out));
+	phase = readop(pc+2+ret);
+	if(phase & 0x80)
+		out_AM_Register(phase & 0x1f, out + strlen(out));
 	else
-		out_AM_Immediate(code2, 1, out + strlen(out));
+		out_AM_Immediate(phase, 1, out + strlen(out));
+	strcat(out, ", ");
+
+	phase = readop(pc+3+ret);
+	if(phase & 0x80)
+		out_AM_Register(phase & 0x1f, out + strlen(out));
+	else
+		out_AM_Immediate(phase, 1, out + strlen(out));
 
 	return ret+4;
 }
 
 static int decode_F7b(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
-	int ret;
-	unsigned char code = readop(pc);
-	unsigned char code2;
+	int phase;
+	int cnt;
+	int a, b = 0;
 
-	sprintf(out, "%-8s", opnm);
-	ret = decode_AM(ipc, pc+1, code & 0x40, opsize1, out + strlen(out));
+	out[0] = 0;
+
+	snprintf(out, 64, "%-8s", opnm);
+	int ret = decode_AM(ipc, pc+1, readop(pc) & 0x40, opsize1, out + strlen(out));
 	strcat(out, ", ");
 
-	code2 = readop(pc+1+ret);
-	if(code2 & 0x80)
-		out_AM_Register(code2 & 0x1f, out + strlen(out));
+	phase = readop(pc+1+ret);
+	if(phase & 0x80)
+		out_AM_Register(phase & 0x1f, out + strlen(out));
 	else
-		out_AM_Immediate(code2, 1, out + strlen(out));
+		out_AM_Immediate(phase, 1, out + strlen(out));
 	strcat(out, ", ");
 
-	ret += decode_AM(ipc, pc+2+ret, code & 0x20, opsize2, out + strlen(out));
+	phase = readop(pc+2+ret);
+	if(phase & 0x80)
+		out_AM_Register(phase & 0x1f, out + strlen(out));
+	else
+		out_AM_Immediate(phase, 1, out + strlen(out));
 
 	return ret+3;
 }
 
 static int decode_F7c(const char *opnm, int opsize1, int opsize2, unsigned ipc, unsigned pc, char *out)
 {
-	int ret;
-	unsigned char code = readop(pc);
-	unsigned char code2;
+	int phase;
+	int cnt;
+	int a, b = 0;
 
-	sprintf(out, "%-8s", opnm);
-	ret = decode_AM(ipc, pc+1, code & 0x40, opsize1, out + strlen(out));
+	out[0] = 0;
+
+	snprintf(out, 64, "%-8s", opnm);
+	int ret = decode_AM(ipc, pc+1, readop(pc) & 0x40, opsize1, out + strlen(out));
 	strcat(out, ", ");
 
-	ret += decode_AM(ipc, pc+1+ret, code & 0x20, opsize2, out + strlen(out));
-	strcat(out, ", ");
-
-	code2 = readop(pc+1+ret);
-	if(code2 & 0x80)
-		out_AM_Register(code2 & 0x1f, out + strlen(out));
+	phase = readop(pc+1+ret);
+	if(phase & 0x80)
+		out_AM_Register(phase & 0x1f, out + strlen(out));
 	else
-		out_AM_Immediate(code2, 1, out + strlen(out));
+		out_AM_Immediate(phase, 1, out + strlen(out));
+	strcat(out, ", ");
+
+	phase = readop(pc+2+ret);
+	if(phase & 0x80)
+		out_AM_Register(phase & 0x1f, out + strlen(out));
+	else
+		out_AM_Immediate(phase, 1, out + strlen(out));
 
 	return ret+3;
 }
 
 static int dopUNHANDLED(unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "$%02X", readop(pc));
+	snprintf(out, 64, "$%02X", readop(pc));
 	return 1;
 }
 
 static int dop58UNHANDLED(unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "$58");
+	snprintf(out, 64, "$58");
 	return 1;
 }
 
 static int dop59UNHANDLED(unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "$59");
+	snprintf(out, 64, "$59");
 	return 1;
 }
 
 static int dop5AUNHANDLED(unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "$5A");
+	snprintf(out, 64, "$5A");
 	return 1;
 }
 
 static int dop5BUNHANDLED(unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "$5B");
+	snprintf(out, 64, "$5B");
 	return 1;
 }
 
 static int dop5CUNHANDLED(unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "$5C");
+	snprintf(out, 64, "$5C");
 	return 1;
 }
 
 static int dop5DUNHANDLED(unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "$5D");
+	snprintf(out, 64, "$5D");
 	return 1;
 }
 
 static int dop5EUNHANDLED(unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "$5E");
+	snprintf(out, 64, "$5E");
 	return 1;
 }
 
 static int dop5FUNHANDLED(unsigned ipc, unsigned pc, char *out)
 {
-	sprintf(out, "$5F");
+	snprintf(out, 64, "$5F");
 	return 1;
 }
 

@@ -1,5 +1,7 @@
-// Header for SDL 1.2 & SDL2
-#include <SDL.h>
+#ifndef _BURNER_SDL_H
+#define _BURNER_SDL_H
+
+#include <SDL2/SDL.h>
 
 #ifdef BUILD_SDL2
 #include "sdl2_gui.h"
@@ -113,10 +115,18 @@ struct GroupOfDIPSwitches
 	BurnDIPInfo dipSwitchesOptions[MAXDIPOPTIONS];
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //interface/inp_interface.cpp
-int InputInit();
-int InputExit();
-int InputMake(bool bCopy);
+INT32 InputInit();
+INT32 InputExit();
+INT32 InputMake(bool bCopy);
+
+#ifdef __cplusplus
+}
+#endif
 
 // stated.cpp
 int QuickState(int bSave);
@@ -139,3 +149,38 @@ public:
 extern TCHAR szAppListsPath[MAX_PATH];
 extern TCHAR szAppDatListsPath[MAX_PATH];
 extern TCHAR szAppArchivesPath[MAX_PATH];
+
+// SDL-specific definitions
+#ifdef BUILD_SDL2
+#define		SDL_SCALE	1
+#define		SDL_ROTATE	1
+#endif
+
+// SDL FPS
+extern int nSDLFps;
+
+// The SDL renderer handle
+extern SDL_Renderer* sdlRenderer;
+
+// The SDL texture handle
+extern SDL_Texture* sdlTexture;
+
+// SDL input
+extern unsigned char SDLinpSetByte(int i, int nPlayer);
+extern int SDLinpBlank(int bDipSwitch);
+extern int SDLinpMake(bool bCopy);
+
+// SDL video
+extern int SDLVideoInit();
+extern int SDLVideoExit();
+extern int SDLVideoMake(bool bVidRecalc);
+
+// SDL audio
+extern int SDLSoundInit();
+extern int SDLSoundExit();
+extern int SDLSoundPlay();
+extern int SDLSoundStop();
+extern int SDLSoundSetVolume();
+extern int SDLSoundCheck();
+extern int SDLSoundGetTime();
+extern int SDLSoundSetFps();

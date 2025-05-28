@@ -1,6 +1,7 @@
 #include "cps.h"
 #include "timekpr.h"
 #include "burn_gun.h" // forgottn optional spinner dev.
+#include "burn_pal.h"
 
 #define CPS1_68K_PROGRAM_BYTESWAP			1
 #define CPS1_68K_PROGRAM_NO_BYTESWAP		2
@@ -621,12 +622,13 @@ static void ProcessAnalogInputs() {
 	}
 
 	BurnTrackballConfig(0, AXIS_NORMAL, AXIS_NORMAL);
-	BurnTrackballFrame(0, Analog[4], Analog[5], 0x00, 0xff);
+	BurnTrackballFrame(0, Analog[4], Analog[5], 0x00, 0xff, 0);
 	BurnTrackballUpdate(0);
 
-	nDial055 += BurnTrackballReadSigned(0) * 4;
-	nDial05d += BurnTrackballReadSigned(1) * 4;
-	BurnTrackballReadReset();
+	nDial055 += BurnTrackballReadSigned(0, 0) * 4;
+	nDial05d += BurnTrackballReadSigned(0, 1) * 4;
+	BurnTrackballReadReset(0, 0);
+	BurnTrackballReadReset(0, 1);
 }
 
 static void SuperJoy2Rotate() {

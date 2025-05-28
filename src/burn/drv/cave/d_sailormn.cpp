@@ -154,7 +154,7 @@ static UINT8 __fastcall sailormnZIn(UINT16 nAddress)
 
 		case 0x51:
 //			bprintf(PRINT_NORMAL, "YM2151 status read.\n");
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 		case 0x60:
 //			bprintf(PRINT_NORMAL, "MSM6295 #0 status read.\n");
 			return MSM6295Read(0);

@@ -1,0 +1,19 @@
+src/burn/drv/capcom/d_cps1.cpp:628:14: error: no matching function for call to 'BurnTrackballReadSigned'
+  628 |         nDial055 += BurnTrackballReadSigned(0) * 4;
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~
+src/burn/burn_gun.h:74:7: note: candidate function not viable: requires 2 arguments, but 1 was provided
+   74 | INT32 BurnTrackballReadSigned(INT32 dev, INT32 isB);
+      |       ^                       ~~~~~~~~~~~~~~~~~~~~
+src/burn/drv/capcom/d_cps1.cpp:629:14: error: no matching function for call to 'BurnTrackballReadSigned'
+  629 |         nDial05d += BurnTrackballReadSigned(1) * 4;
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~
+src/burn/burn_gun.h:74:7: note: candidate function not viable: requires 2 arguments, but 1 was provided
+   74 | INT32 BurnTrackballReadSigned(INT32 dev, INT32 isB);
+      |       ^                       ~~~~~~~~~~~~~~~~~~~~
+src/burn/drv/capcom/d_cps1.cpp:630:2: error: no matching function for call to 'BurnTrackballReadReset'
+  630 |         BurnTrackballReadReset();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+src/burn/burn_gun.h:78:6: note: candidate function not viable: requires 2 arguments, but 0 were provided
+   78 | void BurnTrackballReadReset(INT32 dev, INT32 isB);
+      |      ^                      ~~~~~~~~~~~~~~~~~~~~
+3 errors generated.

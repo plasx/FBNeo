@@ -200,7 +200,7 @@ static UINT8 atarijsa_read(UINT16 address)
 			return 0xff;
 
 		case 0x2001:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0x2800: // jsaii && iii
 		case 0x2808:

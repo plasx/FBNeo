@@ -1,0 +1,17 @@
+#include "burnint.h"
+#include "burner.h"
+#include <stdio.h>
+// Simplified Metal implementation for minimal build
+int main() {
+    printf("FBNeo Metal Runtime - Minimal Build
+");
+    BurnLibInit();
+    printf("Loaded %d drivers
+", nBurnDrvCount);
+    DrvInit(0, false);
+    printf("Driver initialized
+");
+    DrvExit();
+    BurnLibExit();
+    return 0;
+}

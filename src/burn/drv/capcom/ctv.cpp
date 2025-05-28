@@ -1,6 +1,18 @@
 #include "cps.h"
 
 // CPS Tile Variants
+// Create a unique name for each possible tile variant.
+// The variants are created at init time based on the tile attributes.
+
+#include "../../../dep/generated/ctv.h"
+
+// Include the generated tile variant implementations
+// #include "ctv_generated.cpp"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // horizontal/vertical clip rolls
 UINT32 nCtvRollX=0,nCtvRollY=0;
 // Add 0x7fff after each pixel/line
@@ -10,16 +22,9 @@ UINT8 *pCtvTile=NULL; // Pointer to tile data
 INT32 nCtvTileAdd=0; // Amount to add after each tile line
 UINT8 *pCtvLine=NULL; // Pointer to output bitmap
 
-static inline UINT32 alpha_blend(UINT32 d, UINT32 s, UINT32 p)
-{
-	INT32 a = 255 - p;
-
-	return (((((s & 0xff00ff) * p) + ((d & 0xff00ff) * a)) & 0xff00ff00) +
-		((((s & 0x00ff00) * p) + ((d & 0x00ff00) * a)) & 0x00ff0000)) >> 8;
-}
-
-// Include all tile variants:
-#include "ctv.h"
+//CtvDoFn CtvDoX[0x20];
+//CtvDoFn CtvDoXM[0x20];
+//CtvDoFn CtvDoXB[0x20];
 
 static INT32 nLastBpp=0;
 INT32 CtvReady()
@@ -47,3 +52,7 @@ INT32 CtvReady()
   nLastBpp=nBurnBpp;
   return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif

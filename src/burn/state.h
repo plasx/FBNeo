@@ -1,5 +1,7 @@
 #if !defined(_STATE_H)
 
+#include <string.h>
+
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -58,13 +60,13 @@ struct BurnArea { void *Data; UINT32 nLen; INT32 nAddress; char *szName; };
 extern INT32 (__cdecl *BurnAcb) (struct BurnArea* pba);
 
 /* Scan a small variable or structure */
-C_INLINE static void ScanVar(void* pv, INT32 nSize, char* szName)
+C_INLINE static void ScanVar(void* pv, INT32 nSize, const char* szName)
 {
 	struct BurnArea ba;
 	memset(&ba, 0, sizeof(ba));
 	ba.Data   = pv;
 	ba.nLen   = nSize;
-	ba.szName = szName;
+	ba.szName = (char*)szName; // Cast away const for assignment only
 	BurnAcb(&ba);
 }
 
@@ -90,7 +92,7 @@ C_INLINE static void ScanVar(void* pv, INT32 nSize, char* szName)
 #endif
 
 #ifdef __cplusplus
- }
+}
 #endif
 
 #define _STATE_H

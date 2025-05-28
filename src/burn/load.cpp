@@ -1,5 +1,6 @@
 // Burn - Rom Loading module
 #include "burnint.h"
+#include "burn_load.h"
 
 // Load a rom and separate out the bytes by nGap
 // Dest is the memory block to insert the rom into

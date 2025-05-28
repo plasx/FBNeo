@@ -49,7 +49,7 @@ static void cvsd_write(UINT16 address, UINT8 data)
 	}
 
 	if ((address & 0xe000) == 0x2000) {
-		BurnYM2151Write(address & 1, data);
+		BurnYM2151Write(0, address & 1, data);
 		return;
 	}
 

@@ -86,6 +86,9 @@ struct _tms34010_config
 
 
 /* PUBLIC FUNCTIONS - 34010 */
+#ifdef __cplusplus
+extern "C" {
+#endif
 void tms34010_get_display_params(tms34010_display_params *params);
 void tms34010_io_register_w(INT32 address, UINT32 data);
 void tms34020_io_register_w(INT32 address, UINT32 data);
@@ -129,6 +132,9 @@ void tms34010_timer_arm(int cycle);
 
 void tms34010_host_w(INT32 reg, UINT16 data);
 UINT16 tms34010_host_r(INT32 reg);
+#ifdef __cplusplus
+}
+#endif
 
 
 /* Use this macro in the memory definitions to specify bit-based addresses */

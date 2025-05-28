@@ -6,12 +6,13 @@
 #include <vector>
 #include "tms34010.h"
 #include "memhandler.h"
+#include "../tms34010_intf.h"
 
 namespace tms
 {
 
-#define READ_WORD(addr) tms::read_word(addr)
-#define READ_DWORD(addr) (READ_WORD(addr) | (READ_WORD(addr + 16) << 16))
+#define READ_WORD(addr) TMS34010ReadWord(addr)
+#define READ_DWORD(addr) (TMS34010ReadWord(addr) | (TMS34010ReadWord(addr + 16) << 16))
 
 const int dasm_buf_size = 128;
 const int dasm_pc_size = 32;

@@ -1,5 +1,5 @@
 #include "pgm.h"
-#include "pgm_sprite.h"
+#include "../../dep/generated/pgm_sprite.h"
 
 /*
 	Video flag notes (b0e000 writes)
@@ -527,7 +527,7 @@ static void pgm_dump_sprite(INT32 wide, INT32 high, INT32 palt, INT32 boffset, I
 	SET_BITMAP_HEIGHT(high);
 
 	char output[256];
-	sprintf (output, "blendbmp/%8.8x_%dx%d.bmp", boffset_initial,wide,high);
+	snprintf(output, sizeof(output), "blendbmp/%8.8x_%dx%d.bmp", boffset_initial,wide,high);
 	FILE *fa;
 	fa = fopen(output, "rb");
 	if (fa) {

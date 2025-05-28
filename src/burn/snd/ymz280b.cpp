@@ -4,6 +4,7 @@
 #include <math.h>
 #include "burnint.h"
 #include "ymz280b.h"
+#include "burn_sound.h"  // Include burn_sound.h for INTERPOLATE4PS_16BIT macro
 
 static INT32 nYMZ280BSampleRate;
 bool bESPRaDeMixerKludge = false;

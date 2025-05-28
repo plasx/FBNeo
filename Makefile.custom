@@ -1,0 +1,10 @@
+# Custom Makefile for building with C exports
+
+# Compile our C wrapper with C++ to ensure proper linkage
+c_exports.o: c_exports.cpp
+	clang++ -c c_exports.cpp -o c_exports.o -I.
+
+# Build using a completely custom approach
+all: c_exports.o
+	# Use our object file with the proper exports
+	make -f makefile.metal EXTRAOBJS="c_exports.o" FBA_LDFLAGS="-Wl,-force_load,c_exports.o" 

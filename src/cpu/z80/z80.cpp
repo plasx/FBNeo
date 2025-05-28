@@ -97,6 +97,10 @@
 #include "z80.h"
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define	FALSE			0
 #define TRUE			1
 #define Z80_INLINE		static
@@ -5122,3 +5126,6 @@ static UINT8 store_rwinfo(UINT16 addr, UINT8 val, UINT16 flags, const char *dbg)
 
 	return retval;
 }
+#ifdef __cplusplus
+}
+#endif

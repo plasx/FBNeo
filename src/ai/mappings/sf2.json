@@ -1,0 +1,249 @@
+{
+  "game": "Street Fighter II: The World Warrior",
+  "architecture": "CPS1",
+  "version": "1.0.0",
+  "description": "Memory mapping for Street Fighter II: The World Warrior on CPS1 hardware",
+  "supported_roms": ["sf2", "sf2eb", "sf2ua", "sf2ub", "sf2ud", "sf2uk", "sf2j", "sf2jb"],
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0xFF83F6",
+      "type": "byte",
+      "description": "Player 1 current health",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 176
+    },
+    {
+      "name": "p2_health",
+      "address": "0xFF8776",
+      "type": "byte",
+      "description": "Player 2 current health",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 176
+    },
+    {
+      "name": "p1_character",
+      "address": "0xFF8377",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 11
+    },
+    {
+      "name": "p2_character",
+      "address": "0xFF86F7",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 11
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0xFF83C0",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "position",
+      "player_index": 1,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0xFF83C4",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "position",
+      "player_index": 1,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0xFF8740",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "position",
+      "player_index": 2,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0xFF8744",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "position",
+      "player_index": 2,
+      "endianness": "little"
+    },
+    {
+      "name": "timer",
+      "address": "0xFF8ABE",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 99
+    },
+    {
+      "name": "round",
+      "address": "0xFF8AC2",
+      "type": "byte",
+      "description": "Current round number",
+      "category": "game_state",
+      "min_value": 1,
+      "max_value": 3
+    },
+    {
+      "name": "p1_wins",
+      "address": "0xFF8AC0",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "game_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "p2_wins",
+      "address": "0xFF8AC1",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "game_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "game_state",
+      "address": "0xFF8AB3",
+      "type": "byte",
+      "description": "Game state (0=demo, 1=title, 2=character select, 3=in-game, etc.)",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 10
+    },
+    {
+      "name": "p1_action_state",
+      "address": "0xFF83BF",
+      "type": "byte",
+      "description": "Player 1 action state (standing, crouching, jumping, attacking, etc.)",
+      "category": "action_state",
+      "player_index": 1
+    },
+    {
+      "name": "p2_action_state",
+      "address": "0xFF873F",
+      "type": "byte",
+      "description": "Player 2 action state (standing, crouching, jumping, attacking, etc.)",
+      "category": "action_state",
+      "player_index": 2
+    },
+    {
+      "name": "p1_stun",
+      "address": "0xFF8429",
+      "type": "byte",
+      "description": "Player 1 stun gauge",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 255
+    },
+    {
+      "name": "p2_stun",
+      "address": "0xFF87A9",
+      "type": "byte",
+      "description": "Player 2 stun gauge",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 255
+    },
+    {
+      "name": "p1_dizzy",
+      "address": "0xFF8428",
+      "type": "byte",
+      "description": "Player 1 dizzy state (0=normal, non-zero=dizzy)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_dizzy",
+      "address": "0xFF87A8",
+      "type": "byte",
+      "description": "Player 2 dizzy state (0=normal, non-zero=dizzy)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p1_direction",
+      "address": "0xFF83C1",
+      "type": "byte",
+      "description": "Player 1 facing direction (0=facing right, 1=facing left)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_direction",
+      "address": "0xFF8741",
+      "type": "byte",
+      "description": "Player 2 facing direction (0=facing right, 1=facing left)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    }
+  ],
+  "groups": [
+    {
+      "name": "player1",
+      "description": "Player 1 information",
+      "mappings": [
+        "p1_health",
+        "p1_character",
+        "p1_x_position",
+        "p1_y_position",
+        "p1_action_state",
+        "p1_stun",
+        "p1_dizzy",
+        "p1_direction"
+      ]
+    },
+    {
+      "name": "player2",
+      "description": "Player 2 information",
+      "mappings": [
+        "p2_health",
+        "p2_character",
+        "p2_x_position",
+        "p2_y_position",
+        "p2_action_state",
+        "p2_stun",
+        "p2_dizzy",
+        "p2_direction"
+      ]
+    },
+    {
+      "name": "match",
+      "description": "Match information",
+      "mappings": [
+        "timer",
+        "round",
+        "p1_wins",
+        "p2_wins",
+        "game_state"
+      ]
+    }
+  ]
+} 

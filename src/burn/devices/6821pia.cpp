@@ -12,7 +12,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stddef.h>
-#include "burnint.h"
+#include "../burnint.h"
 #include "6821pia.h"
 
 #define VERBOSE 0

@@ -56,7 +56,7 @@ char ZLIB_INTERNAL *gz_strwinerror(DWORD error) {
         LocalFree(msgbuf);
     }
     else {
-        sprintf(buf, "unknown win32 error (%ld)", error);
+        snprintf(buf, sizeof(buf), "unknown win32 error (%ld)", error);
     }
 
     SetLastError(lasterr);
@@ -279,7 +279,7 @@ gzFile ZEXPORT gzdopen(int fd, const char *mode) {
 #if !defined(NO_snprintf) && !defined(NO_vsnprintf)
     (void)snprintf(path, 7 + 3 * sizeof(int), "<fd:%d>", fd);
 #else
-    sprintf(path, "<fd:%d>", fd);   /* for debugging */
+    snprintf(path, 7 + 3 * sizeof(int), "<fd:%d>", fd);   /* for debugging */
 #endif
     gz = gz_open(path, fd, mode);
     free(path);

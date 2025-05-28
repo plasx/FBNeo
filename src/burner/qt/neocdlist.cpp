@@ -210,7 +210,7 @@ static void NeoCDList_iso9660_CheckDirRecord(FILE* fp, int nSector)
 			iso9660_ReadOffset(ExtentLoc, fp, lOffset + 2, 8, sizeof(unsigned char));
 
 			char szValue[9];
-			sprintf(szValue, "%02x%02x%02x%02x", ExtentLoc[4], ExtentLoc[5], ExtentLoc[6], ExtentLoc[7]);
+			snprintf(szValue, sizeof(szValue), "%02x%02x%02x%02x", ExtentLoc[4], ExtentLoc[5], ExtentLoc[6], ExtentLoc[7]);
 
 			unsigned int nValue = 0;
 			sscanf(szValue, "%x", &nValue); 
@@ -218,12 +218,12 @@ static void NeoCDList_iso9660_CheckDirRecord(FILE* fp, int nSector)
 			iso9660_ReadOffset(Data, fp, nValue * 2048, 0x10a, sizeof(unsigned char));
 
 			char szData[8];
-			sprintf(szData, "%c%c%c%c%c%c%c", Data[0x100], Data[0x101], Data[0x102], Data[0x103], Data[0x104], Data[0x105], Data[0x106]);
+			snprintf(szData, sizeof(szData), "%c%c%c%c%c%c%c", Data[0x100], Data[0x101], Data[0x102], Data[0x103], Data[0x104], Data[0x105], Data[0x106]);
 
 			if(!strncmp(szData, "NEO-GEO", 7)) 
 			{
 				char id[] = "0000";
-				sprintf(id, "%02X%02X",  Data[0x108], Data[0x109]);
+				snprintf(id, sizeof(id), "%02X%02X",  Data[0x108], Data[0x109]);
 
 				unsigned int nID = 0;
 				sscanf(id, "%x", &nID);
@@ -381,7 +381,7 @@ static int NeoCDList_CheckISO(TCHAR* pszFile)
 						char szRootSector[32];
 						unsigned int nRootSector = 0;
 
-						sprintf(szRootSector, "%02X%02X%02X%02X", 
+						snprintf(szRootSector, sizeof(szRootSector), "%02X%02X%02X%02X", 
 							pvd.root_directory_record.location_of_extent[4], 
 							pvd.root_directory_record.location_of_extent[5], 
 							pvd.root_directory_record.location_of_extent[6], 
@@ -392,13 +392,13 @@ static int NeoCDList_CheckISO(TCHAR* pszFile)
 #else
 // Just read from the file directly at the correct offset (0x8000 + 0x9e for the start of the root directory record)
 						unsigned char buffer[8];
-						char szRootSector[4];
+						char szRootSector[32];
 						unsigned int nRootSector = 0;
 						
 						fseek(fp, 0x809e, SEEK_SET);
 						fread(buffer, 1, 8, fp);
 						
-						sprintf(szRootSector, "%02x%02x%02x%02x", buffer[4], buffer[5], buffer[6], buffer[7]);
+						snprintf(szRootSector, sizeof(szRootSector), "%02x%02x%02x%02x", buffer[4], buffer[5], buffer[6], buffer[7]);
 						
 						sscanf(szRootSector, "%x", &nRootSector);
 #endif						

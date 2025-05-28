@@ -1,0 +1,36 @@
+# Makefile include for Metal-specific build settings
+
+# Set correct flags for C vs C++ files
+%.o: %.c
+	$(CC) $(CFLAGS) -std=c99 -I$(CURDIR)/src/burner/metal -include $(CURDIR)/src/burner/metal/fixes/c_cpp_fixes.h -c $< -o $@
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -std=c++17 -I$(CURDIR)/src/burner/metal -c $< -o $@
+
+# Metal-specific flags for Objective-C++ files
+%.o: %.mm
+	$(CXX) $(OBJCXXFLAGS) -std=c++17 -fobjc-arc -I$(CURDIR)/src/burner/metal -c $< -o $@
+
+# Make sure we have the fixes directory
+$(shell mkdir -p $(CURDIR)/src/burner/metal/fixes)
+
+# Metal-specific defines
+CFLAGS += -DMETAL_BUILD
+CXXFLAGS += -DMETAL_BUILD
+OBJCXXFLAGS += -DMETAL_BUILD
+
+# Treat .h files as C++ headers by default
+CXXFLAGS += -x c++-header
+
+# Add frameworks for Metal build
+LDFLAGS += -framework Metal -framework MetalKit -framework CoreML -framework Vision -framework AppKit
+
+# Specify that structs should be preferred over typedefs
+CFLAGS += -fstructures
+
+# Make the compiler more forgiving for older code
+CFLAGS += -Wno-everything
+CXXFLAGS += -Wno-everything
+
+# Required for Metal
+METAL_BUILD = 1 

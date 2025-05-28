@@ -1,0 +1,32 @@
+{
+  "version": "2.1",
+  "project": "FBNeo AI Integration",
+  "description": "You are helping complete an embedded AI pipeline in the FinalBurn Neo (FBNeo) emulator. The system already includes a Metal renderer, AI menu system, CoreML integration, memory mapping system, enhanced headless mode, complete training pipeline with distributed training support, and parameter server architecture. Current focus is on implementing training mode overlays and developing an advanced debugger system.",
+  "goals": [
+    "Implement training overlays for hitbox visualization and frame data",
+    "Create advanced debugging tools including memory viewer and CPU debugger",
+    "Add input history visualization and state information display",
+    "Enhance training experience with interactive features",
+    "Optimize rendering performance for overlay components",
+    "Implement CPU-specific disassembly and breakpoint system"
+  ],
+  "completed": [
+    "Metal renderer with shader pipeline",
+    "NeuralAIController with model loading and inference",
+    "AIMenuSystem for model selection and difficulty settings",
+    "AITorchPolicy for PyTorch integration",
+    "CoreML backend for Apple Neural Engine",
+    "CoreML export pipeline for trained models",
+    "Determinism debug dashboard for replay analysis",
+    "AIMemoryMapping system with memory address mapping for different games",
+    "Multiple game memory mappings (SF2, SF3, MVC, MVC2, KOF98, etc.)",
+    "Memory mapping tools for validation, creation, and analysis",
+    "Enhanced headless mode with process isolation and thread safety",
+    "HeadlessManager for parallel distributed training",
+    "Complete training pipeline with PPO and ICM integration",
+    "Distributed training system with parameter server architecture",
+    "Fault tolerance and recovery mechanisms for training"
+  ],
+  "current_focus": "Training overlay implementation and advanced debugging tools",
+  "priority": "Training overlays first, then advanced debugging system"
+} 

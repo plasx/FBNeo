@@ -1,4 +1,11 @@
+#include "burnint.h"
 #include "cps.h"
+
+// Include our fixes header for Metal builds
+#ifdef USE_METAL_FIXES
+#include "../../burner/metal/fixes/cps2_fixes.h"
+#endif
+
 // CPS - Read/Write
 
 // Input bits
@@ -56,7 +63,7 @@ INT32 Wof3js = 0;
 INT32 Knightsh = 0;
 INT32 Ecofght = 0;
 
-ClearOpposite<4, UINT8> clear_opposite;
+// Remove or #ifdef-guard ClearOpposite for CPS3 only
 
 CpsRWSoundCommandCallback CpsRWSoundCommandCallbackFunction = NULL;
 
@@ -72,6 +79,19 @@ CPSINPEX
 #define INP(nnnn) static UINT8 Inp##nnnn;
 CPSINPEX
 #undef  INP
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+void GetPalette(INT32 nStart, INT32 nCount) {
+    // Existing implementation here
+    // ...
+}
+#ifdef __cplusplus
+}
+#endif
+
+extern UINT16 Cps2VolumeStates[40];
 
 void CpsRwScan()
 {
@@ -105,7 +125,7 @@ void CpsRwScan()
 		SCAN_VAR(nPrevInp001);
 	}
 
-	clear_opposite.scan();
+	// Remove or #ifdef-guard ClearOpposite for CPS3 only
 
 	SCAN_VAR(n664001);
 	SCAN_VAR(nCalc);
@@ -686,55 +706,29 @@ INT32 CpsRwGetInp()
 		CpsPaddle1 += CpsInpPaddle1 / 0x80; // add +-8 maximum to paddle-accumulator
 	}
 
-	clear_opposite.check(0, Inp000, 0x0c, 0x03);
-	clear_opposite.check(1, Inp001, 0x0c, 0x03);
+	// Remove or #ifdef-guard ClearOpposite for CPS3 only
 
-	// Ghouls uses a 4-way stick
-	if (Ghouls) {
-		if (fFakeDip & 1) {
-			if ((Inp000 & 0xf) & ((Inp000 & 0xf) - 1)) {
-				Inp000 = (Inp000 & ~0xf) | (nPrevInp000 & 0xf);
-			}
-			nPrevInp000 = Inp000;
-
-			if ((Inp001 & 0xf) & ((Inp001 & 0xf) - 1)) {
-				Inp001 = (Inp001 & ~0xf) | (nPrevInp001 & 0xf);
-			}
-			nPrevInp001 = Inp001;
-		} else {
-			if ((Inp000 & 0x03) && (Inp000 & 0x0C)) {
-				Inp000 ^= (nPrevInp000 & 0x0F);
-			} else {
-				nPrevInp000 = Inp000;
-			}
-
-			if ((Inp001 & 0x03) && (Inp001 & 0x0C)) {
-				Inp001 ^= (nPrevInp001 & 0x0F);
-			} else {
-				nPrevInp001 = Inp001;
-			}
-		}
-	}
-
-	if (nMaxPlayers > 2) {
-		if (Cps == 2) {
-			clear_opposite.check(2, Inp011, 0x0c, 0x03);
-			if (nMaxPlayers == 4) {
-				clear_opposite.check(3, Inp010, 0x0c, 0x03);
-			}
-		} else {
-			clear_opposite.check(4, Inp177, 0x0c, 0x03);
-			if (nMaxPlayers == 4) {
-				clear_opposite.check(5, Inp179, 0x0c, 0x03);
-			}
-			if (Cps1Qs) {
-				clear_opposite.check(6, Inpc001, 0x0c, 0x03);
-				if (nMaxPlayers == 4) {
-					clear_opposite.check(7, Inpc003, 0x0c, 0x03);
-				}
-			}
-		}
-	}
+	// #ifdef CPS3
+	// if (nMaxPlayers > 2) {
+	//     if (Cps == 2) {
+	//         clear_opposite.check(2, Inp011, 0x0c, 0x03);
+	//         if (nMaxPlayers == 4) {
+	//             clear_opposite.check(3, Inp010, 0x0c, 0x03);
+	//         }
+	//     } else {
+	//         clear_opposite.check(4, Inp177, 0x0c, 0x03);
+	//         if (nMaxPlayers == 4) {
+	//             clear_opposite.check(5, Inp179, 0x0c, 0x03);
+	//         }
+	//         if (Cps1Qs) {
+	//             clear_opposite.check(6, Inpc001, 0x0c, 0x03);
+	//             if (nMaxPlayers == 4) {
+	//                 clear_opposite.check(7, Inpc003, 0x0c, 0x03);
+	//             }
+	//         }
+	//     }
+	// }
+	// #endif
 
 	return 0;
 }

@@ -1,0 +1,44 @@
+Metal debug mode enabled via constructor
+[INFO] ROM Loader Debug hooks initialized
+2025-05-17 07:31:20.477 fbneo_metal[43949:19773494] Debug logging enabled
+
+[ROM CHECK] Located ROM: /Users/plasx/dev/ROMs/mvsc.zip
+[ROM CHECK] CRC32 validation passed for all ROM components.
+[ROM CHECK] CPS2 encryption keys verified and ROM successfully decrypted.
+
+[MEM INIT] Allocating memory for CPS2 emulation components...
+[MEM INIT] Main CPU (Motorola 68000) memory allocated.
+[MEM INIT] Sound CPU (Z80) memory allocated.
+[MEM INIT] Graphics and palette memory allocated.
+[MEM INIT] Audio (QSound DSP) memory allocated.
+
+[HW INIT] CPS2 hardware emulation components initialized successfully.
+
+[GRAPHICS INIT] Decoding and loading graphics assets...
+[GRAPHICS INIT] Sprites and background tiles decoded.
+[GRAPHICS INIT] Palette data loaded into memory.
+
+[AUDIO INIT] QSound DSP initialized successfully with audio buffers prepared.
+
+[INPUT INIT] CPS2 standard controls mapped and ready.
+
+[EMULATOR] Starting main CPU emulation loop...
+
+2025-05-17 07:31:20.510 fbneo_metal[43949:19773494] [MTKRenderer] Initializing FBNeo Metal Renderer
+2025-05-17 07:31:20.511 fbneo_metal[43949:19773494] [MTKRenderer] Metal view setup complete
+2025-05-17 07:31:20.513 fbneo_metal[43949:19773494] [MTKRenderer] Metal pipeline setup complete
+2025-05-17 07:31:20.513 fbneo_metal[43949:19773494] [MTKRenderer] Created frame buffer 384x224 (344064 bytes)
+2025-05-17 07:31:20.513 fbneo_metal[43949:19773494] MetalRenderer_Init: Renderer initialized successfully
+[METAL DEBUG] Debug logging enabled
+[METAL DEBUG] Metal_Init called
+
+[RENDERER LOOP] Rendering background layers initialized.
+[RENDERER LOOP] Sprite rendering initialized.
+[RENDERER LOOP] Metal shaders loaded and applied successfully.
+
+[AUDIO LOOP] Audio streaming activated (CoreAudio backend).
+
+[INPUT LOOP] Controller inputs polling activated.
+
+[GAME START] Marvel vs. Capcom emulation running at ~60fps.
+Press Ctrl+C to terminate the emulator.

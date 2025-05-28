@@ -346,7 +346,7 @@ void DrvContraM6809SoundWriteByte(UINT16 address, UINT8 data)
 	{
 		case 0x2000:
 		case 0x2001:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0x4000:

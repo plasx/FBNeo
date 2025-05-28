@@ -262,7 +262,7 @@ static void lemmings_sound_write(UINT16 address, UINT8 data)
 	{
 		case 0x0800:
 		case 0x0801:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0x1000:

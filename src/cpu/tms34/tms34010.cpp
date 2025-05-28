@@ -13,6 +13,9 @@
 #include "34010ops.h"
 #include "stddef.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /***************************************************************************
     DEBUG STATE & STRUCTURES
@@ -1920,81 +1923,6 @@ void tms34010_get_info(UINT32 _state, cpuinfo *info)
 		case CPUINFO_INT_REGISTER + TMS34010_B12:		info->i = BREG(12);						break;
 		case CPUINFO_INT_REGISTER + TMS34010_B13:		info->i = BREG(13);						break;
 		case CPUINFO_INT_REGISTER + TMS34010_B14:		info->i = BREG(14);						break;
-
-		/* --- the following bits of info are returned as pointers to data or functions --- */
-		case CPUINFO_PTR_SET_INFO:						info->setinfo = tms34010_set_info;		break;
-		case CPUINFO_PTR_GET_CONTEXT:					info->getcontext = tms34010_get_context; break;
-		case CPUINFO_PTR_SET_CONTEXT:					info->setcontext = tms34010_set_context; break;
-		case CPUINFO_PTR_INIT:							info->init = tms34010_init;				break;
-		case CPUINFO_PTR_RESET:							info->reset = tms34010_reset;			break;
-		case CPUINFO_PTR_EXIT:							info->exit = tms34010_exit;				break;
-		case CPUINFO_PTR_EXECUTE:						info->execute = tms34010_execute;		break;
-		case CPUINFO_PTR_BURN:							info->burn = NULL;						break;
-		case CPUINFO_PTR_DISASSEMBLE:					info->disassemble = tms34010_dasm;		break;
-		case CPUINFO_PTR_INSTRUCTION_COUNTER:			info->icount = &tms34010_ICount;		break;
-
-		/* --- the following bits of info are returned as NULL-terminated strings --- */
-		case CPUINFO_STR_NAME:							strcpy(info->s, "TMS34010");			break;
-		case CPUINFO_STR_CORE_FAMILY:					strcpy(info->s, "Texas Instruments 340x0"); break;
-		case CPUINFO_STR_CORE_VERSION:					strcpy(info->s, "1.0");					break;
-		case CPUINFO_STR_CORE_FILE:						strcpy(info->s, __FILE__);				break;
-		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s, "Copyright Alex Pasadyn/Zsolt Vasvari\nParts based on code by Aaron Giles"); break;
-
-		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
-				state.st & 0x80000000 ? 'N':'.',
-				state.st & 0x40000000 ? 'C':'.',
-				state.st & 0x20000000 ? 'Z':'.',
-				state.st & 0x10000000 ? 'V':'.',
-				state.st & 0x02000000 ? 'P':'.',
-				state.st & 0x00200000 ? 'I':'.',
-				state.st & 0x00000800 ? 'E':'.',
-				state.st & 0x00000400 ? 'F':'.',
-				state.st & 0x00000200 ? 'F':'.',
-				state.st & 0x00000100 ? 'F':'.',
-				state.st & 0x00000080 ? 'F':'.',
-				state.st & 0x00000040 ? 'F':'.',
-				state.st & 0x00000020 ? 'E':'.',
-				state.st & 0x00000010 ? 'F':'.',
-				state.st & 0x00000008 ? 'F':'.',
-				state.st & 0x00000004 ? 'F':'.',
-				state.st & 0x00000002 ? 'F':'.',
-				state.st & 0x00000001 ? 'F':'.');
-			break;
-
-		case CPUINFO_STR_REGISTER + TMS34010_PC:		sprintf(info->s, "PC :%08X", state.pc); break;
-		case CPUINFO_STR_REGISTER + TMS34010_SP:		sprintf(info->s, "SP :%08X", AREG(15)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_ST:		sprintf(info->s, "ST :%08X", state.st); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A0:		sprintf(info->s, "A0 :%08X", AREG( 0)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A1:		sprintf(info->s, "A1 :%08X", AREG( 1)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A2:		sprintf(info->s, "A2 :%08X", AREG( 2)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A3:		sprintf(info->s, "A3 :%08X", AREG( 3)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A4:		sprintf(info->s, "A4 :%08X", AREG( 4)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A5:		sprintf(info->s, "A5 :%08X", AREG( 5)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A6:		sprintf(info->s, "A6 :%08X", AREG( 6)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A7:		sprintf(info->s, "A7 :%08X", AREG( 7)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A8:		sprintf(info->s, "A8 :%08X", AREG( 8)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A9:		sprintf(info->s, "A9 :%08X", AREG( 9)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A10:		sprintf(info->s,"A10:%08X", AREG(10)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A11:		sprintf(info->s,"A11:%08X", AREG(11)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A12:		sprintf(info->s,"A12:%08X", AREG(12)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A13:		sprintf(info->s,"A13:%08X", AREG(13)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_A14:		sprintf(info->s,"A14:%08X", AREG(14)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B0:		sprintf(info->s, "B0 :%08X", BREG( 0)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B1:		sprintf(info->s, "B1 :%08X", BREG( 1)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B2:		sprintf(info->s, "B2 :%08X", BREG( 2)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B3:		sprintf(info->s, "B3 :%08X", BREG( 3)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B4:		sprintf(info->s, "B4 :%08X", BREG( 4)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B5:		sprintf(info->s, "B5 :%08X", BREG( 5)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B6:		sprintf(info->s, "B6 :%08X", BREG( 6)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B7:		sprintf(info->s, "B7 :%08X", BREG( 7)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B8:		sprintf(info->s, "B8 :%08X", BREG( 8)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B9:		sprintf(info->s, "B9 :%08X", BREG( 9)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B10:		sprintf(info->s,"B10:%08X", BREG(10)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B11:		sprintf(info->s,"B11:%08X", BREG(11)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B12:		sprintf(info->s,"B12:%08X", BREG(12)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B13:		sprintf(info->s,"B13:%08X", BREG(13)); break;
-		case CPUINFO_STR_REGISTER + TMS34010_B14:		sprintf(info->s,"B14:%08X", BREG(14)); break;
 	}
 }
 
@@ -2027,4 +1955,8 @@ void tms34020_get_info(UINT32 _state, cpuinfo *info)
 }
 #endif
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif

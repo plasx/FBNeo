@@ -1,0 +1,3 @@
+all:
+	clang++ -O2 -std=c++17 -c src/burner/metal/fixes/fix_adapters.cpp -I src/burner/metal/fixes -I src/burner -I src/burn -I src/burn/devices -I src/cpu -o /tmp/fix_adapters.o
+	clang++ -O2 -std=c++17 -c src/burner/metal/fixes/fix_direct.cpp -I src/burner/metal/fixes -I src/burner -I src/burn -I src/burn/devices -I src/cpu -o /tmp/fix_direct.o

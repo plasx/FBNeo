@@ -1,0 +1,124 @@
+{
+  "game": "mvc",
+  "architecture": "CPS2",
+  "mapping_file": "src/ai/mappings/mvc.json",
+  "test_cases": [
+    {
+      "name": "character_select",
+      "description": "Test mapping values at character select screen",
+      "setup_steps": [
+        "Start the game",
+        "Navigate to the character select screen",
+        "Do not select any character yet"
+      ],
+      "expected_values": {
+        "0xFF0220": 99,
+        "0xFF8400": 0,
+        "0xFF8600": 0,
+        "0xFF0044": 0,
+        "0xFF0046": 0
+      },
+      "timestamp": "2023-05-24 14:10:15"
+    },
+    {
+      "name": "match_start",
+      "description": "Test mapping values at the start of a match",
+      "setup_steps": [
+        "Start the game",
+        "Select Captain America and Wolverine for Player 1",
+        "Select War Machine and Ryu for Player 2",
+        "Wait for the round to begin",
+        "Don't make any moves yet"
+      ],
+      "expected_values": {
+        "0xFF0220": 99,
+        "0xFF8400": 144,
+        "0xFF8600": 144,
+        "0xFF0044": 0,
+        "0xFF0046": 0,
+        "0xFF8450": 2,
+        "0xFF8650": 8
+      },
+      "timestamp": "2023-05-24 14:20:30"
+    },
+    {
+      "name": "mid_match",
+      "description": "Test mapping values during active gameplay",
+      "setup_steps": [
+        "Start a match with Captain America (P1) vs War Machine (P2)",
+        "Play for a few seconds",
+        "Make sure both players have taken some damage",
+        "P1 should have about 70% health remaining",
+        "P2 should have about 50% health remaining",
+        "Pause at an interesting point in the match"
+      ],
+      "expected_values": {
+        "0xFF0220": 75,
+        "0xFF8400": 100,
+        "0xFF8600": 72,
+        "0xFF0044": 35,
+        "0xFF0046": 20,
+        "0xFF8450": 2,
+        "0xFF8650": 8
+      },
+      "timestamp": "2023-05-24 14:35:45"
+    },
+    {
+      "name": "character_switch",
+      "description": "Test mapping values during character switch",
+      "setup_steps": [
+        "Start a match with Captain America and Wolverine for Player 1",
+        "Play until P1 can switch characters",
+        "Perform a character switch to Wolverine",
+        "Pause immediately after the switch"
+      ],
+      "expected_values": {
+        "0xFF0220": 70,
+        "0xFF8400": 90,
+        "0xFF8600": 120,
+        "0xFF0044": 40,
+        "0xFF0046": 25,
+        "0xFF8450": 4,
+        "0xFF8650": 8
+      },
+      "timestamp": "2023-05-24 14:50:10"
+    },
+    {
+      "name": "super_move",
+      "description": "Test mapping values when P1 has full super meter",
+      "setup_steps": [
+        "Start a match",
+        "Build up P1's super meter to maximum",
+        "Pause the game before executing a super move"
+      ],
+      "expected_values": {
+        "0xFF0220": 65,
+        "0xFF8400": 85,
+        "0xFF8600": 110,
+        "0xFF0044": 100,
+        "0xFF0046": 30,
+        "0xFF8450": 2,
+        "0xFF8650": 8
+      },
+      "timestamp": "2023-05-24 15:05:25"
+    },
+    {
+      "name": "round_end",
+      "description": "Test mapping values at the end of a round",
+      "setup_steps": [
+        "Play a match until Player 1 wins",
+        "Capture the state right after the victory announcement"
+      ],
+      "expected_values": {
+        "0xFF0220": 0,
+        "0xFF8400": 75,
+        "0xFF8600": 0,
+        "0xFF0044": 25,
+        "0xFF0046": 0,
+        "0xFF02D0": 1,
+        "0xFF02D2": 0
+      },
+      "timestamp": "2023-05-24 15:20:40"
+    }
+  ]
+} 

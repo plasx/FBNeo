@@ -1,0 +1,300 @@
+{
+  "game_name": "Marvel vs. Capcom: Clash of Super Heroes",
+  "architecture": "CPS2",
+  "version": "1.0.0",
+  "description": "Memory mapping for Marvel vs. Capcom: Clash of Super Heroes (CPS2)",
+  "supported_roms": ["mvsc", "mvsca", "mvscb", "mvscj", "mvscjr1", "mvscr1", "mvscu"],
+  
+  "mappings": {
+    "player_state": [
+      {
+        "name": "p1_health",
+        "address": "0xFF8450",
+        "type": "word",
+        "description": "Player 1 health",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "little"
+      },
+      {
+        "name": "p2_health",
+        "address": "0xFF8850",
+        "type": "word",
+        "description": "Player 2 health",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "little"
+      },
+      {
+        "name": "p1_meter",
+        "address": "0xFF8454",
+        "type": "word",
+        "description": "Player 1 super meter",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "little"
+      },
+      {
+        "name": "p2_meter",
+        "address": "0xFF8854",
+        "type": "word",
+        "description": "Player 2 super meter",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "little"
+      },
+      {
+        "name": "p1_active_char",
+        "address": "0xFF8458",
+        "type": "byte",
+        "description": "Player 1 active character (0=point, 1=assist)",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_active_char",
+        "address": "0xFF8858",
+        "type": "byte",
+        "description": "Player 2 active character (0=point, 1=assist)",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      }
+    ],
+    "position": [
+      {
+        "name": "p1_x_pos",
+        "address": "0xFF8400",
+        "type": "dword",
+        "description": "Player 1 X position",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -10000,
+        "max_value": 10000,
+        "endianness": "little"
+      },
+      {
+        "name": "p1_y_pos",
+        "address": "0xFF8404",
+        "type": "dword",
+        "description": "Player 1 Y position",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -10000,
+        "max_value": 10000,
+        "endianness": "little"
+      },
+      {
+        "name": "p2_x_pos",
+        "address": "0xFF8800",
+        "type": "dword",
+        "description": "Player 2 X position",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -10000,
+        "max_value": 10000,
+        "endianness": "little"
+      },
+      {
+        "name": "p2_y_pos",
+        "address": "0xFF8804",
+        "type": "dword",
+        "description": "Player 2 Y position",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -10000,
+        "max_value": 10000,
+        "endianness": "little"
+      }
+    ],
+    "game_state": [
+      {
+        "name": "timer",
+        "address": "0xFF0220",
+        "type": "word",
+        "description": "Round timer (in frames)",
+        "scale": 0.0166,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 5996,
+        "endianness": "little"
+      },
+      {
+        "name": "p1_wins",
+        "address": "0xFF0224",
+        "type": "byte",
+        "description": "Rounds won by Player 1",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 2
+      },
+      {
+        "name": "p2_wins",
+        "address": "0xFF0228",
+        "type": "byte",
+        "description": "Rounds won by Player 2",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 2
+      },
+      {
+        "name": "match_state",
+        "address": "0xFF022C",
+        "type": "byte",
+        "description": "Match state (0=fighting, 1=round over, 2=match over)",
+        "min_value": 0,
+        "max_value": 2
+      }
+    ],
+    "character_state": [
+      {
+        "name": "p1_point_char_id",
+        "address": "0xFF8380",
+        "type": "byte",
+        "description": "Player 1 point character ID",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 22
+      },
+      {
+        "name": "p1_assist_char_id",
+        "address": "0xFF8384",
+        "type": "byte",
+        "description": "Player 1 assist character ID",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 22
+      },
+      {
+        "name": "p2_point_char_id",
+        "address": "0xFF8780",
+        "type": "byte",
+        "description": "Player 2 point character ID",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 22
+      },
+      {
+        "name": "p2_assist_char_id",
+        "address": "0xFF8784",
+        "type": "byte",
+        "description": "Player 2 assist character ID",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 22
+      }
+    ],
+    "action_state": [
+      {
+        "name": "p1_state",
+        "address": "0xFF8410",
+        "type": "byte",
+        "description": "Player 1 state (0=neutral, 1=attacking, 2=blocking, 3=hit, 4=knockdown)",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 5
+      },
+      {
+        "name": "p2_state",
+        "address": "0xFF8810",
+        "type": "byte",
+        "description": "Player 2 state (0=neutral, 1=attacking, 2=blocking, 3=hit, 4=knockdown)",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 5
+      },
+      {
+        "name": "p1_air_state",
+        "address": "0xFF8414",
+        "type": "byte",
+        "description": "Player 1 air state (0=grounded, 1=jumping, 2=air dash, 3=falling)",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 3
+      },
+      {
+        "name": "p2_air_state",
+        "address": "0xFF8814",
+        "type": "byte",
+        "description": "Player 2 air state (0=grounded, 1=jumping, 2=air dash, 3=falling)",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 3
+      },
+      {
+        "name": "p1_assist_cooldown",
+        "address": "0xFF845C",
+        "type": "word",
+        "description": "Player 1 assist cooldown timer",
+        "player_index": 0,
+        "scale": 0.0166,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 600,
+        "endianness": "little"
+      },
+      {
+        "name": "p2_assist_cooldown",
+        "address": "0xFF885C",
+        "type": "word",
+        "description": "Player 2 assist cooldown timer",
+        "player_index": 1,
+        "scale": 0.0166,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 600,
+        "endianness": "little"
+      }
+    ]
+  },
+  
+  "groups": {
+    "player1_info": [
+      "p1_health",
+      "p1_meter",
+      "p1_active_char",
+      "p1_x_pos",
+      "p1_y_pos",
+      "p1_point_char_id",
+      "p1_assist_char_id",
+      "p1_state",
+      "p1_air_state",
+      "p1_assist_cooldown"
+    ],
+    "player2_info": [
+      "p2_health",
+      "p2_meter",
+      "p2_active_char",
+      "p2_x_pos",
+      "p2_y_pos",
+      "p2_point_char_id",
+      "p2_assist_char_id",
+      "p2_state",
+      "p2_air_state",
+      "p2_assist_cooldown"
+    ],
+    "match_info": [
+      "timer",
+      "p1_wins",
+      "p2_wins",
+      "match_state"
+    ]
+  }
+} 

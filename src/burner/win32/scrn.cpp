@@ -160,7 +160,7 @@ static char* CreateKailleraList()
 	}
 
 	// Add chat option to the gamelist
-	pName += sprintf(pName, "* Chat only");
+	pName += snprintf(pName, nSize - (pName - pList), "* Chat only");
 	pName++;
 
 	// Put games in the Favorites list at the top of the list.
@@ -182,7 +182,7 @@ static char* CreateKailleraList()
 					pList = pNewList;
 					pName += (INT_PTR)pList;
 				}
-				pName += sprintf(pName, "%s", szDecoratedName);
+				pName += snprintf(pName, nSize - (pName - pList), "%s", szDecoratedName);
 				pName++;
 			}
 		}
@@ -205,7 +205,7 @@ static char* CreateKailleraList()
 					pList = pNewList;
 					pName += (INT_PTR)pList;
 				}
-				pName += sprintf(pName, "%s", szDecoratedName);
+				pName += snprintf(pName, nSize - (pName - pList), "%s", szDecoratedName);
 				pName++;
 			}
 		}
@@ -251,10 +251,16 @@ int ActivateChat()
 	return 0;
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+// ... existing code ...
 INT32 is_netgame_or_recording() // returns: 1 = netgame, 2 = recording/playback
-{
-	return (kNetGame | (movieFlags & (1<<1))); // netgame or recording from power_on
+// ... existing code ...
+#ifdef __cplusplus
 }
+#endif
+// ... existing code ...
 
 static int WINAPI gameCallback(char* game, int player, int numplayers)
 {
@@ -879,14 +885,14 @@ static void HandleBezelLoading(HWND hWnd, int cx, int cy)
 		char* pszName = BurnDrvGetTextA(DRV_NAME);
 		char szName[MAX_PATH];
 
-		sprintf(szName, "support/bezel/%s.png", pszName);
+		snprintf(szName, sizeof(szName), "support/bezel/%s.png", pszName);
 
 		FILE *fp = fopen(szName, "rb");
 
 		if (!fp && BurnDrvGetTextA(DRV_PARENT)) {
 			// File doesn't exist, so try parent name
 			pszName = BurnDrvGetTextA(DRV_PARENT);
-			sprintf(szName, "support/bezel/%s.png", pszName);
+			snprintf(szName, sizeof(szName), "support/bezel/%s.png", pszName);
 			fp = fopen(szName, "rb");
 		}
 
@@ -898,9 +904,9 @@ static void HandleBezelLoading(HWND hWnd, int cx, int cy)
 
 			if (pszName != NULL) {
 				if (BurnDrvGetFlags() & BDF_ORIENTATION_VERTICAL) {
-					sprintf(szName, "support/bezel/%s_v.png", pszName);
+					snprintf(szName, sizeof(szName), "support/bezel/%s_v.png", pszName);
 				} else {
-					sprintf(szName, "support/bezel/%s.png", pszName);
+					snprintf(szName, sizeof(szName), "support/bezel/%s.png", pszName);
 				}
 			}
 

@@ -904,7 +904,7 @@ static void namcos86_mcu_write(UINT16 address, UINT8 data)
 		case 0x2801:
 		case 0x3801:
 		case 0x6001:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0x8000:
@@ -944,7 +944,7 @@ static UINT8 namcos86_mcu_read(UINT16 address)
 		case 0x2801:
 		case 0x3801:
 		case 0x6001:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0x2020:
 		case 0x2820:

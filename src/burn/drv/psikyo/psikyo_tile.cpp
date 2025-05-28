@@ -2,6 +2,17 @@
 
 #include "psikyo.h"
 
+typedef void (*RenderTileFunction)();
+
+static UINT8* pTile;
+static UINT8* pTileData8;
+static UINT32 pTilePalette;
+static INT16* pTileRowInfo;
+static INT32 nTilemapWith, nTileXPos, nTileYPos;
+
+// Tile rendering routines
+#include "../../dep/generated/psikyo_tile_func.h"
+
 UINT8* PsikyoTileROM;
 UINT8* PsikyoTileRAM[3] = { NULL, };
 
@@ -15,18 +26,6 @@ static INT8* PsikyoTileAttrib = { NULL, };
 static INT32 PsikyoTileMask;
 
 static UINT32 PsikyoTileBank[2];
-
-static UINT8* pTile;
-static UINT8* pTileData8;
-static UINT32 pTilePalette;
-static INT16* pTileRowInfo;
-
-typedef void (*RenderTileFunction)();
-
-static INT32 nTilemapWith, nTileXPos, nTileYPos;
-
-// Include the tile rendering functions
-#include "psikyo_tile_func.h"
 
 static void PsikyoRenderLayer(INT32 nLayer)
 {

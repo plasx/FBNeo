@@ -40,8 +40,8 @@ typedef struct { int x, y, width, height; } RECT;
 #endif
 
 #undef __fastcall
-#undef _fastcall
-#define __fastcall			/*what does this correspond to?*/
+#define __fastcall
+#define _fastcall			/*what does this correspond to?*/
 #define _fastcall			/*same as above - what does this correspond to?*/
 #define ANSIToTCHAR(str, foo, bar) (str)
 

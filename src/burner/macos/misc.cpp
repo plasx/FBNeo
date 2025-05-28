@@ -23,7 +23,9 @@
 #endif
 }
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* const */ char* TCHARToANSI(const TCHAR* pszInString, char* pszOutString, int nOutSize)
 {
 #if defined (UNICODE)
@@ -47,6 +49,9 @@
 	return (char*)pszInString;
 #endif
 }
+#ifdef __cplusplus
+}
+#endif
 
 TCHAR* GetIsoPath()
 {

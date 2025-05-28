@@ -1,5 +1,10 @@
 #include "cps.h"
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
 // QSound
+
+extern INT32 nCpsZ80Cycles;
 
 static INT32 nQsndCyclesExtra;
 
@@ -45,11 +50,6 @@ INT32 QsndInit()
 	return 0;
 }
 
-void QsndSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir)
-{
-	QscSetRoute(nIndex, nVolume, nRouteDir);
-}
-
 void QsndReset()
 {
 	ZetOpen(0);
@@ -66,28 +66,6 @@ void QsndExit()
 	QsndZExit();
 }
 
-INT32 QsndScan(INT32 nAction)
-{
-	if (nAction & ACB_DRIVER_DATA) {
-		QsndZScan(nAction);				// Scan Z80
-		QscScan(nAction);				// Scan QSound Chip
-
-		BurnTimerScan(nAction, NULL);
-		SCAN_VAR(nQsndCyclesExtra);
-	}
-
-	return 0;
-}
-
-void QsndNewFrame()
-{
-	ZetNewFrame();
-
-	ZetOpen(0);
-	ZetIdle(nQsndCyclesExtra);
-
-	QscNewFrame();
-}
 
 void QsndEndFrame()
 {
@@ -99,15 +77,4 @@ void QsndEndFrame()
 
 	nQsndCyclesExtra = ZetTotalCycles() - nCpsZ80Cycles;
 	ZetClose();
-}
-
-void QsndSyncZ80()
-{
-	int nCycles = (INT64)SekTotalCycles() * nCpsZ80Cycles / nCpsCycles;
-
-	if (nCycles <= ZetTotalCycles()) {
-		return;
-	}
-
-	BurnTimerUpdate(nCycles);
 }

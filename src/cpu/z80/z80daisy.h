@@ -47,6 +47,13 @@ void z80daisy_call_reti_device(const struct z80_irq_daisy_chain *chain);
 
 void z80daisy_exit();
 void z80daisy_scan(int nAction);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 void Z80SetDaisy(void *dptr); // from z80.cpp
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,0 +1,159 @@
+#ifndef _BURNINT_H
+#define _BURNINT_H
+
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include "burn.h"
+
+// ---------------------------------------------------------------------------
+// Driver information
+
+// Macro to define a game
+#ifndef SKIP_DRIVER_DEFINITION
+struct BurnDriver {
+	const char* szShortName;			// 8.3 name of game driver
+	const char* szParent;				// Parent of the driver
+	const char* szBoardROM;				// Board ROMs
+	const char* szAllRomsAllSoftwareRegionAllDisks;
+	const char* szDate;					// Date of game driver release
+
+	const char* szFullNameA;			// Full ASCII name of the game driver
+	const char *szGlueTitle;			// Help glue name to date
+	const char* szCommentA;				// Angle brackets - Comment about the game driver
+	const char* szManufacturerA;		// ASCII name of the manufacturer
+	const char* szSystemA;				// ASCII name of the system
+
+	const char* szFullNameW;			// Full WCHAR name of the game driver
+	const char* szCommentW;				// Angle brackets - Comment about the game driver
+	const char* szManufacturerW;		// WCHAR name of the manufacturer
+	const char* szSystemW;				// WCHAR name of the system
+
+	int nGenre;							// Genre of the game
+	int nFamily;						// Bitfield of 32 flags, hardware platform
+	int nFlags;							// Bitfield of 32 flags, general driver flags
+
+	int nMaxPlayers;					// The maximum number of players the game supports (1-4)
+	int nWidth;							// Screen width
+	int nHeight;						// Screen height
+	int nXAspect;						// Aspect ratio, X axis
+	int nYAspect;						// Aspect ratio, Y axis
+
+	int nScrnFlags;						// Scrn flags
+	void* pDriverCallback;				// Driver callback
+	void* pGetZipName;					// Get .ZIP name callback
+	void* pGetRomInfo;					// Get ROM info callback
+	void* pGetRomName;					// Get ROM name callback
+	void* pGetSampleInfo;				// Get samples info callback
+	void* pGetSampleName;				// Get samples name callback
+	void* pGetInputInfo;				// Get input info callback
+	void* pGetDIPInfo;					// Get DIP switch info callback
+	void* pInit;						// Initialisation callback
+	void* pExit;						// Exit callback
+	void* pFrame;						// Frame callback
+	void* pDraw;						// Draw callback
+	void* pScan;						// Scan Callback
+	void* pSetColorTable;				// Set color table callback
+};
+#endif
+
+// Standard functions for dealing with ROM and input info structures
+#define STD_ROM_FN(name)												\
+   INT32 name##RomInfo(struct BurnRomInfo* pri, UINT32 i)				\
+{																		\
+	return BurnDrvGetRomInfo(pri, i);									\
+}																		\
+																		\
+INT32 name##RomName(char** pszName, UINT32 i, INT32 nAka)				\
+{																		\
+	return BurnDrvGetRomName(pszName, i, nAka);							\
+}
+
+#define STDROMPICKEXT(name, rom1, rom2, rom3)							\
+static struct BurnRomInfo name##RomDesc[] = {							\
+	{ rom1, 0, 0, 0 },													\
+	{ rom2, 0, 0, 0 },													\
+	{ rom3, 0, 0, 0 },													\
+};
+
+#define STD_INPUT_PORTS_START(name)										\
+static struct BurnInputInfo name##InputList[] = {
+
+#define STD_INPUT_PORTS_END												\
+};
+
+#define STD_ROM_PICK(name)												\
+static struct BurnRomInfo name##RomDesc[] = {
+
+#define STD_ROM_END														\
+};
+
+// ---------------------------------------------------------------------------
+// BURN Sound defines
+
+// Sound related macros
+#define BURN_SND_CLIP(A) ((A) < -0x8000 ? -0x8000 : (A) > 0x7fff ? 0x7fff : (A))
+
+#define BURN_SND_ROUTE_LEFT			1
+#define BURN_SND_ROUTE_RIGHT		2
+#define BURN_SND_ROUTE_BOTH			(BURN_SND_ROUTE_LEFT | BURN_SND_ROUTE_RIGHT)
+
+// ---------------------------------------------------------------------------
+// BURN steppers
+
+#define STEP1 1
+#define STEP2 2
+#define STEP3 4
+#define STEP4 8
+#define STEP5 16
+#define STEP6 32
+#define STEP7 64
+#define STEP8 128
+#define STEP9 256
+#define STEP10 512
+
+// ---------------------------------------------------------------------------
+
+// cpu_core_config structure
+struct cpu_core_config {
+    int cpu_type;
+    unsigned int clock_speed;
+    unsigned int cycles_per_frame;
+    int address_bits;
+    int address_mask;
+    int data_bits;
+    int (*init)();
+    void (*exit)();
+    void (*reset)();
+    int (*execute)(int cycles);
+    void (*burn_cycles)(int cycles);
+    int (*idle_cycles)();
+    void (*irq_set)(int state);
+    void *data;
+};
+
+// Structure for cheat core
+struct cheat_core {
+    struct cpu_core_config *cpuconfig;
+    int nCPU;            
+};
+
+// Function prototypes
+void CpuCheatRegister(int type, struct cpu_core_config *config);
+struct cheat_core *GetCpuCheatRegister(int nCPU);
+
+// Import global variables from burn.h - use the same types!
+extern int nBurnSoundRate;
+extern unsigned int nBurnDrvCount;
+// NO redeclaration of nBurnDrvActive - just use the one from burn.h
+extern bool bBurnOkay;
+extern struct BurnDriver* pDriver[];
+
+#include "tiles_generic.h"
+
+#endif

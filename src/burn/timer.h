@@ -1,6 +1,13 @@
 #ifndef __BURNTIMER__
 #define __BURNTIMER__
 
+// Include path relative to this file
+#include "misc/cpu_core_config.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // FM timers
 
 #define TIMER_TICKS_PER_SECOND (2048000000)
@@ -21,8 +28,10 @@ void BurnYMF262TimerCallback(INT32 n, INT32 c, double period);          // perio
 void BurnTimerSetRetrig(INT32 c, double period);						// period in  s
 void BurnTimerSetOneshot(INT32 c, double period);						// period in  s
 
+#if defined(BURN_TIMER_SUPPORTS_UINT64)
 void BurnTimerSetRetrig(INT32 c, UINT64 timer_ticks);
 void BurnTimerSetOneshot(INT32 c, UINT64 timer_ticks);
+#endif
 
 extern double dTime;
 
@@ -43,5 +52,9 @@ INT32 NullRun(const INT32 nCycles);
 
 extern INT32 BurnTimerCPUClockspeed;
 extern INT32(*BurnTimerCPUTotalCycles)();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

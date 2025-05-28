@@ -1,3 +1,7 @@
+#ifndef GAMEINP_H
+#define GAMEINP_H
+
+#include "../burn/burn.h"
 
 struct giConstant {
 	UINT8 nConst;				// The constant value
@@ -158,4 +162,15 @@ struct GameInp {
 		struct giMacro Macro;
 	};
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+void GameMacroAutofireRead(char* szVal, bool bCopy);
+void GameInpCustomRead(char* szVal, bool bCopy);
+#ifdef __cplusplus
+}
+#endif
+
+#endif // GAMEINP_H
 

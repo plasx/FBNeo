@@ -1,0 +1,8 @@
+#ifdef BUILD_METAL
+#ifndef BUILD_METAL_SKIP_CPS2_FIXES_H
+#include "../../../burner/metal/fixes/cps2_fixes.h"
+#endif
+#endif
+#include "cps.h"
+#include "burn_gun.h" // ecofght optional spinner dev.
+#include "bitswap.h"

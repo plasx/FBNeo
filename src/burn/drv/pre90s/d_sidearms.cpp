@@ -688,7 +688,7 @@ static void __fastcall whizz_sound_write_port(UINT16 port, UINT8 data)
 	{
 		case 0x00:
 		case 0x01:
-			BurnYM2151Write(port & 1, data);
+			BurnYM2151Write(0, port & 1, data);
 		return;
 
 		case 0x40:
@@ -702,7 +702,7 @@ static UINT8 __fastcall whizz_sound_read_port(UINT16 port)
 	{
 		case 0x00:
 		case 0x01:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0xc0:
 			return soundlatch;
@@ -1853,7 +1853,7 @@ struct BurnDriver BurnDrvDyger = {
 	"dyger", NULL, NULL, NULL, "1989",
 	"Dyger (Korea set 1)\0", NULL, "Philko", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
+	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
 	NULL, dygerRomInfo, dygerRomName, NULL, NULL, NULL, NULL, DygerInputInfo, DygerDIPInfo,
 	DygerInit, DrvExit, DrvFrame, DygerDraw, DrvScan, &DrvRecalc, 0x800,
 	224, 384, 3, 4

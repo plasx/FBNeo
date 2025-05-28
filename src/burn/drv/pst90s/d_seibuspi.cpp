@@ -1781,12 +1781,12 @@ static INT32 DrvExit()
 	{
 #if 0
 		char name[128];
-		sprintf (name, "%s-flash0.bin", BurnDrvGetTextA(DRV_NAME));
+		snprintf (name, 128, "%s-flash0.bin", BurnDrvGetTextA(DRV_NAME));
 		FILE *fa = fopen(name, "wb");
 		fwrite (DrvSndROM[0] + 0xa00000, 0x100000, 1, fa);
 		fclose (fa);
 
-		sprintf (name, "%s-flash1.bin", BurnDrvGetTextA(DRV_NAME));
+		snprintf (name, 128, "%s-flash1.bin", BurnDrvGetTextA(DRV_NAME));
 
 		fa = fopen(name, "wb");
 		fwrite (DrvSndROM[0] + 0xb00000, 0x100000, 1, fa);

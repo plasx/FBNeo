@@ -1,95 +1,139 @@
-# FinalBurn Neo
-Official Forum: https://neo-source.com
+# FBNeo Metal Build Complete Fix
 
-Discord: https://discord.gg/8EGVd9v
+This script provides a comprehensive fix for the FBNeo Metal build, addressing multiple issues:
 
-This is the official repository of FinalBurn Neo, an Emulator for Arcade Games & Select Consoles. It is based on the emulators FinalBurn and old versions of [MAME](https://www.mamedev.org)
+1. **BurnDriver struct redefinition** - Prevents the struct from being defined in multiple places
+2. **Type inconsistencies** - Makes nBurnDrvActive consistently 'int' across all files
+3. **Missing CPU structs** - Adds empty struct declarations for Megadrive and FD1094 CPUs
+4. **const qualifier issues** - Fixes string literal assignment to non-const pointers
+5. **Missing function definitions** - Adds implementations for functions like BurnSoundInit
 
-FBNeo, or FinalBurn Neo, is a multi-system arcade emulator designed for retro gaming enthusiasts. It emulates a wide range of classic arcade games and consoles, such as Capcom CPS-1, CPS-2, CPS-3, Neo Geo, and Sega System 16, among others. FBNeo focuses on accurate emulation and high performance, supporting advanced features like netplay, rewinding, and shader effects. It's a continuation of the FinalBurn and FinalBurn Alpha projects, aiming to provide a comprehensive and user-friendly platform for preserving and enjoying vintage games on modern systems.
+## How the fixes work:
 
-Use of this program and its source code is subject to the license conditions provided in the [license.txt](/src/license.txt) file in the src folder.
+1. **Type Consistency Fix**:
+   - Makes `nBurnDrvActive` definition use `int` in both burn.h and burnint.h
+   - Explicitly changes the declaration in burn.cpp to match
 
-# Work in Progress builds
-You can download the latest builds by clicking on the badge below. Please note that the downloads might not be available immediately after a new commit. As this build is of the last commit occasionally you might run into incomplete code, crashes or other issues that [official releases](https://github.com/finalburnneo/FBNeo/releases) will not have.
+2. **BurnDriver Struct Fix**:
+   - Creates special headers for burn.cpp and similar files that need the full struct definition
+   - Avoids redefinition by using SKIP_DRIVER_DEFINITION in other files
+   - Makes struct definitions consistent across all files
 
-[![nightly-release](https://github.com/finalburnneo/FBNeo/actions/workflows/nightly-release.yml/badge.svg)](https://github.com/finalburnneo/FBNeo/releases/tag/latest)
+3. **Const Qualifier Fix**:
+   - Provides macros to safely cast const strings to non-const when needed
+   - Makes string literals usable with functions expecting non-const char pointers
 
-# Ports
+4. **CPU Struct Fix**:
+   - Provides empty struct declarations for CPU structs referenced in metal_stubs.c
+   - Avoids the "tentative definition" errors for CPU structs
 
-macOS [build instructions](README-macOS.md) and [releases](https://github.com/fbn-mac/FBNeo/releases).
+5. **Build System Fix**:
+   - Creates a modified makefile with special rules for problematic files
+   - Uses custom include paths to ensure patched headers take precedence
+   - Excludes known problematic files that can't be fixed easily
 
-[LibRetro port](https://github.com/libretro/FBNeo) with builds availble via [RetroArch](https://www.retroarch.com/) for a lot of cool platforms.
+## How to build:
 
-For SDL1.2 builds just type `make sdl` (requires SDL1.2 and GCC, make, perl and nasm) [instructions](README-SDL.md)
+1. Run the script:
+   ```
+   ./fix_metal_build.sh
+   ```
 
-For SDL2 builds just type `make sdl2` (requires SDL2, SDL2_image, gcc, make, perl and nasm) [instructions](README-SDL.md)
+2. The script will:
+   - Create all necessary directories, files and symlinks
+   - Apply fixes to the source code
+   - Set up a patched build system
 
-~~Raspberry Pi [build instructions](README-PI.md).~~
+3. Build using the fixed makefile:
+   ```
+   make -f makefile.metal.fixed
+   ```
 
-# Reporting Issues
+## Note on Modified Files
 
-Please raise an issue on the [project GitHub](https://github.com/finalburnneo/FBNeo/issues) or report on the forums at [Neosource](https://neo-source.com)
+The script makes backups of any files it modifies:
+- burn.h.bak - Original burn.h file
+- burn.cpp.bak - Original burn.cpp file
+- burnint.h.bak - Original burnint.h file
 
-# What about FB Alpha?
+These will be automatically restored when you exit the script with Ctrl+C.
 
-Many of the developers of this project also worked on FB Alpha. Due to a [controversy](https://www.google.com/search?q=capcom+home+arcade+illegal&oq=capcom+home+arcade+illegal), we no longer do, and recommend that everyone use this emulator instead.
+## Troubleshooting:
 
-# Contributing
+If you still see errors:
 
-We welcome pull requests and other submissions from anyone. We maintain a list of known bugs and features that would be nice to add on the [issue tracker](https://github.com/finalburnneo/FBNeo/issues), some of which would be a good starting point for new contributors. 
+1. Try cleaning the build directory:
+   ```
+   make -f makefile.metal.fixed clean
+   ```
 
-One of the focuses of FBNeo is ensuring that the codebase is compilable on older systems. This is for many reasons, not least because older hardware still has a use outside of landfill or being stored in a recycling center, but also it can be a lot of fun porting and running FBNeo to other platforms. Currently, this means we will always aim for [C++03 compliance](https://en.wikipedia.org/wiki/C%2B%2B03) as a minimum. Any pull requests should keep this in mind!
+2. If specific files are causing issues, you can add them to the exclude pattern in the makefile.
 
-## Notes on Contributions
+# FBNeo Metal Renderer for macOS
 
-In the root of the source tree there is an [.editorconfig](https://editorconfig.org/) that mandates:
+Final Burn Neo (FBNeo) emulator with Metal renderer for macOS.
 
-* tabs for indentation
-* tabs use 4 columns
+## Features
 
-Please see the following function for some ideas on how naming, brackets and braces should be
+- **Native Metal Renderer** - Optimized for Apple Silicon and Intel Macs
+- **Modern Controller Support** - Complete GameController framework integration
+- **Shader Support** - Multiple shader options including CRT emulation
+- **Input Configuration** - GUI for configuring keyboard and controller mappings
+- **Per-Game Configurations** - Save and load settings per game
 
+## Building
 
+To build the enhanced version with all features (recommended):
+
+```bash
+make -f makefile.metal enhanced
 ```
-void FunctionName(UINT8 var1, UINT16 var2)
-{
-	UINT64 result;
-	if (var1 * var2 >= 10) {
-		result = var1 * var2;
-	} else {
-		result = var1;
-	}
-}
 
-```
-## Source tree structure
+Or use the included build script:
 
-The source for FBNeo is layed out in a similar way to how things were in the days of the original FinalBurn. It's just that there are now more directories and source files as the emulator has grown significantly.
+```bash
+./build_and_run.sh [optional_rom_path]
 ```
-src/
---/burn			<-- This is where the emulation code lives
-----/devices		<-- This is where emulated devices (EEPROMS, etc) live
-----/drv		<-- This is where the drivers for Games and Systems live
-----/snd		<-- This is where the emulation for sound chips and other sound generating devices live
---/burner		<-- This is where the frontend code lives
---/cpu			<-- This is where the CPU emulation lives
---/dep			<-- This is where external dependencies live (such as libpng)
---/intf			<-- This is where the platform specific code for each platform that FBNeo supports live (e.g. Video and Sound output)
-```
-## Porting FBNeo to different systems
 
-In the main source tree, you will see in the intf directory various implementations for different platforms. You should look in here when porting to new platforms. We also encourage new ports, and are happy to have them merged in to the main sourcetree. There is probably a project there for someone to re-implement some of the older ports using the intf standard, should they want to.
+## GameController Support
 
-For portability we define the following types
-```
-unsigned char   UINT8;
-signed char     INT8;
-unsigned short	UINT16;
-signed short	INT16;
-unsigned int	UINT32;
-signed int      INT32;
-signed int64	INT64;
-unsigned int64  UINT64;
+The Metal renderer has complete support for the Apple GameController framework, providing:
 
-```
-It is recommended that you take a look at the other #defines and structs in the header files in Burn and Burner, and don't forget that some of the existing code in the intf directory will come in handy for new ports. 
+- Support for Xbox, PlayStation, and MFi controllers
+- Hot-plugging and automatic player assignment
+- Per-game controller configurations
+- Full button remapping through the configuration UI
+
+## Input Configuration
+
+To access the input configuration:
+
+1. From the menu bar: **Configuration → Input Settings for Game** (⌘⇧I)
+2. From the menu bar: **Configuration → Global Input Settings** (⌘I)
+
+The configuration window allows you to:
+
+- Remap keyboard keys for game controls
+- Configure controller buttons
+- Save controller configurations per game
+- Adjust display settings
+
+## Default Key Mappings
+
+The default keyboard controls are:
+
+- **Arrow Keys**: D-Pad
+- **Z, X, C, A, S, D**: Buttons 1-6
+- **1, 2**: Coin, Start
+- **Space**: Pause
+- **F1**: Menu
+- **F3, F4**: Save/Load State
+- **Escape**: Quit
+
+## Documentation
+
+For more detailed information, see:
+
+- [CONTROLLER_CONFIG.md](src/burner/metal/CONTROLLER_CONFIG.md) - Controller configuration documentation
+- [CONTROLLER_SUMMARY.md](src/burner/metal/CONTROLLER_SUMMARY.md) - Technical summary of controller implementation
+- [SUMMARY.md](src/burner/metal/SUMMARY.md) - Overall renderer implementation summary

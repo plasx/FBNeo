@@ -69,7 +69,11 @@ INT32 IntInfoAddStringInterface(InterfaceInfo* pInfo, TCHAR* szString)
 		return 1;
 	}
 
+#if defined(__APPLE__) && defined(BUILD_METAL)
+	strncpy(pInfo->ppszInterfaceSettings[i], szString, MAX_PATH);
+#else
 	_tcsncpy(pInfo->ppszInterfaceSettings[i], szString, MAX_PATH);
+#endif
 
 	return 0;
 }
@@ -89,7 +93,11 @@ INT32 IntInfoAddStringModule(InterfaceInfo* pInfo, TCHAR* szString)
 		return 1;
 	}
 
+#if defined(__APPLE__) && defined(BUILD_METAL)
+	strncpy(pInfo->ppszModuleSettings[i], szString, MAX_PATH);
+#else
 	_tcsncpy(pInfo->ppszModuleSettings[i], szString, MAX_PATH);
+#endif
 
 	return 0;
 }

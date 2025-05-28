@@ -1,0 +1,32 @@
+# FBNeo Metal Build Rules for macOS
+# Common definitions for the Metal build
+
+# Build flags
+DEBUG = 1
+MACOSX = 1
+METAL_BUILD = 1
+
+# Directory structure
+BUILD_DIR = build/metal
+OBJ_DIR = $(BUILD_DIR)/obj
+
+# Metal specific flags
+METAL_FLAGS = -fno-objc-arc
+
+# Define OS version requirements
+MACOSX_VERSION = 11.0
+DEPLOYMENT_TARGET = -mmacosx-version-min=$(MACOSX_VERSION)
+SDKROOT = $(shell xcrun --show-sdk-path)
+
+# Metal compilation rules
+%.air: %.metal
+	xcrun -sdk macosx metal $(DEPLOYMENT_TARGET) -c $< -o $@
+
+%.metallib: %.air
+	xcrun -sdk macosx metallib $< -o $@
+
+# Clean rules
+clean_metal:
+	@echo "Cleaning Metal build..."
+	@rm -rf $(BUILD_DIR)
+	@rm -f fbneo_metal fbneo_metal_targeted 

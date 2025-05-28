@@ -1,4 +1,11 @@
+#include "burnint.h"
 #include "cps.h"
+
+// Include our fixes header for Metal builds
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
+
 // QSound - Z80
 
 static INT32 nQsndZBank = 0;
@@ -27,7 +34,7 @@ static INT32 QsndZBankMap()
 	// Read and fetch the bank
 	ZetMapArea(0x8000, 0xbfff, 0, Bank);
 	if (Cps1Qs == 0) {
-		ZetMapArea(0x8000, 0xbfff, 2, Bank, CpsZRom + nOff);
+		ZetMapArea(0x8000, 0xbfff, 2, Bank);
 	} else {
 		ZetMapArea(0x8000, 0xbfff, 2, Bank);
 	}
@@ -85,7 +92,7 @@ INT32 QsndZInit()
 	// Read and fetch first 0x8000 of Rom
 	if (Cps1Qs) {
 		ZetMapArea(0x0000, 0x7FFF, 0, CpsZRom - (nCpsZRomLen / 2));
-		ZetMapArea(0x0000, 0x7FFF, 2, CpsZRom, CpsZRom - (nCpsZRomLen / 2));	// If it tries to fetch this area
+		ZetMapArea(0x0000, 0x7FFF, 2, CpsZRom);
 	} else {
 		ZetMapArea(0x0000, 0x7FFF, 0 ,CpsZRom);
 		ZetMapArea(0x0000, 0x7FFF, 2, CpsZRom);
@@ -103,7 +110,7 @@ INT32 QsndZInit()
 	ZetMemCallback(0xD000, 0xEFFF, 1);
 
 	if (Cps1Qs) {
-		ZetMapArea(0xD000, 0xEFFF, 2, CpsZRom, CpsZRom - (nCpsZRomLen / 2));	// If it tries to fetch this area
+		ZetMapArea(0xD000, 0xEFFF, 2, CpsZRom);
 	} else {
 		ZetMapArea(0xD000, 0xEFFF, 2, CpsZRom);
 	}

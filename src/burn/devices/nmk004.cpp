@@ -7,18 +7,27 @@
 #include "nmk004.h"
 #include "burn_ym2203.h"
 #include "msm6295.h"
+#include "timer.h"
 
 UINT8 *NMK004OKIROM0;
 UINT8 *NMK004OKIROM1;
 UINT8 *NMK004PROGROM;
 
 static UINT8 *ram;
+static UINT8 *m_ram = NULL;
+static INT32 m_oki = 0;
+static UINT8 *m_rom = NULL;
+static INT32 m_protection_check = 0;
+static void *m_timer_m = NULL;
 
 static UINT8 to_nmk004 = 0;
 static UINT8 to_main = 0;
 static INT32 bankdata[2] = { 0, 0 };
 
 static INT32 nmk004_initted = 0;
+
+// Prototype for the timer callback
+static void nmk004_timed_callback(INT32, INT32);
 
 static UINT8 nmk004_tlcs90_read(UINT32 address)
 {
@@ -115,7 +124,7 @@ void NMK004_reset()
 	BurnYM2203Reset();
 	tlcs90Close();
 
-	MSM6295Reset();
+	MSM6295Reset(0);
 
 	oki_bankswitch(0,0);
 	oki_bankswitch(1,0);
@@ -160,6 +169,14 @@ void NMK004_init()
 	MSM6295Init(1, 4000000 / 165, 1);
 	MSM6295SetRoute(0, 0.10, BURN_SND_ROUTE_BOTH);
 	MSM6295SetRoute(1, 0.10, BURN_SND_ROUTE_BOTH);
+
+	m_ram = (UINT8*)BurnMalloc(0x1000);
+	memset(m_ram, 0, 0x1000);
+	m_protection_check = 0;
+
+	// Set up the timer
+	m_timer_m = TimerAlloc(nmk004_timed_callback, 0);
+	TimerSetRetrigger(m_timer_m, -1);
 }
 
 void NMK004_exit()
@@ -223,4 +240,43 @@ void NMK004Write(INT32, INT32 data)
 UINT8 NMK004Read()
 {
 	return to_main;
+}
+
+void nmk004_shutdown()
+{
+	if (m_timer_m != NULL) 
+	{
+		TimerDestroy(m_timer_m);
+		m_timer_m = NULL;
+	}
+
+	tlcs90Exit();
+	BurnFree(m_ram);
+	
+	MSM6295Exit(0);
+}
+
+void nmk004_update()
+{
+	// Implementation of nmk004_update function
+}
+
+INT32 nmk004_transfer_result()
+{
+	return m_protection_check;
+}
+
+static void write_oki_data(UINT8 data)
+{
+	MSM6295Write(m_oki, data);
+}
+
+static UINT8 read_oki_data()
+{
+	return MSM6295Read(m_oki);
+}
+
+static void nmk004_timed_callback(INT32, INT32)
+{
+	// Implementation of nmk004_timed_callback function
 }

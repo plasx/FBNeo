@@ -1,0 +1,1 @@
+void BurnSampleChannelPlay(INT32, INT32, INT32) {} 

@@ -288,7 +288,7 @@ static void sync_sub()
 static void exterm_sound_main_write(UINT16 address, UINT8 data)
 {
 	if ((address & 0xe000) == 0x4000) {
-		BurnYM2151Write(sound_control >> 7, data);
+		BurnYM2151Write(0, sound_control >> 7, data);
 		return;
 	}
 

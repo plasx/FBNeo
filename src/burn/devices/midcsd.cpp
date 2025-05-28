@@ -208,7 +208,11 @@ void csd_init(INT32 m68knum, INT32 pianum, UINT8 *rom, UINT8 *ram)
 	if (pia_select == 0) pia_init();
 	pia_config(pia_select, PIA_ALTERNATE_ORDERING, &pia_intf);
 	
-	DACInit(0, 0, 1, SekTotalCycles, 8000000);
+#ifdef __cplusplus
+    DACInit(0, 0, 1, SekTotalCycles, 8000000);
+#else
+    DACInit(0, 0, 1, SekTotalCycles);
+#endif
 	DACSetRoute(0, 1.00, BURN_SND_ROUTE_BOTH);
 	DACDCBlock(1);
 

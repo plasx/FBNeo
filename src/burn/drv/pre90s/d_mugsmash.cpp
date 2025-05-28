@@ -1,0 +1,1 @@
+BurnYM2151Write(0, address & 1, data); 

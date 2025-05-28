@@ -1383,24 +1383,23 @@ void m6800_get_info(UINT32 state, cpuinfo *info)
 		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s, "The MAME team.");		break;
 
 		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c%c%c%c%c%c%c%c",
-				m6800.cc & 0x80 ? '?':'.',
-				m6800.cc & 0x40 ? '?':'.',
-				m6800.cc & 0x20 ? 'H':'.',
-				m6800.cc & 0x10 ? 'I':'.',
-				m6800.cc & 0x08 ? 'N':'.',
-				m6800.cc & 0x04 ? 'Z':'.',
-				m6800.cc & 0x02 ? 'V':'.',
+			snprintf(info->s, sizeof(info->s), "%c%c%c%c%c%c%c%c",
+				m6800.cc & 0x80 ? 'N':'.',
+				m6800.cc & 0x40 ? 'Z':'.',
+				m6800.cc & 0x20 ? 'V':'.',
+				m6800.cc & 0x10 ? 'C':'.',
+				m6800.cc & 0x08 ? 'H':'.',
+				m6800.cc & 0x04 ? 'I':'.',
+				m6800.cc & 0x02 ? 'N':'.',
 				m6800.cc & 0x01 ? 'C':'.');
 			break;
 
-		case CPUINFO_STR_REGISTER + M6800_A:			sprintf(info->s, "A:%02X", m6800.d.b.h); break;
-		case CPUINFO_STR_REGISTER + M6800_B:			sprintf(info->s, "B:%02X", m6800.d.b.l); break;
-		case CPUINFO_STR_REGISTER + M6800_PC:			sprintf(info->s, "PC:%04X", m6800.pc.w.l); break;
-		case CPUINFO_STR_REGISTER + M6800_S:			sprintf(info->s, "S:%04X", m6800.s.w.l); break;
-		case CPUINFO_STR_REGISTER + M6800_X:			sprintf(info->s, "X:%04X", m6800.x.w.l); break;
-		case CPUINFO_STR_REGISTER + M6800_CC:			sprintf(info->s, "CC:%02X", m6800.cc); break;
-		case CPUINFO_STR_REGISTER + M6800_WAI_STATE:	sprintf(info->s, "WAI:%X", m6800.wai_state); break;
+		case CPUINFO_STR_REGISTER + M6800_A:			snprintf(info->s, sizeof(info->s), "A:%02X", m6800.d.b.h); break;
+		case CPUINFO_STR_REGISTER + M6800_B:			snprintf(info->s, sizeof(info->s), "B:%02X", m6800.d.b.l); break;
+		case CPUINFO_STR_REGISTER + M6800_PC:			snprintf(info->s, sizeof(info->s), "PC:%04X", m6800.pc.w.l); break;
+		case CPUINFO_STR_REGISTER + M6800_S:			snprintf(info->s, sizeof(info->s), "S:%04X", m6800.s.w.l); break;
+		case CPUINFO_STR_REGISTER + M6800_CC:			snprintf(info->s, sizeof(info->s), "CC:%02X", m6800.cc); break;
+		case CPUINFO_STR_REGISTER + M6800_WAI_STATE:	snprintf(info->s, sizeof(info->s), "WAI:%X", m6800.wai_state); break;
 	}
 }
 

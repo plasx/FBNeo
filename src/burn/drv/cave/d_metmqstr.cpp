@@ -237,7 +237,7 @@ UINT8 __fastcall metmqstrZIn(UINT16 nAddress)
 			return SoundLatch >> 8;
 		
 		case 0x51:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 			
 		default: {
 			bprintf(PRINT_NORMAL, _T("Z80 Port Read %x\n"), nAddress);

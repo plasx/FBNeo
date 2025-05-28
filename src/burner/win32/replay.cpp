@@ -68,7 +68,7 @@ static char *ReplayDecodeDateTime()
 	static char ttime[64];
 	int fixhour = (MovieInfo.hour>12) ? MovieInfo.hour-12 : MovieInfo.hour;
 	if (fixhour == 0) fixhour = 12;
-	sprintf(ttime, "%02d/%02d/%04d @ %02d:%02d:%02d%s", MovieInfo.month+1, MovieInfo.day, 2000 + (MovieInfo.year%100), fixhour, MovieInfo.minute, MovieInfo.second, (MovieInfo.hour>12) ? "pm" : "am");
+	snprintf(ttime, sizeof(ttime), "%02d/%02d/%04d @ %02d:%02d:%02d%s", MovieInfo.month+1, MovieInfo.day, 2000 + (MovieInfo.year%100), fixhour, MovieInfo.minute, MovieInfo.second, (MovieInfo.hour>12) ? "pm" : "am");
 
 	return &ttime[0];
 }
@@ -1142,17 +1142,17 @@ void DisplayReplayProperties(HWND hDlg, bool bClear)
 		char szRecordedTime[32] = { 0 };
 		char szStartType[32];
 
-		sprintf(szFramesString, "%d", nFrames);
-		sprintf(szLengthString, "%02d:%02d:%02d", nHours, nMinutes % 60, nSeconds % 60);
-		sprintf(szUndoCountString, "%d", nUndoCount);
+		snprintf(szFramesString, sizeof(szFramesString), "%d", nFrames);
+		snprintf(szLengthString, sizeof(szLengthString), "%02d:%02d:%02d", nHours, nMinutes % 60, nSeconds % 60);
+		snprintf(szUndoCountString, sizeof(szUndoCountString), "%d", nUndoCount);
 		if (nThisFBVersion && !nFileVer) nFileVer = nThisFBVersion;
 
-		sprintf(szStartType, "%s %s", (bStartFromReset) ? "Power-On" : "Savestate", (bStartFromReset && movieFlagsTemp & MOVIE_FLAG_WITH_NVRAM) ? "w/NVRAM" : "");
+		snprintf(szStartType, sizeof(szStartType), "%s %s", (bStartFromReset) ? "Power-On" : "Savestate", (bStartFromReset && movieFlagsTemp & MOVIE_FLAG_WITH_NVRAM) ? "w/NVRAM" : "");
 
 		if (nFileVer)
-			sprintf(szRecordedFrom, "%s, v%x.%x.%x.%02x", szStartType, nFileVer >> 20, (nFileVer >> 16) & 0x0F, (nFileVer >> 8) & 0xFF, nFileVer & 0xFF);
+			snprintf(szRecordedFrom, sizeof(szRecordedFrom), "%s, v%x.%x.%x.%02x", szStartType, nFileVer >> 20, (nFileVer >> 16) & 0x0F, (nFileVer >> 8) & 0xFF, nFileVer & 0xFF);
 		else
-			sprintf(szRecordedFrom, "%s", szStartType);
+			snprintf(szRecordedFrom, sizeof(szRecordedFrom), "%s", szStartType);
 
 		strcpy(szRecordedTime, ReplayDecodeDateTime());
 

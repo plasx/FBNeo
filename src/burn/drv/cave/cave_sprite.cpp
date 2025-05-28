@@ -49,7 +49,13 @@ typedef void (*RenderSpriteFunction)();
 static RenderSpriteFunction* RenderSprite;
 
 // Include the sprite rendering functions
-#include "cave_sprite_func.h"
+#include "../../../dep/generated/cave_sprite_func.h"
+
+static void InitRenderSpriteFunctions()
+{
+	// Initialize the render sprite function table
+	RenderSprite = RenderSprite_ROT0[(nCaveXSize == 320) ? 0 : 1];
+}
 
 INT32 CaveSpriteRender(INT32 nLowPriority, INT32 nHighPriority)
 {
@@ -729,6 +735,8 @@ INT32 CaveSpriteInit(INT32 nType, INT32 nROMSize)
 	nCaveSpriteBank = 0;
 	nCaveSpriteBankDelay = 0;
 
+	// Initialize the render sprite functions
+	InitRenderSpriteFunctions();
 	RenderSprite = RenderSprite_ROT0[(nCaveXSize == 320) ? 0 : 1];
 
 	return 0;

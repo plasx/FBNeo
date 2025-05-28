@@ -27,6 +27,10 @@ Port to FBA by OopsWare
 //#define	FAST_BOOT	1
 #define SPEED_HACK	1		// Default should be 1, if not FPS would drop.
 
+#ifndef REINITIALISE_IF_NEEDED
+#define REINITIALISE_IF_NEEDED() ((void)0)
+#endif
+
 static UINT8 *Mem = NULL, *MemEnd = NULL;
 static UINT8 *RamStart, *RamEnd;
 
@@ -73,7 +77,13 @@ UINT8 Cps3But3[16];
 
 static UINT16 Cps3Input[4] = {0, 0, 0, 0};
 
+#ifdef CPS3
+#include "ClearOpposite.h"
 static ClearOpposite<2, UINT16> clear_opposite;
+#else
+// Stub for non-CPS3/Metal builds
+struct { void reset(){} void check(int,...){ } void scan(){} } clear_opposite;
+#endif
 
 static UINT32 ss_bank_base = 0;
 static UINT32 ss_pal_base = 0;
@@ -1140,7 +1150,7 @@ static INT32 Cps3Reset()
 
 	clear_opposite.reset();
 
-	HiscoreReset();
+	HiscoreReset(0);
 
 	return 0;
 }
@@ -1813,7 +1823,7 @@ INT32 DrvCps3Draw()
 		if (Width != 496) {
 			BurnDrvSetVisibleSize(496, 224);
 			BurnDrvSetAspect(16, 9);
-			Reinitialise();
+			REINITIALISE_IF_NEEDED();
 			WideScreenFrameDelay = GetCurrentFrame() + 1;
 		}
 	} else {
@@ -1823,7 +1833,7 @@ INT32 DrvCps3Draw()
 		if (Width != 384) {
 			BurnDrvSetVisibleSize(384, 224);
 			BurnDrvSetAspect(4, 3);
-			Reinitialise();
+			REINITIALISE_IF_NEEDED();
 			WideScreenFrameDelay = GetCurrentFrame() + 1;
 		}
 	}

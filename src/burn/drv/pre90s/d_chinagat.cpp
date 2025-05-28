@@ -283,7 +283,7 @@ static UINT8 __fastcall chinagat_sound_read(UINT16 address)
 	{
 		case 0x8800:
 		case 0x8801:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0x9800:
 			return MSM6295Read(0);

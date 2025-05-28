@@ -519,7 +519,7 @@ int PrintCPUInfo()
 					}
 				} else { CPUBrandStringFinal[j++] = szCpuName[i]; }
 			}
-		} else { sprintf(CPUBrandStringFinal, "%s", "CPU Detection not enabled for GCC builds"); }
+		} else { snprintf(CPUBrandStringFinal, sizeof(CPUBrandStringFinal), "%s", "CPU Detection not enabled for GCC builds"); }
 
 		RegCloseKey(hKey);
 	}

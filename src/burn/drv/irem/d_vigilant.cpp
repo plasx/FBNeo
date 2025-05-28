@@ -1292,7 +1292,7 @@ static UINT8 __fastcall VigilanteZ80PortRead2(UINT16 a)
 	
 	switch (a) {
 		case 0x01: {
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 		}
 		
 		case 0x80: {

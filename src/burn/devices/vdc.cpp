@@ -6,6 +6,10 @@
 
 #define DINK_DEBUG 0 // debug timing / etc
 
+#ifdef USE_PCE_DIPS
+#define PCEDips PCEDips
+#endif
+
 UINT16 *vce_data;			// allocate externally!
 static UINT16 vce_address;
 static UINT16 vce_control;
@@ -441,7 +445,9 @@ static void pce_refresh_sprites(INT32 which, INT32 line, UINT8 *drawn, UINT16 *l
 					bprintf(0, _T("SPR-Overflow  line %d\n"), vce_current_line);
 #endif
 				}
+#ifdef USE_PCE_DIPS
 				if (~PCEDips[2] & 0x10) // check sprite limit enforcement
+#endif
 					continue;
 			}
 
@@ -578,8 +584,10 @@ static void pce_refresh_sprites(INT32 which, INT32 line, UINT8 *drawn, UINT16 *l
 						bprintf(0, _T("SPR-Overflow  line %d\n"), vce_current_line);
 #endif
 					}
+#ifdef USE_PCE_DIPS
 					if (~PCEDips[2] & 0x10) // check sprite limit enforcement
-						continue;
+#endif
+					continue;
 				}
 				
 				{

@@ -322,7 +322,7 @@ UINT8 __fastcall seibu_sound_read(UINT16 address)
 					return BurnYM3812Read(0, 0);
 
 				case 1:
-					return BurnYM2151Read();
+					return BurnYM2151Read(0);
 
 				case 2:
 					return BurnYM2203Read(0, 0);
@@ -330,7 +330,7 @@ UINT8 __fastcall seibu_sound_read(UINT16 address)
 			return 0;
 
 		case 0x4009: {
-			if ((seibu_snd_type&3)==1) return BurnYM2151Read();
+			if ((seibu_snd_type&3)==1) return BurnYM2151Read(0);
 			if ((seibu_snd_type&3) < 2) return 0;
 			return BurnYM2203Read(0, 1);
 		}
@@ -441,7 +441,7 @@ void seibu_sound_reset()
 
 	ZetClose();
 
-	if ((seibu_snd_type & 8) == 0) MSM6295Reset();
+	if ((seibu_snd_type & 8) == 0) MSM6295Reset(0);
 
 	memset (main2sub, 0, 2);
 	memset (sub2main, 0, 2);
@@ -471,7 +471,11 @@ void seibu_sound_init(INT32 type, INT32 len, INT32 freq0 /*cpu*/, INT32 freq1 /*
 	ZetInit(0);
 	ZetOpen(0);
 	ZetMapArea(0x0000, 0x1fff, 0, SeibuZ80ROM);
+#ifdef ZET_SINGLE
+	ZetMapArea(0x0000, 0x1fff, 2, SeibuZ80DecROM);
+#else
 	ZetMapArea(0x0000, 0x1fff, 2, SeibuZ80DecROM, SeibuZ80ROM);
+#endif
 	ZetMapArea(0x2000, 0x27ff, 0, SeibuZ80RAM);
 	ZetMapArea(0x2000, 0x27ff, 1, SeibuZ80RAM);
 	ZetMapArea(0x2000, 0x27ff, 2, SeibuZ80RAM);
@@ -490,8 +494,8 @@ void seibu_sound_init(INT32 type, INT32 len, INT32 freq0 /*cpu*/, INT32 freq1 /*
 
 		case 1:
 			BurnYM2151InitBuffered(freq1, 1, NULL, 0);
-			BurnYM2151SetIrqHandler(&Drv2151FMIRQHandler);
-			BurnYM2151SetAllRoutes(0.50, BURN_SND_ROUTE_BOTH);
+			BurnYM2151SetIrqHandler(0, &Drv2151FMIRQHandler);
+			BurnYM2151SetAllRoutes(0, 0.50, BURN_SND_ROUTE_BOTH);
 			BurnTimerAttach(&ZetConfig, freq0);
 		break;
 
@@ -547,7 +551,7 @@ void seibu_sound_exit()
 
 	ZetExit();
 
-	if ((seibu_snd_type & 8) == 0) MSM6295Exit();
+	if ((seibu_snd_type & 8) == 0) MSM6295Exit(0);
 
 	// cabal/deadang ADPCM-exit
 	if (mixer_buffer) BurnFree(mixer_buffer);
@@ -566,6 +570,8 @@ void seibu_sound_exit()
 	SeibuADPCMDataLen[0] = SeibuADPCMDataLen[1] = 0;
 
 	DebugDev_SeibuSndInitted = 0;
+
+	bprintf(0, _T("exit %X\n"), seibu_snd_type);
 }
 
 static void adpcm_init()
@@ -678,23 +684,21 @@ void seibu_sound_update(INT16 *pbuf, INT32 nLen)
 	if (!DebugDev_SeibuSndInitted) bprintf(PRINT_ERROR, _T("seibu_sound_update called without init\n"));
 #endif
 
-	switch (seibu_snd_type & 3)
-	{
-		case 0:
-			BurnYM3812Update(pbuf, nLen);
-		break;
+	if (nBurnSoundLen) {
+		if ((seibu_snd_type & 0x20) == 0) { // not raiden2/legionr/legionna
+			if (seibu_snd_type & 1) BurnYM3812Update(nBurnSoundOut, nLen);
+			if (seibu_snd_type & 2) BurnYM2151Render(nBurnSoundOut, nLen);
+			if (seibu_snd_type & 4) BurnYM2203Update(nBurnSoundOut, nLen);
 
-		case 1:
-			BurnYM2151Render(pbuf, nLen);
-		break;
-
-		case 2:
-			BurnYM2203Update(pbuf, nLen);
-		break;
-	}
-
-	if ((seibu_snd_type & 8) == 0) {
-		MSM6295Render(pbuf, nLen); // (seibu_snd_type & 4) included under &8 == 0! (see init)
+			if ((seibu_snd_type & 8) == 0) { // NOT raiden2/legionr/legionna
+				INT16 *pbuf = NallacSound(nLen * 2);
+				if (pbuf) {
+					MSM6295Render(0, pbuf, nLen); // (seibu_snd_type & 4) included under &8 == 0! (see init)
+					BurnSoundCopy(pbuf, nBurnSoundOut, nLen, 0.38);
+					nalloc_free(pbuf);
+				}
+			}
+		}
 	}
 }
 

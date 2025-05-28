@@ -176,7 +176,7 @@ static void __fastcall dblewing_sound_write(UINT16 address, UINT8 data)
 	{
 		case 0xa000:
 		case 0xa001:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0xb000:

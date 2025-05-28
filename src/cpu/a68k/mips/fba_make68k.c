@@ -421,15 +421,15 @@ char* GenerateLabel(int ID, int Type)
 		DisOp = ID;
 /*
 		m68k_disassemble(dis,0);
-		sprintf(codebuf, "OP%d_%4.4x:\t\t\t\t; %s", CPU, ID, dis);
+		snprintf(codebuf, 128, "OP%d_%4.4x:\t\t\t\t; %s", CPU, ID, dis);
 */
-		sprintf(codebuf, "OP%d_%4.4x:\t\t\t\t#", CPU, ID);
+		snprintf(codebuf, 128, "OP%d_%4.4x:\t\t\t\t#", CPU, ID);
 
 		LabID  = ID;
 		LabNum = 0;
 	} else {
 		LabNum++;
-		sprintf(codebuf, "OP%d_%4.4x_%1x", CPU,LabID, LabNum);
+		snprintf(codebuf, 128, "OP%d_%4.4x_%1x", CPU,LabID, LabNum);
 	}
 
 	return codebuf;
@@ -3850,7 +3850,7 @@ void chk(void)
 						ClearRegister(FLAG_N);
 
 						fprintf(fp, "\t8:\n");
-						sprintf(DelaySlot, "ori   %s,$0,6          ", regnameslong[V0]);
+						snprintf(DelaySlot, 128, "ori   %s,$0,6          ", regnameslong[V0]);
 						Exception(-1, DelaySlot);
 						Completed();
 
@@ -4555,7 +4555,7 @@ void trap(void)
 		fprintf(fp, "\t\t addiu %s,%s,2\n\n", regnameslong[PC], regnameslong[PC]);
 
 		fprintf(fp, "\t\t andi  %s,%s,0x0f\n", regnameslong[V0], regnameslong[OPCODE]);
-		sprintf(DelaySlot, "ori   %s,%s,32         ", regnameslong[V0], regnameslong[V0]);
+		snprintf(DelaySlot, 128, "ori   %s,%s,32         ", regnameslong[V0], regnameslong[V0]);
 		Exception(-1, DelaySlot);
 		Completed();
 	}
@@ -5276,7 +5276,7 @@ void movesr(void)
 
 						/* 68010 Command ? */
 						if ((type == 1) && (mode < 7)) {
-							sprintf(DelaySlot, "\t\t andi  %s,%s,0x07     \t # Delay slot\n", regnameslong[OPCODE], regnameslong[OPCODE]);
+							snprintf(DelaySlot, 128, "\t\t andi  %s,%s,0x07     \t # Delay slot\n", regnameslong[OPCODE], regnameslong[OPCODE]);
 							CheckCPUtype(1, DelaySlot, NULL);
 						} else if (type == 1) {
 							CheckCPUtype(1, NULL, NULL);
@@ -6532,7 +6532,7 @@ void divides(void)
 							/* Correct cycle counter for error */
 
 							fprintf(fp, "\t\t addiu %s,%s,%d\n", regnameslong[ICNT], regnameslong[ICNT], 95 + (type * 17));
-							sprintf(DelaySlot, "ori   %s,$0,5          ", regnameslong[V0]);
+							snprintf(DelaySlot, 128, "ori   %s,$0,5          ", regnameslong[V0]);
 							Exception(-1, DelaySlot);
 							fprintf(fp, "\t\t bgez  $0,7b\n");
 							fprintf(fp, "\t\t nop                    \t # Delay slot\n");
@@ -7447,7 +7447,7 @@ int main(int argc, char **argv)
 
 	CPUtype = malloc(64);
 
-	sprintf(CPUtype, "%sM68000", PREF);
+	snprintf(CPUtype, 64, "%sM68000", PREF);
 
 	EmitCode();
 

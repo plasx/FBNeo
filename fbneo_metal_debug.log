@@ -1,0 +1,44 @@
+Metal debug mode enabled via constructor
+[ROM CHECK] Debug system initialized
+[MEM INIT] Allocating memory for CPS2 emulation components...
+[MEM INIT] Main CPU (Motorola 68000) memory allocated: 1048576 bytes
+[MEM INIT] Sound CPU (Z80) memory allocated: 65536 bytes
+[MEM INIT] Graphics and palette memory allocated: 4194304 bytes
+[MEM INIT] Audio (QSound DSP) memory allocated: 131072 bytes
+[GRAPHICS INIT] Decoding and loading graphics assets...
+[GRAPHICS INIT] Loaded 3 sprite assets (5632 KB memory used)
+[GRAPHICS INIT] Loaded 2 background tile assets (1536 KB memory used)
+[GRAPHICS INIT] Loaded 2 Palettes (6 KB memory used)
+[GRAPHICS INIT] Total graphics memory: 7174 KB
+[GRAPHICS INIT] Sprites and background tiles decoded.
+[GRAPHICS INIT] Palette data loaded into memory.
+[HW INIT] CPU initialized successfully
+[HW INIT] Sound initialized successfully
+[HW INIT] Graphics initialized successfully
+[HW INIT] Input initialized successfully
+[HW INIT] Memory Subsystem initialized successfully
+[HW INIT] CPS2 hardware emulation components initialized successfully.
+[HW INIT] CPU initialized successfully
+[HW INIT] Sound initialized successfully
+[HW INIT] Graphics initialized successfully
+[HW INIT] Input initialized successfully
+[HW INIT] Memory Subsystem initialized successfully
+[AUDIO INIT] QSound DSP initialized with format: 44100 Hz, 2 channels, 16-bit, 2048 sample buffer
+[AUDIO INIT] CoreAudio output initialized: 44100 Hz, 2 channels, 16-bit, 11 ms latency
+[AUDIO INIT] Audio Mixer: Audio mixer initialized with 32 channels
+[AUDIO INIT] Sound Bank: Sound bank loaded with 128 sound effects
+[AUDIO INIT] FM Synthesis: FM synthesis engine initialized for music playback
+[AUDIO INIT] QSound DSP initialized successfully with audio buffers prepared.
+[AUDIO LOOP] Audio loop monitor initialized
+[AUDIO LOOP] Audio streaming activated (CoreAudio backend).
+[AUDIO LOOP] Audio buffer: 1740/2048 bytes (85.0%), 44100 Hz
+[AUDIO LOOP] Audio streaming stats (0.0 seconds elapsed):
+[AUDIO LOOP] Audio buffer: 1740/2048 bytes (85.0%), 44100 Hz
+[AUDIO LOOP] Stream 0 (Stream 0): 80.0% volume, 90.0% buffer, 44100 samples played
+[AUDIO LOOP] Stream 1 (Stream 1): 100.0% volume, 70.0% buffer, 22050 samples played
+[INPUT INIT] CPS2 standard controls mapped and ready.
+[INPUT INIT] Keyboard input system initialized
+[INPUT INIT] Mapped 24 buttons across 2 controller(s)
+[INPUT INIT] Controller 1: Player 1 (Keyboard) - 12 buttons mapped
+[INPUT INIT] Controller 2: Player 2 (Keyboard) - 12 buttons mapped
+ 2 (Keyboard) - 12 buttons mapped

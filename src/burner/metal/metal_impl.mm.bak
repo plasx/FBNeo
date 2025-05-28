@@ -1,0 +1,549 @@
+#import <Cocoa/Cocoa.h>
+#import <Metal/Metal.h>
+#import <MetalKit/MetalKit.h>
+#import <QuartzCore/CAMetalLayer.h>
+
+// Include FBNeo headers
+#include "burner.h"
+#include "metal_intf.h"
+#include "../gameinp.h"
+#include "../../intf/input/inp_keys.h"
+
+// Define BUILD_METAL to avoid stub Metal type definitions
+#define BUILD_METAL 1
+
+// Callback function prototype
+extern "C" void MetalRenderCallback(unsigned char* buffer, int width, int height, int pitch);
+
+// Metal renderer class declaration
+@interface MetalRenderer : NSObject
+@property (nonatomic, strong) id<MTLDevice> device;
+@property (nonatomic, strong) id<MTLCommandQueue> commandQueue;
+@property (nonatomic, strong) id<MTLTexture> texture;
+@property (nonatomic, strong) id<MTLRenderPipelineState> pipelineState;
+@property (nonatomic, strong) id<MTLBuffer> vertexBuffer;
+@property (nonatomic, strong) id<MTLBuffer> textureCoordBuffer;
+@property (nonatomic) MTLPixelFormat pixelFormat;
+@property (nonatomic) int textureWidth;
+@property (nonatomic) int textureHeight;
+@property (nonatomic) int texturePitch;
+@property (nonatomic) NSView* targetView;
+@property (nonatomic) dispatch_semaphore_t frameSemaphore;
+@property (nonatomic) CAMetalLayer* metalLayer;
+@property (nonatomic) bool isInitialized;
+@property (nonatomic) CVPixelBufferRef pixelBuffer;
+@property (nonatomic) CVMetalTextureCacheRef textureCache;
+@end
+
+// Define input states and keyboard mapping
+static bool keyStates[256] = {0};
+static bool mouseButtonState[4] = {0};
+static int mouseX = 0, mouseY = 0;
+
+// Global Metal renderer
+static MetalRenderer* g_metalRenderer = nil;
+
+// Basic vertex structure
+typedef struct {
+    float position[2];
+    float textureCoordinate[2];
+} Vertex;
+
+// Vertices for a full-screen quad
+static const Vertex quadVertices[] =
+{
+    { {-1.0, -1.0}, {0.0, 1.0} },
+    { {-1.0,  1.0}, {0.0, 0.0} },
+    { { 1.0, -1.0}, {1.0, 1.0} },
+    { { 1.0,  1.0}, {1.0, 0.0} },
+};
+
+// Main renderer implementation
+@implementation MetalRenderer
+
+- (instancetype)initWithView:(NSView *)view {
+    self = [super init];
+    if (self) {
+        _device = MTLCreateSystemDefaultDevice();
+        if (!_device) {
+            NSLog(@"Metal is not supported on this device");
+            return nil;
+        }
+        
+        _targetView = view;
+        _isInitialized = false;
+        
+        // Set up command queue
+        _commandQueue = [_device newCommandQueue];
+        
+        // Set up metal layer
+        _metalLayer = (CAMetalLayer *)_targetView.layer;
+        _metalLayer.device = _device;
+        _metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+        _pixelFormat = _metalLayer.pixelFormat;
+        
+        // Create semaphore for rendering
+        _frameSemaphore = dispatch_semaphore_create(1);
+        
+        // Set up default texture dimensions
+        _textureWidth = 320;
+        _textureHeight = 240;
+        _texturePitch = _textureWidth * 4;
+        
+        // Set up texture cache
+        CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, _device, nil, &_textureCache);
+        
+        // Set up pipeline state
+        [self createRenderPipelineState];
+        
+        // Set up vertex buffers
+        [self createVertexBuffers];
+        
+        _isInitialized = true;
+        
+        NSLog(@"Metal renderer initialized successfully");
+    }
+    return self;
+}
+
+- (void)dealloc {
+    if (_textureCache) {
+        CFRelease(_textureCache);
+    }
+    if (_pixelBuffer) {
+        CVPixelBufferRelease(_pixelBuffer);
+    }
+}
+
+- (void)createRenderPipelineState {
+    // Basic Metal shaders for rendering a textured quad
+    NSString *vertexShaderSource = @"#include <metal_stdlib>\n"
+                                  "using namespace metal;\n"
+                                  "struct VertexOut {\n"
+                                  "    float4 position [[position]];\n"
+                                  "    float2 texCoord;\n"
+                                  "};\n"
+                                  "vertex VertexOut vertex_main(uint vertexID [[vertex_id]],\n"
+                                  "                             constant float2 *positions [[buffer(0)]],\n"
+                                  "                             constant float2 *texCoords [[buffer(1)]]) {\n"
+                                  "    VertexOut out;\n"
+                                  "    out.position = float4(positions[vertexID], 0.0, 1.0);\n"
+                                  "    out.texCoord = texCoords[vertexID];\n"
+                                  "    return out;\n"
+                                  "}\n";
+    
+    NSString *fragmentShaderSource = @"#include <metal_stdlib>\n"
+                                    "using namespace metal;\n"
+                                    "struct VertexOut {\n"
+                                    "    float4 position [[position]];\n"
+                                    "    float2 texCoord;\n"
+                                    "};\n"
+                                    "fragment float4 fragment_main(VertexOut in [[stage_in]],\n"
+                                    "                             texture2d<float> texture [[texture(0)]]) {\n"
+                                    "    constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);\n"
+                                    "    return texture.sample(textureSampler, in.texCoord);\n"
+                                    "}\n";
+    
+    NSError *error = nil;
+    MTLCompileOptions *options = [[MTLCompileOptions alloc] init];
+    id<MTLLibrary> vertexLibrary = [_device newLibraryWithSource:vertexShaderSource options:options error:&error];
+    if (!vertexLibrary) {
+        NSLog(@"Error creating vertex shader library: %@", error);
+        return;
+    }
+    
+    id<MTLLibrary> fragmentLibrary = [_device newLibraryWithSource:fragmentShaderSource options:options error:&error];
+    if (!fragmentLibrary) {
+        NSLog(@"Error creating fragment shader library: %@", error);
+        return;
+    }
+    
+    id<MTLFunction> vertexFunction = [vertexLibrary newFunctionWithName:@"vertex_main"];
+    id<MTLFunction> fragmentFunction = [fragmentLibrary newFunctionWithName:@"fragment_main"];
+    
+    // Create render pipeline descriptor
+    MTLRenderPipelineDescriptor *pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    pipelineDescriptor.vertexFunction = vertexFunction;
+    pipelineDescriptor.fragmentFunction = fragmentFunction;
+    pipelineDescriptor.colorAttachments[0].pixelFormat = _pixelFormat;
+    
+    // Create pipeline state
+    _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineDescriptor error:&error];
+    if (!_pipelineState) {
+        NSLog(@"Failed to create pipeline state: %@", error);
+    }
+}
+
+- (void)createVertexBuffers {
+    // Extract position and texture coordinates from vertices
+    float positions[8];
+    float textureCoords[8];
+    
+    for (int i = 0; i < 4; i++) {
+        positions[i*2] = quadVertices[i].position[0];
+        positions[i*2+1] = quadVertices[i].position[1];
+        textureCoords[i*2] = quadVertices[i].textureCoordinate[0];
+        textureCoords[i*2+1] = quadVertices[i].textureCoordinate[1];
+    }
+    
+    // Create vertex buffer
+    _vertexBuffer = [_device newBufferWithBytes:positions 
+                                         length:sizeof(positions) 
+                                        options:MTLResourceStorageModeShared];
+    
+    // Create texture coordinate buffer
+    _textureCoordBuffer = [_device newBufferWithBytes:textureCoords 
+                                              length:sizeof(textureCoords) 
+                                             options:MTLResourceStorageModeShared];
+}
+
+- (void)updateTextureWithBuffer:(unsigned char *)buffer width:(int)width height:(int)height pitch:(int)pitch {
+    if (!buffer || width <= 0 || height <= 0 || pitch <= 0) {
+        return;
+    }
+    
+    // Check if we need to recreate texture
+    if (width != _textureWidth || height != _textureHeight || pitch != _texturePitch) {
+        _textureWidth = width;
+        _textureHeight = height;
+        _texturePitch = pitch;
+        
+        // Release previous pixel buffer if it exists
+        if (_pixelBuffer) {
+            CVPixelBufferRelease(_pixelBuffer);
+            _pixelBuffer = NULL;
+        }
+    }
+    
+    // Create pixel buffer if needed
+    if (!_pixelBuffer) {
+        NSDictionary *pixelBufferAttributes = @{
+            (NSString*)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+            (NSString*)kCVPixelBufferWidthKey: @(_textureWidth),
+            (NSString*)kCVPixelBufferHeightKey: @(_textureHeight),
+            (NSString*)kCVPixelBufferMetalCompatibilityKey: @YES,
+            (NSString*)kCVPixelBufferIOSurfacePropertiesKey: @{}
+        };
+        
+        CVReturn result = CVPixelBufferCreate(kCFAllocatorDefault, 
+                                             _textureWidth, 
+                                             _textureHeight, 
+                                             kCVPixelFormatType_32BGRA, 
+                                             (__bridge CFDictionaryRef)pixelBufferAttributes, 
+                                             &_pixelBuffer);
+        
+        if (result != kCVReturnSuccess) {
+            NSLog(@"Failed to create pixel buffer");
+            return;
+        }
+    }
+    
+    // Copy buffer data to pixel buffer
+    CVPixelBufferLockBaseAddress(_pixelBuffer, 0);
+    void *pixelBufferAddr = CVPixelBufferGetBaseAddress(_pixelBuffer);
+    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(_pixelBuffer);
+    
+    // Copy the BGRA data
+    for (int y = 0; y < height; y++) {
+        memcpy(
+            (uint8_t*)pixelBufferAddr + y * bytesPerRow,
+            buffer + y * pitch,
+            MIN(pitch, (int)bytesPerRow)
+        );
+    }
+    
+    CVPixelBufferUnlockBaseAddress(_pixelBuffer, 0);
+    
+    // Create Metal texture from pixel buffer
+    CVMetalTextureRef metalTextureRef = NULL;
+    CVReturn result = CVMetalTextureCacheCreateTextureFromImage(
+                                                              NULL, 
+                                                              _textureCache, 
+                                                              _pixelBuffer, 
+                                                              NULL, 
+                                                              MTLPixelFormatBGRA8Unorm, 
+                                                              _textureWidth, 
+                                                              _textureHeight, 
+                                                              0, 
+                                                              &metalTextureRef);
+    
+    if (result != kCVReturnSuccess) {
+        NSLog(@"Failed to create Metal texture from pixel buffer");
+        return;
+    }
+    
+    // Get Metal texture from CVMetalTexture
+    _texture = CVMetalTextureGetTexture(metalTextureRef);
+    CFRelease(metalTextureRef);
+}
+
+- (void)renderFrame {
+    // Skip rendering if there's no texture
+    if (!_texture) {
+        return;
+    }
+    
+    // Wait for previous frame to complete
+    dispatch_semaphore_wait(_frameSemaphore, DISPATCH_TIME_FOREVER);
+    
+    // Get the next drawable
+    id<CAMetalDrawable> drawable = [_metalLayer nextDrawable];
+    if (!drawable) {
+        dispatch_semaphore_signal(_frameSemaphore);
+        return;
+    }
+    
+    // Create render pass descriptor
+    MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+    renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
+    renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+    renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+    
+    // Create command buffer
+    id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+    
+    // Create render command encoder
+    id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+    [renderEncoder setRenderPipelineState:_pipelineState];
+    [renderEncoder setVertexBuffer:_vertexBuffer offset:0 atIndex:0];
+    [renderEncoder setVertexBuffer:_textureCoordBuffer offset:0 atIndex:1];
+    [renderEncoder setFragmentTexture:_texture atIndex:0];
+    [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
+    [renderEncoder endEncoding];
+    
+    // Present drawable
+    [commandBuffer presentDrawable:drawable];
+    
+    // Add completion handler
+    __block dispatch_semaphore_t blockSemaphore = _frameSemaphore;
+    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
+        dispatch_semaphore_signal(blockSemaphore);
+    }];
+    
+    // Commit command buffer
+    [commandBuffer commit];
+}
+
+// Implement a method for direct frame burning
+- (void)burnFrameAndRender {
+    // If the emulator frame buffer isn't set yet, create one
+    extern UINT8* pBurnDraw;
+    extern int nBurnPitch;
+    extern int nBurnBpp;
+    
+    if (pBurnDraw == NULL && BurnDrvIsWorking()) {
+        // Get game screen size
+        INT32 width = 0, height = 0;
+        BurnDrvGetVisibleSize(&width, &height);
+        nBurnPitch = width * nBurnBpp;
+        
+        // Allocate frame buffer - extra padding for safety
+        pBurnDraw = (UINT8*)malloc(width * height * nBurnBpp + 4096);
+        
+        if (pBurnDraw) {
+            memset(pBurnDraw, 0, width * height * nBurnBpp);
+            
+            // Make sure the FBNeo core knows where to render
+            BurnDrvSetVisibleSize(width, height);
+            
+            NSLog(@"Created frame buffer: %dx%d pitch=%d bpp=%d", width, height, nBurnPitch, nBurnBpp);
+        } else {
+            NSLog(@"Failed to allocate frame buffer!");
+        }
+    }
+    
+    // If we have a valid buffer, run a frame
+    if (pBurnDraw && BurnDrvIsWorking()) {
+        // Run one frame, which will render to pBurnDraw
+        extern bool bRunPause;
+        if (!bRunPause) {
+            // Process input through FBNeo
+            struct GameInp* pgi = GameInp;
+            for (int i = 0; i < nGameInpCount; i++) {
+                if (pgi[i].nInput == GIT_KEYSLIDER) {
+                    // Handle sliders (TODO)
+                } else if (pgi[i].nInput == GIT_SWITCH) {
+                    if (keyStates[pgi[i].Input.nVal]) {
+                        pgi[i].Input.nVal = 0x02;
+                    } else {
+                        pgi[i].Input.nVal = 0x00;
+                    }
+                }
+            }
+
+            // Run the frame
+            BurnDrvFrame();
+            
+            // Get screen size
+            INT32 width = 0, height = 0;
+            BurnDrvGetVisibleSize(&width, &height);
+            
+            // Update texture with new frame data
+            [self updateTextureWithBuffer:pBurnDraw width:width height:height pitch:nBurnPitch];
+            
+            // Render the frame
+            [self renderFrame];
+        }
+    }
+}
+
+@end
+
+// Window class that handles keyboard input
+@interface MetalWindow : NSWindow
+@end
+
+@implementation MetalWindow
+- (void)keyDown:(NSEvent *)event {
+    unsigned short keyCode = [event keyCode];
+    if (keyCode < 256) {
+        keyStates[keyCode] = true;
+    }
+    
+    // Call the normal keyDown: handler
+    [super keyDown:event];
+}
+
+- (void)keyUp:(NSEvent *)event {
+    unsigned short keyCode = [event keyCode];
+    if (keyCode < 256) {
+        keyStates[keyCode] = false;
+    }
+    
+    // Toggle pause if Escape is pressed
+    if (keyCode == 53) { // 53 is Escape key
+        extern bool bRunPause;
+        bRunPause = !bRunPause;
+    }
+    
+    // Call the normal keyUp: handler
+    [super keyUp:event];
+}
+
+- (void)mouseDown:(NSEvent *)event {
+    mouseButtonState[0] = true;
+    [super mouseDown:event];
+}
+
+- (void)mouseUp:(NSEvent *)event {
+    mouseButtonState[0] = false;
+    [super mouseUp:event];
+}
+
+- (void)rightMouseDown:(NSEvent *)event {
+    mouseButtonState[1] = true;
+    [super rightMouseDown:event];
+}
+
+- (void)rightMouseUp:(NSEvent *)event {
+    mouseButtonState[1] = false;
+    [super rightMouseUp:event];
+}
+
+- (void)mouseMoved:(NSEvent *)event {
+    NSPoint locationInWindow = [event locationInWindow];
+    mouseX = locationInWindow.x;
+    mouseY = locationInWindow.y;
+    [super mouseMoved:event];
+}
+
+- (void)mouseDragged:(NSEvent *)event {
+    NSPoint locationInWindow = [event locationInWindow];
+    mouseX = locationInWindow.x;
+    mouseY = locationInWindow.y;
+    [super mouseDragged:event];
+}
+@end
+
+// External C functions for Metal interface
+
+extern "C" {
+
+// Initialize the Metal rendering system
+bool InitMetal(void* view) {
+    @autoreleasepool {
+        // Create the Metal renderer
+        g_metalRenderer = [[MetalRenderer alloc] initWithView:(__bridge NSView*)view];
+        return g_metalRenderer != nil && g_metalRenderer.isInitialized;
+    }
+}
+
+// Shut down the Metal rendering system
+void ShutdownMetal() {
+    @autoreleasepool {
+        g_metalRenderer = nil;
+    }
+}
+
+// Render a frame of pixel data to the Metal view
+void MetalRenderFrame(unsigned char* buffer, int width, int height, int pitch) {
+    @autoreleasepool {
+        if (g_metalRenderer) {
+            [g_metalRenderer updateTextureWithBuffer:buffer width:width height:height pitch:pitch];
+            [g_metalRenderer renderFrame];
+        }
+    }
+}
+
+// Set the title of the Metal window
+void MetalSetWindowTitle(const char* title) {
+    @autoreleasepool {
+        NSString *titleString = [NSString stringWithUTF8String:title];
+        NSWindow *window = [[[NSApplication sharedApplication] windows] objectAtIndex:0];
+        if (window) {
+            [window setTitle:titleString];
+        }
+    }
+}
+
+// Resize the Metal window/view
+void MetalResizeWindow(int width, int height) {
+    @autoreleasepool {
+        NSWindow *window = [[[NSApplication sharedApplication] windows] objectAtIndex:0];
+        if (window) {
+            NSRect frame = window.frame;
+            NSRect contentRect = [window contentRectForFrameRect:frame];
+            
+            NSRect newContentRect = NSMakeRect(contentRect.origin.x, contentRect.origin.y, width, height);
+            NSRect newFrame = [window frameRectForContentRect:newContentRect];
+            
+            [window setFrame:newFrame display:YES animate:NO];
+        }
+    }
+}
+
+// Handle input processing in the Metal implementation
+void MetalHandleInput(bool bCopy) {
+    @autoreleasepool {
+        // Process input
+        struct GameInp* pgi = GameInp;
+        for (int i = 0; i < nGameInpCount; i++) {
+            if (pgi[i].nInput == GIT_SWITCH) {
+                // Handle switch inputs
+                // Handle keys through explicit key checks
+                if (pgi[i].Input.Switch.nCode == FBK_LEFTARROW) {
+                    // Apply input
+                }
+            }
+        }
+    }
+}
+
+// Run the Metal game loop - this should be compatible with the implementation in main_metal.mm
+int RunMetalGame() {
+    // This function is implemented in main_metal.mm now
+    // Just return success
+    return 0;
+}
+
+// Function to manually burn and render a frame
+void BurnAndRenderFrame() {
+    @autoreleasepool {
+        if (g_metalRenderer) {
+            [g_metalRenderer burnFrameAndRender];
+        }
+    }
+}
+
+} // extern "C" 

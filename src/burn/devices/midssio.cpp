@@ -168,14 +168,14 @@ void ssio_reset_write(INT32 state)
 
 	if (state)
 	{
-		ZetSetRESETLine(1, 1);
+		ZetSetRESETLine(1);
 
 		for (INT32 i = 0; i < 4; i++)
 			ssio_data[i] = 0;
 		ssio_status = 0;
 		ssio_14024_count = 0;
     } else {
-		ZetSetRESETLine(1, 0);
+		ZetSetRESETLine(1);
     }
 }
 

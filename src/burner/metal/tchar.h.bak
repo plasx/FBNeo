@@ -1,0 +1,75 @@
+// tchar.h - Header for TCHAR string handling compatibility for metal platform
+#pragma once
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Base types
+typedef char TCHAR;
+typedef char _TCHAR;
+
+// String literals
+#define _T(s)      s
+#define _TEXT(s)   s
+
+// Safe string functions
+inline int safe_sprintf(char* buffer, size_t bufferSize, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    int result = vsnprintf(buffer, bufferSize, format, args);
+    va_end(args);
+    return result;
+}
+
+// String handling functions
+#define _tprintf   printf
+#define _ftprintf  fprintf
+#define _stprintf(buffer, format, ...)  safe_sprintf(buffer, 256, format, ##__VA_ARGS__)
+#define _sntprintf snprintf
+#define _vsntprintf vsnprintf
+#define _tcscpy    strcpy
+#define _tcsncpy   strncpy
+#define _tcscat    strcat
+#define _tcsncat   strncat
+#define _tcslen    strlen
+#define _tcscmp    strcmp
+#define _tcsicmp   strcasecmp
+#define _tcsnicmp  strncasecmp
+#define _tcstol    strtol
+#define _itot      itoa
+#define _ttoi      atoi
+#define _tfopen    fopen
+#define _fgetts    fgets
+#define _istspace  isspace
+#define _stscanf   sscanf
+#define _tcschr    strchr
+#define _tcsrchr   strrchr
+
+// TCHAR versions of ctype functions
+#define _istdigit  isdigit
+#define _istascii  isascii
+#define _istprint  isprint
+#define _totupper  toupper
+#define _totlower  tolower
+
+// Debug helper
+#ifdef DEBUG
+inline void custom_dprintf(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+}
+#else
+inline void custom_dprintf(const char* /*format*/, ...) {}
+#endif
+
+#ifdef __cplusplus
+}
+#endif 

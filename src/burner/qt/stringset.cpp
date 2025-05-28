@@ -9,7 +9,7 @@ int __cdecl StringSet::Add(TCHAR* szFormat,...)
 	va_list Arg;
 
 	va_start(Arg, szFormat);
-    vsprintf(szAdd, szFormat, Arg);
+    vsnprintf(szAdd, sizeof(szAdd), szFormat, Arg);
 
 	nAddLen = _tcslen(szAdd);			// find out the length of the new text
 	NewMem = (TCHAR*)realloc(szText, (nLen + nAddLen + 1) * sizeof(TCHAR));

@@ -3988,7 +3988,7 @@ unsigned Dasm( char *buffer, unsigned pc, struct dasm_s *dasmXX )
 		l = p_dasm[op2].oplen;
 	}
 
-	buffer += sprintf(buffer, "%-8.8s", token[t]);
+	buffer += snprintf(buffer, 64, "%-8.8s", token[t]);
 
 	while (a && *a)
 	{
@@ -4001,45 +4001,45 @@ unsigned Dasm( char *buffer, unsigned pc, struct dasm_s *dasmXX )
 				op2 = cpu_readop_arg(pc++);
 				ea = upd7810_get_reg(UPD7810_V) * 256 + op2;
 				symbol = set_ea_info(0, ea, EA_UINT8, EA_MEM_RD);
-				buffer += sprintf(buffer, "%s", symbol);
+				buffer += snprintf(buffer, 64, "%s", symbol);
 				break;
 			case 'b':   /* immediate byte */
 				ea = cpu_readop_arg(pc++);
 				symbol = set_ea_info(1, ea, EA_UINT8, EA_VALUE);
-				buffer += sprintf(buffer, "%s", symbol);
+				buffer += snprintf(buffer, 64, "%s", symbol);
 				break;
 			case 'w':   /* immediate word */
 				ea = cpu_readop_arg(pc++);
 				ea += cpu_readop_arg(pc++) << 8;
 				symbol = set_ea_info(1, ea, EA_UINT16, EA_VALUE);
-				buffer += sprintf(buffer, "%s", symbol);
+				buffer += snprintf(buffer, 64, "%s", symbol);
 				break;
 			case 'd':   /* JRE address */
 				op2 = cpu_readop(pc++);
 				offset = (op & 1) ? -(256 - op2): + op2;
 				symbol = set_ea_info(0, pc - 2, offset + 2, EA_REL_PC);
-				buffer += sprintf(buffer, "%s", symbol);
+				buffer += snprintf(buffer, 64, "%s", symbol);
 				break;
 			case 't':   /* CALT address */
 				ea = 0x80 + 2 * (op & 0x1f);
 				symbol = set_ea_info(0, ea, EA_DEFAULT, EA_ABS_PC);
-				buffer += sprintf(buffer, "(%s)", symbol);
+				buffer += snprintf(buffer, 64, "(%s)", symbol);
 				break;
 			case 'f':   /* CALF address */
 				op2 = cpu_readop(pc++);
 				ea = 0x800 + 0x100 * (op & 0x07) + op2;
 				symbol = set_ea_info(0, ea, EA_DEFAULT, EA_ABS_PC);
-				buffer += sprintf(buffer, "%s", symbol);
+				buffer += snprintf(buffer, 64, "%s", symbol);
 				break;
 			case 'o':   /* JR offset */
 				op2 = cpu_readop(pc++);
 				offset = (INT8)(op << 2) >> 2;
 				symbol = set_ea_info(0, pc - 2, offset + 1, EA_REL_PC);
-				buffer += sprintf(buffer, "%s", symbol);
+				buffer += snprintf(buffer, 64, "%s", symbol);
 				break;
 			case 'i':   /* bit manipulation */
 				op2 = cpu_readop(pc++);
-				buffer += sprintf(buffer, "%s,%d", regname[op2 & 0x1f], op2 >> 5);
+				buffer += snprintf(buffer, 64, "%s,%d", regname[op2 & 0x1f], op2 >> 5);
 				break;
 			default:
 				*buffer++ = *a;

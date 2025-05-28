@@ -43,7 +43,7 @@
     Fixed ADPCM decoding. Games sound much better now.
 
     2014-10-06 (Alex W. Jackson)
-    Rewrote from scratch in C++; implemented communication
+    Rewritten from scratch in C++; implemented communication
     ports properly; used the actual up counters instead of
     converting to fractional sample position; fixed ADPCM
     decoding bugs; added documentation.
@@ -542,7 +542,7 @@ void K053260Scan(INT32 nAction, INT32 *)
 #endif
 
 	struct BurnArea ba;
-	char szName[32];
+	char szName[128];
 
 	if ((nAction & ACB_DRIVER_DATA) == 0) {
 		return;
@@ -552,7 +552,7 @@ void K053260Scan(INT32 nAction, INT32 *)
 		ic = &Chips[i];
 
 		memset(&ba, 0, sizeof(ba));
-		sprintf(szName, "k053260 regs %d", i);
+		snprintf(szName, sizeof(szName), "k053260 regs %d", i);
 		ba.Data		= ic->regs;
 		ba.nLen		= sizeof(ic->regs);
 		ba.nAddress = 0;
@@ -560,7 +560,7 @@ void K053260Scan(INT32 nAction, INT32 *)
 		BurnAcb(&ba);
 
 		memset(&ba, 0, sizeof(ba));
-		sprintf(szName, "k053260 channels # %d", i);
+		snprintf(szName, sizeof(szName), "k053260 channels # %d", i);
 		ba.Data		= ic->channels;
 		ba.nLen		= sizeof(ic->channels);
 		ba.nAddress = 0;

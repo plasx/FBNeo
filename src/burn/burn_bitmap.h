@@ -1,6 +1,14 @@
 // FB Alpha Bitmap Management System
 
-#ifndef BURNBITMAP
+#ifndef _BURN_BITMAP_H
+#define _BURN_BITMAP_H
+
+#include <stdint.h>
+
+// Type definitions
+typedef int32_t INT32;
+typedef uint8_t UINT8;
+typedef uint16_t UINT16;
 
 #define BURNBITMAP
 

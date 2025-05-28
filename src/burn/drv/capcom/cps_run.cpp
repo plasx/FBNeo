@@ -1,12 +1,28 @@
 // CPS - Run
+#include "burnint.h"
 #include "cps.h"
+#include "burn_ym2151.h"
+#include "../../devices/eeprom.h"
+
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
+
+#ifndef USE_METAL
+#endif
+
+// For metal builds, include our fixes header
+
 
 // CPS2
+// Only define these for non-Metal builds - Metal uses the fixes
+#ifndef USE_METAL_FIXES
 INT32 Cps2Volume = 39;
 INT32 Cps2DisableDigitalVolume = 0;
-UINT8 Cps2VolUp;
-UINT8 Cps2VolDwn;
-UINT8 AspectDIP; // only for Cps2Turbo == 1
+UINT8 Cps2VolUp = 0;
+UINT8 Cps2VolDwn = 0;
+UINT8 AspectDIP = 0; // only for Cps2Turbo == 1
+#endif
 
 UINT16 Cps2VolumeStates[40] = {
 	0xf010, 0xf008, 0xf004, 0xf002, 0xf001, 0xe810, 0xe808, 0xe804, 0xe802, 0xe801,
@@ -71,7 +87,9 @@ static void check_aspect()
 		if (nAspectX != aspects[AspectDIPLast][0] || nAspectY != aspects[AspectDIPLast][1]) {
 			bprintf(0, _T("*  CPS-2: Changing to %d:%d aspect\n"), aspects[AspectDIPLast][0], aspects[AspectDIPLast][1]);
 			BurnDrvSetAspect(aspects[AspectDIPLast][0], aspects[AspectDIPLast][1]);
+#ifdef USE_REINITIALISE
 			Reinitialise();
+#endif
 		}
 	}
 }
@@ -105,10 +123,8 @@ static INT32 DrvReset()
 
 	nCpsCyclesExtra = 0;
 
-	clear_opposite.reset();
-
 	if (((Cps == 2) && !Cps2DisableQSnd) || Cps1Qs == 1) {			// Sound init (QSound)
-		QsndReset();
+		QscReset();
 	}
 	
 	if (CpsRunResetCallbackFunction) {
@@ -120,19 +136,18 @@ static INT32 DrvReset()
 		check_aspect();
 	}
 
-	HiscoreReset();
+	HiscoreReset(0);
 
 	return 0;
 }
 
 static const eeprom_interface qsound_eeprom_interface =
 {
-	7,		/* address bits */
-	8,		/* data bits */
-	"0110",	/*  read command */
-	"0101",	/* write command */
-	"0111",	/* erase command */
-	0,
+	7,      /* address bits */
+	8,      /* data bits */
+	"0110",/*  read command */
+	"0101",/* write command */
+	"0111",/* erase command */
 	0,
 	0,
 	0
@@ -140,12 +155,11 @@ static const eeprom_interface qsound_eeprom_interface =
 
 static const eeprom_interface cps2_eeprom_interface =
 {
-	6,		/* address bits */
-	16,		/* data bits */
-	"0110",	/*  read command */
-	"0101",	/* write command */
-	"0111",	/* erase command */
-	0,
+	6,      /* address bits */
+	16,     /* data bits */
+	"0110",/*  read command */
+	"0101",/* write command */
+	"0111",/* erase command */
 	0,
 	0,
 	0
@@ -183,11 +197,11 @@ INT32 CpsRunInit()
 	}
 
 	if (((Cps == 2) && !Cps2DisableQSnd) || Cps1Qs == 1) {			// Sound init (QSound)
-		if (QsndInit()) {
+		if (QscInit(nBurnSoundRate)) {
 			return 1;
 		}
-		QsndSetRoute(BURN_SND_QSND_OUTPUT_1, 2.00, BURN_SND_ROUTE_LEFT);
-		QsndSetRoute(BURN_SND_QSND_OUTPUT_2, 2.00, BURN_SND_ROUTE_RIGHT);
+		QscSetRoute(0, 2.00, BURN_SND_ROUTE_LEFT);
+		QscSetRoute(1, 2.00, BURN_SND_ROUTE_RIGHT);
 	}
 
 	if (Cps == 2 || PangEEP || Cps1Qs == 1 || CpsBootlegEEPROM) EEPROMReset();
@@ -201,8 +215,37 @@ INT32 CpsRunInit()
 	//Init Draw Function
 	DrawFnInit();
 	
-	pBurnDrvPalette = CpsPal;
+#ifdef USE_METAL_FIXES
+	// Metal build compatibility: wrapper functions to handle parameter mismatch
+	// The real CPS2 driver has bugs where functions are called with no parameters
+	// but the typedefs expect parameters. Create wrappers to bridge this gap.
+	auto CpsScr1DrawDoX_NoParams = []() { 
+		if (CpsScr1DrawDoX) CpsScr1DrawDoX(nullptr, 0, 0); 
+	};
+	auto CpsScr3DrawDoX_NoParams = []() { 
+		if (CpsScr3DrawDoX) CpsScr3DrawDoX(nullptr, 0, 0); 
+	};
+	auto CpsObjDrawDoX_NoParams = []() { 
+		if (CpsObjDrawDoX) CpsObjDrawDoX(0, 7); 
+	};
 	
+	if (nBurnLayer & 1) CpsScr1DrawDoX_NoParams();
+	if (nBurnLayer & 2) CpsScr3DrawDoX_NoParams();
+	if (nBurnLayer & 4) CpsObjDrawDoX_NoParams();
+#else
+	if (nBurnLayer & 1) CpsScr1DrawDoX();
+	if (nBurnLayer & 2) CpsScr3DrawDoX();
+	if (nBurnLayer & 4) CpsObjDrawDoX();
+#endif
+
+#ifdef USE_METAL_FIXES
+	// Use UINT32 palette for Metal build compatibility
+	extern UINT32* CpstPal32;
+	pBurnDrvPalette = CpstPal32;
+#else
+	pBurnDrvPalette = CpstPal;
+#endif
+
 	if (Cps == 2 || Cps1Qs == 1) {
 		CheatSearchInitCallbackFunction = CpsQSoundCheatSearchCallback;
 	}
@@ -215,7 +258,7 @@ INT32 CpsRunExit()
 	if (Cps == 2 || PangEEP || Cps1Qs == 1 || CpsBootlegEEPROM) EEPROMExit();
 
 	// Sound exit
-	if (((Cps == 2) && !Cps2DisableQSnd) || Cps1Qs == 1) QsndExit();
+	if (((Cps == 2) && !Cps2DisableQSnd) || Cps1Qs == 1) QscExit();
 	if (Cps != 2 && Cps1Qs == 0 && !Cps1DisablePSnd) PsndExit();
 
 	// Graphics exit
@@ -341,7 +384,7 @@ INT32 Cps1Frame()
 
 	SekNewFrame();
 	if (Cps1Qs == 1) {
-		QsndNewFrame();
+		QscNewFrame();
 	} else {
 		if (!Cps1DisablePSnd) {
 			ZetOpen(0);
@@ -396,12 +439,11 @@ INT32 Cps1Frame()
 	}
 
 	if (Cps1Qs == 1) {
-		QsndEndFrame();
+		QscNewFrame();
 	} else {
 		if (!Cps1DisablePSnd) {
 			PsndSyncZ80(nCpsZ80Cycles); // sync z80
-			PsndEndFrame();             // end frame (BurnTimer: z80)
-			PsmUpdateEnd();             // render msm6295, ym2151
+			QsndEndFrame();             // end frame (BurnTimer: z80)
 			ZetClose();
 		}
 	}
@@ -434,7 +476,7 @@ INT32 Cps2Frame()
 //	prevline = -1;
 
 	SekNewFrame();
-	if (!Cps2DisableQSnd) QsndNewFrame();
+	if (!Cps2DisableQSnd) QscNewFrame();
 
 	nCpsCycles = (INT32)(((INT64)nCPS68KClockspeed * nBurnCPUSpeedAdjust) / 0x0100);
 	SekOpen(0);
@@ -454,8 +496,8 @@ INT32 Cps2Frame()
 		if (Cps2Volume > 39) Cps2Volume = 39;
 		if (Cps2Volume < 0) Cps2Volume = 0;
 		
-		QscSetRoute(BURN_SND_QSND_OUTPUT_1, (Cps2Volume / 39.0)*2, BURN_SND_ROUTE_LEFT);
-		QscSetRoute(BURN_SND_QSND_OUTPUT_2, (Cps2Volume / 39.0)*2, BURN_SND_ROUTE_RIGHT);
+		QscSetRoute(0, (Cps2Volume / 39.0)*2, BURN_SND_ROUTE_LEFT);
+		QscSetRoute(1, (Cps2Volume / 39.0)*2, BURN_SND_ROUTE_RIGHT);
 	}
 	
 	nDisplayEnd = nCpsCycles * (nFirstLine + 224) / nCpsNumScanlines;	// Account for VBlank
@@ -526,8 +568,6 @@ INT32 Cps2Frame()
 
 	nCpsCyclesExtra = SekTotalCycles() - nCpsCycles;
 
-	if (!Cps2DisableQSnd) QsndEndFrame();
-
 	SekClose();
 
 //	bprintf(PRINT_NORMAL, _T("    -\n"));
@@ -547,8 +587,10 @@ INT32 Cps2Frame()
 		}
 		bprintf(PRINT_NORMAL, _T("\n"));
 		for (i = 0; i < 0x80; i++) {
-			if (*((UINT16*)(CpsSaveReg[0] + i * 2)) != *((UINT16*)(CpsSaveReg[nInterrupt] + i * 2))) {
-				bprintf(PRINT_NORMAL, _T("Register %2X: %4X -> %4X\n"), i * 2, *((UINT16*)(CpsSaveReg[0] + i * 2)), *((UINT16*)(CpsSaveReg[nInterrupt] + i * 2)));
+			if (*((UINT16*)((uint8_t*)CpsSaveReg[0] + i * 2)) != *((UINT16*)((uint8_t*)CpsSaveReg[nInterrupt] + i * 2))) {
+				bprintf(PRINT_NORMAL, _T("Register %2X: %4X -> %4X\n"), i * 2, 
+					   *((UINT16*)((uint8_t*)CpsSaveReg[0] + i * 2)), 
+					   *((UINT16*)((uint8_t*)CpsSaveReg[nInterrupt] + i * 2)));
 			}
 		}
 		bprintf(PRINT_NORMAL, _T("\n"));
@@ -571,7 +613,7 @@ INT32 Cps2Frame()
 			}
 
 			for (i = 0; i < 0x080; i+= 8) {
-				bprintf(PRINT_NORMAL, _T("%2X: %4X %4X %4X %4X %4X %4X %4X %4X\n"), i * 2, *((UINT16*)(CpsSaveReg[j] + 0 + i * 2)), *((UINT16*)(CpsSaveReg[j] + 2 + i * 2)), *((UINT16*)(CpsSaveReg[j] + 4 + i * 2)), *((UINT16*)(CpsSaveReg[j] + 6 + i * 2)), *((UINT16*)(CpsSaveReg[j] + 8 + i * 2)), *((UINT16*)(CpsSaveReg[j] + 10 + i * 2)), *((UINT16*)(CpsSaveReg[j] + 12 + i * 2)), *((UINT16*)(CpsSaveReg[j] + 14 + i * 2)));
+				bprintf(PRINT_NORMAL, _T("%2X: %4X %4X %4X %4X %4X %4X %4X %4X\n"), i * 2, *((UINT16*)((uint8_t*)CpsSaveReg[j] + 0 + i * 2)), *((UINT16*)((uint8_t*)CpsSaveReg[j] + 2 + i * 2)), *((UINT16*)((uint8_t*)CpsSaveReg[j] + 4 + i * 2)), *((UINT16*)((uint8_t*)CpsSaveReg[j] + 6 + i * 2)), *((UINT16*)((uint8_t*)CpsSaveReg[j] + 8 + i * 2)), *((UINT16*)((uint8_t*)CpsSaveReg[j] + 10 + i * 2)), *((UINT16*)((uint8_t*)CpsSaveReg[j] + 12 + i * 2)), *((UINT16*)((uint8_t*)CpsSaveReg[j] + 14 + i * 2)));
 			}
 
 			bprintf(PRINT_NORMAL, _T("\nFRG: "));
@@ -590,4 +632,10 @@ INT32 Cps2Frame()
 
 	return 0;
 }
+
+#ifndef USE_METAL
+#endif
+
+#ifndef CPS3
+#endif
 

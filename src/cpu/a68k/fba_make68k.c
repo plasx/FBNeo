@@ -367,9 +367,9 @@ char *GenerateLabel(int ID,int Type)
 		DisOp = ID;
 /*
 		m68k_disassemble(dis,0);
-		sprintf(codebuf, "OP%d_%4.4x:\t\t\t\t; %s", CPU,ID, dis);
+		snprintf(codebuf, 128, "OP%d_%4.4x:\t\t\t\t; %s", CPU,ID, dis);
 */
-		sprintf(codebuf, "OP%d_%4.4x:\t\t\t\t;", CPU,ID);
+		snprintf(codebuf, 128, "OP%d_%4.4x:\t\t\t\t;", CPU,ID);
 
 		LabID  = ID;
 		LabNum = 0;
@@ -377,7 +377,7 @@ char *GenerateLabel(int ID,int Type)
 	else
 	{
 		LabNum++;
-		sprintf(codebuf, "OP%d_%4.4x_%1x", CPU,LabID, LabNum);
+		snprintf(codebuf, 128, "OP%d_%4.4x_%1x", CPU,LabID, LabNum);
 	}
 
 	return codebuf;
@@ -3604,7 +3604,7 @@ void branchinstructions(void)
 
 		  Align();
 		  fprintf(fp, "%s:\n",GenerateLabel(BaseCode+0xff,0));
-		  sprintf( jmpLabel, GenerateLabel(BaseCode+0xff,1) ) ;
+		  snprintf( jmpLabel, GenerateLabel(BaseCode+0xff,1) ) ;
 		  fprintf(fp, "\t\t add   esi,byte 2\n\n");
 
 		  TimingCycles += 10 ;
@@ -5706,7 +5706,7 @@ void stop(void)
 
 		/* Must be in Supervisor Mode */
 
-		sprintf(TrueLabel,GenerateLabel(0,1));
+		snprintf(TrueLabel,GenerateLabel(0,1));
 
 		fprintf(fp, "\t\t test  byte [%s],20h \t\t\t; Supervisor Mode ?\n",REG_SRH);
 		fprintf(fp, "\t\t je    near %s\n\n",TrueLabel);
@@ -5765,7 +5765,7 @@ void ReturnFromException(void)
 
 	/* Check in Supervisor Mode */
 
-	sprintf(TrueLabel,GenerateLabel(0,1));
+	snprintf(TrueLabel,GenerateLabel(0,1));
 	fprintf(fp, "\t\t test  byte [%s],20h \t\t\t; Supervisor Mode ?\n",REG_SRH);
 	fprintf(fp, "\t\t je    near %s\n\n",TrueLabel);
 
@@ -6307,7 +6307,7 @@ void movesr(void)
 
 						if (type == 3)
 						{
-							sprintf(TrueLabel,GenerateLabel(0,1));
+							snprintf(TrueLabel,GenerateLabel(0,1));
 
 							fprintf(fp, "\t\t test  byte [%s],20h \t\t\t; Supervisor Mode ?\n",REG_SRH);
 							fprintf(fp, "\t\t je    near %s\n\n",TrueLabel);
@@ -7362,7 +7362,7 @@ void divides(void)
 							fprintf(fp, "\t\t shr   ecx, byte 9\n");
 							fprintf(fp, "\t\t and   ecx, byte 7\n");
 
-							sprintf(TrapLabel, "%s", GenerateLabel(0,1) ) ;
+							snprintf(TrapLabel, "%s", GenerateLabel(0,1) ) ;
 
 							EffectiveAddressRead(Dest,'W',EBX,EAX,"A-C-SDB",FALSE); /* source */
 
@@ -8213,7 +8213,7 @@ int main(int argc, char **argv)
 
 	CPUtype = malloc(64);
 
-	sprintf(CPUtype,"%sM680%s", PREF, argv[3]);
+	snprintf(CPUtype,"%sM680%s", PREF, argv[3]);
 
 	if(argv[3][0]=='2') CPU = 2;
 	if(argc > 4 && !strcmp(argv[4], "ppro"))

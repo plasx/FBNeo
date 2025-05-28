@@ -1,8 +1,8 @@
 // SDL_Sound module
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "burner.h"
-#include "aud_dsp.h"
+#include "../aud_dsp.h"
 #include <math.h>
 
 static unsigned int nSoundFps;

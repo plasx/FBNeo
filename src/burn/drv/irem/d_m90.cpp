@@ -1026,7 +1026,7 @@ static UINT8 __fastcall m90_sound_read_port(UINT16 port)
 		case 0x01:
 		case 0x40: // bbmanw
 		case 0x41:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0x42: // bbmanw
 		case 0x80:
@@ -1218,7 +1218,7 @@ static INT32 DrvInit(INT32 codesize, INT32 gfxlen, INT32 samples, INT32 bank, IN
 
 	BurnYM2151Init(3579545);
 	YM2151SetIrqHandler(0, &m72YM2151IRQHandler);
-	BurnYM2151SetAllRoutes(0.15, BURN_SND_ROUTE_BOTH);
+	BurnYM2151SetAllRoutes(0, 0.15, BURN_SND_ROUTE_BOTH);
 
 	DACInit(0, 0, 1, ZetTotalCycles, 3579545);
 	DACSetRoute(0, 0.20, BURN_SND_ROUTE_BOTH);

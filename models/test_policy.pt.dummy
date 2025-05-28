@@ -1,0 +1,2 @@
+This is a dummy TorchScript model file for testing.
+In a real environment, this would be a binary file containing the serialized neural network. 

@@ -611,10 +611,10 @@ void h6280_get_info(UINT32 state, cpuinfo *info)
 		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s, "Copyright Bryan McPhail, mish@tendril.co.uk"); break;
 
 		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c%c%c%c%c%c%c%c",
+			snprintf(info->s, sizeof(info->s), "%c%c%c%c%c%c%c%c",
 				h6280.p & 0x80 ? 'N':'.',
 				h6280.p & 0x40 ? 'V':'.',
-				h6280.p & 0x20 ? 'R':'.',
+				h6280.p & 0x20 ? 'T':'.',
 				h6280.p & 0x10 ? 'B':'.',
 				h6280.p & 0x08 ? 'D':'.',
 				h6280.p & 0x04 ? 'I':'.',
@@ -622,26 +622,26 @@ void h6280_get_info(UINT32 state, cpuinfo *info)
 				h6280.p & 0x01 ? 'C':'.');
 			break;
 
-		case CPUINFO_STR_REGISTER + H6280_PC:			sprintf(info->s, "PC:%04X", h6280.pc.d); break;
-        case CPUINFO_STR_REGISTER + H6280_S:			sprintf(info->s, "S:%02X", h6280.sp.b.l); break;
-        case CPUINFO_STR_REGISTER + H6280_P:			sprintf(info->s, "P:%02X", h6280.p); break;
-        case CPUINFO_STR_REGISTER + H6280_A:			sprintf(info->s, "A:%02X", h6280.a); break;
-		case CPUINFO_STR_REGISTER + H6280_X:			sprintf(info->s, "X:%02X", h6280.x); break;
-		case CPUINFO_STR_REGISTER + H6280_Y:			sprintf(info->s, "Y:%02X", h6280.y); break;
-		case CPUINFO_STR_REGISTER + H6280_IRQ_MASK:		sprintf(info->s, "IM:%02X", h6280.irq_mask); break;
-		case CPUINFO_STR_REGISTER + H6280_TIMER_STATE:	sprintf(info->s, "TMR:%02X", h6280.timer_status); break;
-		case CPUINFO_STR_REGISTER + H6280_NMI_STATE:	sprintf(info->s, "NMI:%X", h6280.nmi_state); break;
-		case CPUINFO_STR_REGISTER + H6280_IRQ1_STATE:	sprintf(info->s, "IRQ1:%X", h6280.irq_state[0]); break;
-		case CPUINFO_STR_REGISTER + H6280_IRQ2_STATE:	sprintf(info->s, "IRQ2:%X", h6280.irq_state[1]); break;
-		case CPUINFO_STR_REGISTER + H6280_IRQT_STATE:	sprintf(info->s, "IRQT:%X", h6280.irq_state[2]); break;
-		case CPUINFO_STR_REGISTER + H6280_M1:			sprintf(info->s, "M1:%02X", h6280.mmr[0]); break;
-		case CPUINFO_STR_REGISTER + H6280_M2:			sprintf(info->s, "M2:%02X", h6280.mmr[1]); break;
-		case CPUINFO_STR_REGISTER + H6280_M3:			sprintf(info->s, "M3:%02X", h6280.mmr[2]); break;
-		case CPUINFO_STR_REGISTER + H6280_M4:			sprintf(info->s, "M4:%02X", h6280.mmr[3]); break;
-		case CPUINFO_STR_REGISTER + H6280_M5:			sprintf(info->s, "M5:%02X", h6280.mmr[4]); break;
-		case CPUINFO_STR_REGISTER + H6280_M6:			sprintf(info->s, "M6:%02X", h6280.mmr[5]); break;
-		case CPUINFO_STR_REGISTER + H6280_M7:			sprintf(info->s, "M7:%02X", h6280.mmr[6]); break;
-		case CPUINFO_STR_REGISTER + H6280_M8:			sprintf(info->s, "M8:%02X", h6280.mmr[7]); break;
+		case CPUINFO_STR_REGISTER + H6280_PC:			snprintf(info->s, sizeof(info->s), "PC:%04X", h6280.pc.d); break;
+		case CPUINFO_STR_REGISTER + H6280_S:			snprintf(info->s, sizeof(info->s), "S:%02X", h6280.sp.b.l); break;
+		case CPUINFO_STR_REGISTER + H6280_P:			snprintf(info->s, sizeof(info->s), "P:%02X", h6280.p); break;
+		case CPUINFO_STR_REGISTER + H6280_A:			snprintf(info->s, sizeof(info->s), "A:%02X", h6280.a); break;
+		case CPUINFO_STR_REGISTER + H6280_X:			snprintf(info->s, sizeof(info->s), "X:%02X", h6280.x); break;
+		case CPUINFO_STR_REGISTER + H6280_Y:			snprintf(info->s, sizeof(info->s), "Y:%02X", h6280.y); break;
+		case CPUINFO_STR_REGISTER + H6280_IRQ_MASK:		snprintf(info->s, sizeof(info->s), "IM:%02X", h6280.irq_mask); break;
+		case CPUINFO_STR_REGISTER + H6280_TIMER_STATE:	snprintf(info->s, sizeof(info->s), "TMR:%02X", h6280.timer_status); break;
+		case CPUINFO_STR_REGISTER + H6280_NMI_STATE:	snprintf(info->s, sizeof(info->s), "NMI:%X", h6280.nmi_state); break;
+		case CPUINFO_STR_REGISTER + H6280_IRQ1_STATE:	snprintf(info->s, sizeof(info->s), "IRQ1:%X", h6280.irq_state[0]); break;
+		case CPUINFO_STR_REGISTER + H6280_IRQ2_STATE:	snprintf(info->s, sizeof(info->s), "IRQ2:%X", h6280.irq_state[1]); break;
+		case CPUINFO_STR_REGISTER + H6280_IRQT_STATE:	snprintf(info->s, sizeof(info->s), "IRQT:%X", h6280.irq_state[2]); break;
+		case CPUINFO_STR_REGISTER + H6280_M1:			snprintf(info->s, sizeof(info->s), "M1:%02X", h6280.mmr[0]); break;
+		case CPUINFO_STR_REGISTER + H6280_M2:			snprintf(info->s, sizeof(info->s), "M2:%02X", h6280.mmr[1]); break;
+		case CPUINFO_STR_REGISTER + H6280_M3:			snprintf(info->s, sizeof(info->s), "M3:%02X", h6280.mmr[2]); break;
+		case CPUINFO_STR_REGISTER + H6280_M4:			snprintf(info->s, sizeof(info->s), "M4:%02X", h6280.mmr[3]); break;
+		case CPUINFO_STR_REGISTER + H6280_M5:			snprintf(info->s, sizeof(info->s), "M5:%02X", h6280.mmr[4]); break;
+		case CPUINFO_STR_REGISTER + H6280_M6:			snprintf(info->s, sizeof(info->s), "M6:%02X", h6280.mmr[5]); break;
+		case CPUINFO_STR_REGISTER + H6280_M7:			snprintf(info->s, sizeof(info->s), "M7:%02X", h6280.mmr[6]); break;
+		case CPUINFO_STR_REGISTER + H6280_M8:			snprintf(info->s, sizeof(info->s), "M8:%02X", h6280.mmr[7]); break;
 	}
 }
 #endif

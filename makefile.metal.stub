@@ -1,0 +1,215 @@
+#!/usr/bin/make -f
+# =============================================================================
+# FBNeo Metal Makefile for macOS/ARM64 with Metal/Clang
+# Modified to use stub implementations for problematic files
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Platform detection and architecture settings
+# -----------------------------------------------------------------------------
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+
+ifeq ($(UNAME_S),Darwin)
+    ifeq ($(UNAME_M),arm64)
+        ARCH := arm64
+        $(info Building for Apple Silicon (ARM64))
+    else
+        ARCH := x86_64
+        $(info Building for Intel (x86_64))
+    endif
+else
+    $(error This makefile is only for macOS)
+endif
+
+# -----------------------------------------------------------------------------
+# Compiler and flags configuration
+# -----------------------------------------------------------------------------
+CC          := clang
+CXX         := clang++
+OBJC        := clang
+OBJCXX      := clang++
+LD          := clang++
+
+ARCHFLAGS   := $(foreach arch,$(ARCH),-arch $(arch))
+
+# Add proper flags for CPS2 support
+CFLAGS      := -std=c11 -O3 -Wall -DHAVE_STDINT_H -DHAVE_STDBOOL_H -DMETAL_IMPLEMENTATION_FILE -DUSE_METAL_RENDERER -DINCLUDE_CPS_DRIVER=1 -DUSE_CYCLONE=0 -DTCHAR_DEFINED=1 -DMAX_PATH=512 -DMETAL_COMPATIBILITY=1 $(ARCHFLAGS)
+CXXFLAGS    := -std=c++17 -O3 -Wall -DMACOSX -DUSE_METAL_FIXES -DMETAL_IMPLEMENTATION_FILE -DUSE_METAL_RENDERER -DDARWIN -DINCLUDE_CPS_DRIVER=1 -DUSE_CYCLONE=0 -DTCHAR_DEFINED=1 -DMETAL_BUILD=1 -DMAX_PATH=512 -DMETAL_COMPATIBILITY=1 -arch arm64 -DTCHAR_DEFINED $(ARCHFLAGS)
+OBJCFLAGS   := $(CXXFLAGS) -fobjc-arc
+OBJCXXFLAGS := -std=c++17 -O3 -fobjc-arc -DMACOSX -DUSE_METAL_FIXES -DMETAL_IMPLEMENTATION_FILE -DUSE_REAL_METAL_RENDERER -DINCLUDE_CPS_DRIVER=1 -DUSE_CYCLONE=0 -DTCHAR_DEFINED=1 -DMAX_PATH=512 -DMETAL_COMPATIBILITY=1 $(ARCHFLAGS)
+LDFLAGS     := $(ARCHFLAGS)
+
+# Fix the tchar.h TCHAR definition conflict by adding a safeguard in the global flags
+CFLAGS += -DTCHAR_DEFINED
+CXXFLAGS += -DTCHAR_DEFINED
+OBJCFLAGS += -DTCHAR_DEFINED
+OBJCXXFLAGS += -DTCHAR_DEFINED
+
+OUTPUT_BIN  := fbneo_metal_stub
+
+# Metal shader compiler
+METAL_COMPILE  := xcrun -sdk macosx metal
+METALLIB_BUILD := xcrun -sdk macosx metallib
+
+# -----------------------------------------------------------------------------
+# Required frameworks
+# -----------------------------------------------------------------------------
+FRAMEWORKS := -framework Cocoa -framework Metal -framework MetalKit \
+              -framework AVFoundation -framework AudioToolbox \
+              -framework CoreAudio -framework AudioUnit \
+              -framework CoreML -framework Vision \
+              -framework CoreGraphics -framework CoreImage \
+              -framework GameController -framework QuartzCore
+
+# Additional libraries
+LIBS := -lz
+
+LDFLAGS += $(FRAMEWORKS) $(LIBS)
+
+# -----------------------------------------------------------------------------
+# Directory structure
+# -----------------------------------------------------------------------------
+BUILD_DIR   := build/metal_stub
+OBJ_DIR     := $(BUILD_DIR)/obj
+SHADER_DIR  := src/burner/metal
+METALLIB    := $(SHADER_DIR)/fbneo_shaders.metallib
+DEFAULT_METALLIB := $(SHADER_DIR)/default.metallib
+
+# Add this definition at the top of the file, after existing variable definitions
+BUILD_METAL := build/metal_stub
+
+# -----------------------------------------------------------------------------
+# Source files
+# -----------------------------------------------------------------------------
+SRC_DIRS := src src/burn src/burner src/cpu src/dep
+INCS     := $(addprefix -I, $(SRC_DIRS)) -Isrc/burner/metal -Isrc/cpu/z80 -Isrc/burn/snd -Ibuild/metal_stub -include src/burner/metal/metal_input_defs.h
+
+# Core FBNeo source files - use minimal core for Phase 3
+METAL_SOURCES = \
+	src/burner/metal/metal_minimal_core.cpp \
+	src/burner/metal/metal_bridge_simple.cpp \
+	src/burner/metal/metal_rom_validation.cpp \
+	src/burner/metal/metal_savestate.mm \
+	src/burner/metal/metal_state_helpers.cpp \
+	src/burner/metal/metal_input_stub.mm
+
+# Add CPS2 driver and sound core files (minimal for Marvel vs Capcom)
+CPS2_SRC := \
+    src/burn/drv/capcom/cps.cpp \
+    src/burn/drv/capcom/cps_mem.cpp \
+    src/burn/drv/capcom/cps_obj.cpp \
+    src/burn/drv/capcom/cps_run.cpp \
+    src/burn/drv/capcom/cps_draw.cpp \
+    src/burn/drv/capcom/cps_scr.cpp \
+    src/burn/drv/capcom/cps_pal.cpp \
+    src/burn/drv/capcom/cps_config.cpp \
+    src/burn/drv/capcom/cps2_crpt.cpp \
+    src/burn/drv/capcom/qs_c.cpp \
+    src/burn/drv/capcom/qs_z.cpp \
+    src/burn/drv/capcom/qs.cpp \
+    src/burn/drv/capcom/d_cps2.cpp
+
+# Add the CPS2 objects to ALL_CORE_SRC
+ALL_CORE_SRC += $(CPS2_SRC)
+
+# Add CPU and sound core files (Z80, 68K, etc.)
+CPU_SRC := \
+    src/cpu/z80_intf_metal.cpp \
+    src/cpu/m68000_intf_metal.cpp \
+    # src/cpu/m68k/m68kcpu.c \
+
+# Add sound core files (YM2151, QSound, etc.)
+SND_SRC := \
+    src/burn/snd/ym2151.c \
+    src/burn/snd/ym2612.c \
+    src/burn/snd/fm.c \
+    src/burn/snd/ay8910.c \
+    src/burn/snd/k054539.cpp \
+    src/burn/snd/k053260.cpp \
+    src/burn/snd/namco_snd.cpp \
+    src/burn/snd/samples.cpp \
+    src/burn/snd/dac.cpp \
+    src/burn/snd/ymz770.cpp \
+    src/burn/snd/ymf262.cpp \
+    src/burn/snd/ymf271.cpp \
+    src/burn/snd/ymz280b.cpp \
+    src/burn/snd/msm6295.cpp \
+    src/burn/snd/segapcm.cpp \
+    src/burn/snd/saa1099.cpp \
+    src/burn/snd/sn76496.cpp \
+    src/burn/snd/msm5232.cpp \
+    src/burn/snd/upd7759.cpp \
+    src/burn/snd/vlm5030.cpp \
+    src/burn/snd/tms36xx.cpp \
+    src/burn/snd/tms5110.cpp \
+    src/burn/snd/tms5220.cpp \
+    src/burn/snd/phoenixsound.cpp \
+    src/burn/snd/pleiadssound.cpp \
+    src/burn/snd/llander.cpp \
+    src/burn/snd/x1010.cpp \
+    src/burn/snd/tiamc1_snd.cpp \
+    src/burn/snd/t6w28.cpp \
+    src/burn/snd/nes_apu.cpp \
+    src/burn/snd/rf5c68.cpp \
+    src/burn/snd/votrax.cpp \
+    src/burn/snd/redbaron.cpp \
+    src/burn/snd/mpeg_audio.cpp \
+    src/burn/snd/s14001a.cpp \
+    src/burn/snd/multipcm.cpp \
+    src/burn/snd/pokey.cpp
+
+# All core sources
+ALL_CORE_SRC := $(METAL_SOURCES)
+ALL_CORE_OBJ := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(filter %.cpp,$(ALL_CORE_SRC))) \
+                $(patsubst %.c,$(OBJ_DIR)/%.o,$(filter %.c,$(ALL_CORE_SRC))) \
+                $(patsubst %.mm,$(OBJ_DIR)/%.o,$(filter %.mm,$(ALL_CORE_SRC)))
+
+# Metal source files - use simplified versions for Phase 3
+METAL_SRC_FILES := \
+    src/burner/metal/main.mm \
+    src/burner/metal/metal_audio_simple.mm \
+    src/burner/metal/metal_debug_overlay_stub.mm
+
+# Add core objects to link - handle .mm files properly
+STANDALONE_OBJ_FILES := $(ALL_CORE_OBJ) \
+                      $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(filter %.cpp,$(METAL_SRC_FILES))) \
+                      $(patsubst %.mm,$(OBJ_DIR)/%.o,$(filter %.mm,$(METAL_SRC_FILES))) \
+                      $(patsubst %.c,$(OBJ_DIR)/%.o,$(filter %.c,$(METAL_SRC_FILES)))
+
+# Main targets
+all:
+	@echo "[MAKE] Building $(OUTPUT_BIN) with stub implementations"
+	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(OBJ_DIR)/src/burner/metal
+	@mkdir -p $(OBJ_DIR)/src/burn/drv/capcom
+	@$(MAKE) -f makefile.metal.stub build
+
+clean:
+	@echo "[CLEAN] Cleaning build artifacts..."
+	@rm -rf $(BUILD_DIR)
+	@rm -f $(OUTPUT_BIN)
+	@echo "[CLEAN] Clean completed."
+
+build: $(STANDALONE_OBJ_FILES)
+	@echo "[LINK] Linking $(OUTPUT_BIN)"
+	@$(LD) $(CXXFLAGS) -o $(OUTPUT_BIN) $(STANDALONE_OBJ_FILES) $(LDFLAGS)
+	@echo "[BUILD] Build complete: $(OUTPUT_BIN)"
+
+# Rules for object files
+$(OBJ_DIR)/%.o: %.c
+	@echo "[CC] Compiling $<"
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: %.cpp
+	@echo "[CXX] Compiling $<"
+	@mkdir -p $(dir $@)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: %.mm
+	@echo "[OBJCXX] Compiling $<"
+	@mkdir -p $(dir $@)
+	@$(OBJCXX) $(OBJCXXFLAGS) -c $< -o $@
+
+.PHONY: all clean build 

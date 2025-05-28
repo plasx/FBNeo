@@ -1,0 +1,409 @@
+{
+  "game": "Capcom vs. SNK 2: Mark of the Millennium 2001",
+  "architecture": "CPS2",
+  "version": "1.0.0",
+  "description": "Memory mapping for Capcom vs. SNK 2 on CPS2 hardware",
+  "supported_roms": ["cvs2", "cvs2a", "cvs2j", "cvs2j1", "cvs2k", "cvs2mf", "cvs2usa", "cvs2usa1"],
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0xFF8416",
+      "type": "word",
+      "description": "Player 1 current health",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 120,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_health",
+      "address": "0xFF8816",
+      "type": "word",
+      "description": "Player 2 current health",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 120,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_guard_crush",
+      "address": "0xFF8418",
+      "type": "word",
+      "description": "Player 1 guard crush meter",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 120,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_guard_crush",
+      "address": "0xFF8818",
+      "type": "word",
+      "description": "Player 2 guard crush meter",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 120,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_active_character",
+      "address": "0xFF840C",
+      "type": "byte",
+      "description": "Player 1 active character index (0-2)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "p2_active_character",
+      "address": "0xFF880C",
+      "type": "byte",
+      "description": "Player 2 active character index (0-2)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "p1_character1_id",
+      "address": "0xFF842E",
+      "type": "byte",
+      "description": "Player 1 character 1 ID",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 44
+    },
+    {
+      "name": "p1_character2_id",
+      "address": "0xFF843E",
+      "type": "byte",
+      "description": "Player 1 character 2 ID",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 44
+    },
+    {
+      "name": "p1_character3_id",
+      "address": "0xFF844E",
+      "type": "byte",
+      "description": "Player 1 character 3 ID",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 44
+    },
+    {
+      "name": "p2_character1_id",
+      "address": "0xFF882E",
+      "type": "byte",
+      "description": "Player 2 character 1 ID",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 44
+    },
+    {
+      "name": "p2_character2_id",
+      "address": "0xFF883E",
+      "type": "byte",
+      "description": "Player 2 character 2 ID",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 44
+    },
+    {
+      "name": "p2_character3_id",
+      "address": "0xFF884E",
+      "type": "byte",
+      "description": "Player 2 character 3 ID",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 44
+    },
+    {
+      "name": "p1_groove",
+      "address": "0xFF8404",
+      "type": "byte",
+      "description": "Player 1 groove (0=C, 1=A, 2=P, 3=S, 4=N, 5=K)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 5
+    },
+    {
+      "name": "p2_groove",
+      "address": "0xFF8804",
+      "type": "byte",
+      "description": "Player 2 groove (0=C, 1=A, 2=P, 3=S, 4=N, 5=K)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 5
+    },
+    {
+      "name": "p1_meter",
+      "address": "0xFF841A",
+      "type": "word",
+      "description": "Player 1 meter",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 300,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_meter",
+      "address": "0xFF881A",
+      "type": "word",
+      "description": "Player 2 meter",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 300,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_ratio",
+      "address": "0xFF8406",
+      "type": "byte",
+      "description": "Player 1 team ratio distribution",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 10
+    },
+    {
+      "name": "p2_ratio",
+      "address": "0xFF8806",
+      "type": "byte",
+      "description": "Player 2 team ratio distribution",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 10
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0xFF841C",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "position",
+      "player_index": 1,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0xFF841E",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "position",
+      "player_index": 1,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0xFF881C",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "position",
+      "player_index": 2,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0xFF881E",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "position",
+      "player_index": 2,
+      "endianness": "little"
+    },
+    {
+      "name": "timer",
+      "address": "0xFF8102",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 99
+    },
+    {
+      "name": "round",
+      "address": "0xFF810B",
+      "type": "byte",
+      "description": "Current round number",
+      "category": "game_state",
+      "min_value": 1,
+      "max_value": 5
+    },
+    {
+      "name": "p1_wins",
+      "address": "0xFF810D",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "game_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "p2_wins",
+      "address": "0xFF810E",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "game_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "game_state",
+      "address": "0xFF8008",
+      "type": "byte",
+      "description": "Game state (values vary by arcade mode, versus, etc.)",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 20
+    },
+    {
+      "name": "p1_is_blocking",
+      "address": "0xFF8431",
+      "type": "byte",
+      "description": "Player 1 blocking state (0=not blocking, non-zero=blocking)",
+      "category": "action_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_is_blocking",
+      "address": "0xFF8831",
+      "type": "byte",
+      "description": "Player 2 blocking state (0=not blocking, non-zero=blocking)",
+      "category": "action_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p1_action_state",
+      "address": "0xFF8430",
+      "type": "byte",
+      "description": "Player 1 action state (standing, crouching, jumping, etc.)",
+      "category": "action_state",
+      "player_index": 1
+    },
+    {
+      "name": "p2_action_state",
+      "address": "0xFF8830",
+      "type": "byte",
+      "description": "Player 2 action state (standing, crouching, jumping, etc.)",
+      "category": "action_state",
+      "player_index": 2
+    },
+    {
+      "name": "p1_combo_counter",
+      "address": "0xFF829C",
+      "type": "byte",
+      "description": "Player 1 combo counter",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 99
+    },
+    {
+      "name": "p2_combo_counter",
+      "address": "0xFF869C",
+      "type": "byte",
+      "description": "Player 2 combo counter",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 99
+    },
+    {
+      "name": "p1_facing",
+      "address": "0xFF8420",
+      "type": "byte",
+      "description": "Player 1 facing direction (0=right, 1=left)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_facing",
+      "address": "0xFF8820",
+      "type": "byte",
+      "description": "Player 2 facing direction (0=right, 1=left)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    }
+  ],
+  "groups": [
+    {
+      "name": "player1",
+      "description": "Player 1 information",
+      "mappings": [
+        "p1_health",
+        "p1_guard_crush",
+        "p1_meter",
+        "p1_active_character",
+        "p1_character1_id",
+        "p1_character2_id",
+        "p1_character3_id",
+        "p1_groove",
+        "p1_ratio",
+        "p1_x_position",
+        "p1_y_position",
+        "p1_is_blocking",
+        "p1_action_state",
+        "p1_combo_counter",
+        "p1_facing"
+      ]
+    },
+    {
+      "name": "player2",
+      "description": "Player 2 information",
+      "mappings": [
+        "p2_health",
+        "p2_guard_crush",
+        "p2_meter",
+        "p2_active_character",
+        "p2_character1_id",
+        "p2_character2_id",
+        "p2_character3_id",
+        "p2_groove",
+        "p2_ratio",
+        "p2_x_position",
+        "p2_y_position",
+        "p2_is_blocking",
+        "p2_action_state",
+        "p2_combo_counter",
+        "p2_facing"
+      ]
+    },
+    {
+      "name": "match",
+      "description": "Match information",
+      "mappings": [
+        "timer",
+        "round",
+        "p1_wins",
+        "p2_wins",
+        "game_state"
+      ]
+    }
+  ]
+} 

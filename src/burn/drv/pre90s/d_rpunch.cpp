@@ -443,7 +443,7 @@ static UINT8 __fastcall rpunch_sound_read(UINT16 address)
 	{
 		case 0xf000:
 		case 0xf001:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0xf200:
 			*sound_busy = 0;

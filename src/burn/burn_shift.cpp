@@ -5,6 +5,7 @@
 
 #include "burnint.h"
 #include "burn_shift.h"
+#include "burn.h"
 
 INT32 BurnShiftEnabled = 1; // enable/disable rendering
 INT32 bBurnShiftStatus; // current status of shifter
@@ -24,7 +25,7 @@ static INT32 shift_ypos;
 static INT32 shift_xadv;
 static INT32 shift_yadv;
 
-static INT32 nScreenWidth, nScreenHeight;
+extern INT32 nScreenWidth, nScreenHeight;
 static INT32 screen_flipped;
 static INT32 screen_vertical;
 static INT32 flipscreen = -1;

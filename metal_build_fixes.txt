@@ -1,0 +1,244 @@
+# Comprehensive Fixes for FBNeo Metal Build on macOS/ARM64
+
+To fix the build errors in the FBNeo Metal port for macOS/ARM64, follow these steps:
+
+## 1. Fix for undefined identifiers (EXT_BD_SIZE, EXT_INDEX_SUPPRESS, etc.)
+
+Create or modify src/burner/metal/fixes/m68k_defs.h:
+
+```c
+#ifndef _M68K_DEFS_H_
+#define _M68K_DEFS_H_
+
+// Fix for the EXT_* macros used in m68kdasm.c
+#ifndef EXT_BD_SIZE
+ #define EXT_BD_SIZE(A)                    (((A)>>4)&0x3)
+#endif
+
+#ifndef EXT_INDEX_SUPPRESS
+ #define EXT_INDEX_SUPPRESS(A)             ((A)&0x40)
+#endif
+
+#ifndef EXT_BASE_SUPPRESS
+ #define EXT_BASE_SUPPRESS(A)              ((A)&0x80)
+#endif
+
+#endif // _M68K_DEFS_H_
+```
+
+## 2. Fix for function overloading errors in m68000_intf.h
+
+Create or modify src/burner/metal/fixes/m68k_fixes.h:
+
+```c
+#ifndef _M68K_FIXES_H_
+#define _M68K_FIXES_H_
+
+// Fix for the conflicting SekGetPC declaration
+#ifdef UINT32_SekGetPC
+#undef UINT32_SekGetPC
+#endif
+
+// In our metal codebase, ensure we only have one SekGetPC definition that returns UINT32
+UINT32 SekGetPC(INT32 n);
+
+#endif // _M68K_FIXES_H_
+```
+
+## 3. Fix for missing input identifiers (CpsInp001, CpsrLineInfo)
+
+These are already addressed in cps_input_full.h and cps_vars.c that you have created. Just ensure they are properly included.
+
+## 4. Fix for calling convention warnings (__fastcall)
+
+Create or modify src/burner/metal/fixes/calling_convention.h:
+
+```c
+#ifndef _CALLING_CONVENTION_H_
+#define _CALLING_CONVENTION_H_
+
+// Define away __fastcall for ARM64/macOS since it's not needed or supported
+#ifndef FASTCALL 
+ #undef __fastcall
+ #define __fastcall
+#endif
+
+#endif // _CALLING_CONVENTION_H_
+```
+
+## 5. Fix for deprecated functions (sprintf)
+
+Create or modify src/burner/metal/fixes/sprintf_fix.h:
+
+```c
+#ifndef _SPRINTF_FIX_H_
+#define _SPRINTF_FIX_H_
+
+// Fix for sprintf deprecation warnings - use safer snprintf
+#define sprintf_safe(buffer, size, format, ...) snprintf(buffer, size, format, ##__VA_ARGS__)
+
+// Override deprecated sprintf when needed
+#define sprintf(buffer, format, ...) snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__)
+
+#endif // _SPRINTF_FIX_H_
+```
+
+## 6. Modify the makefile.metal:
+
+```makefile
+# Makefile.metal – Build FBNeo on macOS/ARM64 with Metal/Clang
+CC      := clang
+CXX     := clang++
+CFLAGS  := -std=c11 -O3
+CXXFLAGS:= -std=c++17 -DMACOSX -DUSE_METAL_FIXES -O3
+LD      := clang++
+LDFLAGS := -framework Cocoa -framework Metal -framework MetalKit \
+           -framework AVFoundation -framework AudioToolbox -framework CoreAudio -framework AudioUnit \
+           -framework CoreML -framework Vision -framework CoreGraphics -framework CoreImage \
+           -framework GameController
+
+# Platform detection
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+
+ifeq ($(UNAME_S),Darwin)
+    # macOS/Darwin-specific flags
+    CXXFLAGS += -DDARWIN
+    
+    # Detect Apple Silicon (ARM64)
+    ifeq ($(UNAME_M),arm64)
+        CXXFLAGS += -DARM64 -D__aarch64__
+        ARCHFLAGS := -arch arm64
+    else
+        # Intel Mac
+        ARCHFLAGS := -arch x86_64
+    endif
+    
+    # Universal binary support (if requested)
+    ifdef UNIVERSAL
+        ARCHFLAGS := -arch arm64 -arch x86_64
+    endif
+    
+    CFLAGS += $(ARCHFLAGS) -Isrc/burner/metal/fixes
+    CXXFLAGS += $(ARCHFLAGS) -Isrc/burner/metal/fixes
+    LDFLAGS += $(ARCHFLAGS)
+endif
+
+# Metal-specific build target
+all: check_dirs metal_shaders
+	@echo "Building FBNeo Metal port..."
+	@CFLAGS="-O3 $(ARCHFLAGS) -Isrc/burner/metal/fixes" CXXFLAGS="-O3 $(ARCHFLAGS) -DMACOSX -DUSE_METAL_FIXES -Isrc/burner/metal/fixes" MACOS_METAL_BUILD=1 $(MAKE) -f makefile
+
+metal_shaders: $(METALLIB_OUT)
+
+$(METALLIB_OUT): $(METAL_SHADERS)
+	@echo "Building Metal shaders..."
+	@xcrun metal -c $(METAL_SHADERS) -o src/burner/metal/Shaders.air
+	@xcrun metallib src/burner/metal/Shaders.air -o $(METALLIB_OUT)
+
+check_dirs:
+	@mkdir -p obj/macosx/metal
+	@mkdir -p obj/macosx/burn
+	@mkdir -p obj/macosx/burner
+	@mkdir -p obj/macosx/cpu
+	@mkdir -p obj/macosx/dep
+	@mkdir -p src/burner/metal/build
+
+clean:
+	rm -rf obj/macosx
+	rm -f $(METALLIB_OUT)
+	rm -f src/burner/metal/Shaders.air
+```
+
+## 7. Create a master header file:
+
+Create src/burner/metal/fixes/metal_all_fixes.h:
+
+```c
+#ifndef _METAL_ALL_FIXES_H_
+#define _METAL_ALL_FIXES_H_
+
+// Master header file that includes all fixes for Metal/macOS/ARM64 build
+
+// Include standard headers
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Include our fix headers
+#include "calling_convention.h"
+#include "m68k_defs.h"
+#include "m68k_fixes.h"
+#include "sprintf_fix.h"
+#include "cps_input_full.h"
+
+// Additional Metal-specific defines
+#define METAL_BUILD 1
+#define BUILD_METAL 1
+
+// Disable warnings
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wformat-security"
+
+#endif // _METAL_ALL_FIXES_H_
+```
+
+## 8. Update the main makefile to respect MACOS_METAL_BUILD:
+
+Add the following to the top of makefile:
+
+```makefile
+# Detect macOS Metal build
+ifdef MACOS_METAL_BUILD
+    # Disable problematic optimizations for clang
+    LIBDEP_OPTIMIZATIONS = -O3
+    
+    # Disable fastcall for ARM64
+    FASTCALL =
+    
+    # Enable Metal build
+    BUILD_METAL = 1
+endif
+```
+
+## 9. Create a new metal_build.sh script:
+
+```bash
+#!/bin/bash
+# FBNeo Metal Build Script for macOS/ARM64
+
+# Clean up first
+make -f makefile.metal clean
+
+# Set environment variables
+export MACOS_METAL_BUILD=1
+
+# Build with our fixes
+make -f makefile.metal -j$(sysctl -n hw.ncpu)
+
+# Check if build succeeded
+if [ -f "obj/macosx/fbneo.app/Contents/MacOS/fbneo" ]; then
+    echo "Build successful!"
+    mkdir -p bin/metal
+    cp obj/macosx/fbneo.app/Contents/MacOS/fbneo bin/metal/fbneo_metal
+    chmod +x bin/metal/fbneo_metal
+    ln -sf ./bin/metal/fbneo_metal ./fbneo_metal
+    echo "FBNeo Metal build complete! Run with: ./fbneo_metal"
+else
+    echo "Build failed!"
+    exit 1
+fi
+```
+
+These fixes address all the identified issues:
+1. Undefined macros like EXT_BD_SIZE
+2. Function overloading errors related to SekGetPC
+3. Missing CPS input variables
+4. __fastcall removal for ARM64
+5. sprintf deprecation warnings
+
+Ensure all the fix files are in src/burner/metal/fixes/ and are included at the top of relevant source files. 

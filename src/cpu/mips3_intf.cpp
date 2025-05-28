@@ -1,6 +1,6 @@
+#include "burnint.h"
 #include "mips3_intf.h"
 #include "mips3/mips3.h"
-#include "burnint.h"
 #include <stdint.h>
 
 #ifdef MIPS3_X64_DRC
@@ -68,18 +68,37 @@ static void ResetMemoryMap()
     }
 }
 
-int Mips3Init()
-{
-    g_mips = new mips::mips3();
-    g_mmap = new Mips3MemoryMap();
-
-#ifdef MIPS3_X64_DRC
-    g_mips_x64 = new mips::mips3_x64(g_mips);
+// Define the C interface to our global MIPS3 object
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void* Mips3GlobalObject();
+extern void Mips3GlobalReset();
+extern int Mips3GlobalRun(int cycles, int skip_op);
+#ifdef __cplusplus
+}
 #endif
 
-    ResetMemoryMap();
-	
-	return 0;
+static int DebugCPU_Mips3Initted = 0;
+
+void Mips3Reset()
+{
+#if defined FBNEO_DEBUG
+	if (!DebugCPU_Mips3Initted) bprintf(PRINT_ERROR, _T("Mips3Reset called without init\n"));
+#endif
+
+	// Use our global object via C interface
+	Mips3GlobalReset();
+}
+
+int Mips3Run(int cycles)
+{
+#if defined FBNEO_DEBUG
+	if (!DebugCPU_Mips3Initted) bprintf(PRINT_ERROR, _T("Mips3Run called without init\n"));
+#endif
+
+	// Use our global object via C interface
+	return Mips3GlobalRun(cycles, 0);
 }
 
 int Mips3UseRecompiler(bool use)
@@ -91,6 +110,12 @@ int Mips3UseRecompiler(bool use)
 
 int Mips3Exit()
 {
+#if defined FBNEO_DEBUG
+	if (!DebugCPU_Mips3Initted) bprintf(PRINT_ERROR, _T("Mips3Exit called without init\n"));
+#endif
+
+	DebugCPU_Mips3Initted = 0;
+
 #ifdef MIPS3_X64_DRC
     delete g_mips_x64;
 #endif
@@ -102,28 +127,19 @@ int Mips3Exit()
 	return 0;
 }
 
-
-void Mips3Reset()
+int Mips3Init()
 {
-    if (g_mips)
-        g_mips->reset();
-}
+	DebugCPU_Mips3Initted = 1;
 
-int Mips3Run(int cycles)
-{
+	g_mips = new mips::mips3();
+	g_mmap = new Mips3MemoryMap();
+
 #ifdef MIPS3_X64_DRC
-    if (g_mips) {
-        if (g_useRecompiler && g_mips_x64) {
-            g_mips_x64->run(cycles);
-        } else {
-            g_mips->run(cycles);
-        }
-    }
-#else
-    if (g_mips)
-        g_mips->run(cycles);
+    g_mips_x64 = new mips::mips3_x64(g_mips);
 #endif
-    return 0;
+
+	ResetMemoryMap();
+	return 0;
 }
 
 int Mips3MapMemory(unsigned char* pMemory, unsigned int nStart, unsigned int nEnd, int nType)
@@ -352,3 +368,6 @@ unsigned int Mips3GetPC()
 {
     return g_mips->m_prev_pc;
 }
+
+// Just add the missing _m68k_modify_timeslice stub
+extern "C" void m68k_modify_timeslice(int) {}

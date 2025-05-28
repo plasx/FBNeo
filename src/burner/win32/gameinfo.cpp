@@ -587,7 +587,7 @@ static int GameInfoInit()
 		if (p) strcpy(DRIVER_NAME, p + 1); // change "nes_smb" -> "smb"
 	}
 
-	sprintf(to_find, "%s%s\"", rom_token, DRIVER_NAME);
+	snprintf(to_find, sizeof(to_find), "%s%s\"", rom_token, DRIVER_NAME);
 
 	if (fp) {
 		while (!feof(fp)) {

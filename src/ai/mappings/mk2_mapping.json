@@ -1,0 +1,219 @@
+{
+  "game": "mk2",
+  "architecture": "MIDWAY",
+  "version": "1.0.0",
+  "description": "Memory mapping for Mortal Kombat II",
+  "author": "FBNeo Team",
+  "created": "2023-06-15T14:00:00Z",
+  "updated": "2023-06-15T14:00:00Z",
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0x10747A",
+      "type": "byte",
+      "description": "Player 1 health",
+      "category": "health",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 128,
+      "is_signed": false,
+      "notes": "Health decreases from 128 to 0"
+    },
+    {
+      "name": "p2_health",
+      "address": "0x10767A",
+      "type": "byte",
+      "description": "Player 2 health",
+      "category": "health",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 128,
+      "is_signed": false,
+      "notes": "Health decreases from 128 to 0"
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0x107404",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "position",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "big",
+      "is_signed": true
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0x107408",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "position",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "big",
+      "is_signed": true
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0x107604",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "position",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "big",
+      "is_signed": true
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0x107608",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "position",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "big",
+      "is_signed": true
+    },
+    {
+      "name": "p1_character",
+      "address": "0x107402",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "state",
+      "player": 1,
+      "is_signed": false,
+      "notes": "Character ID (0-11 for regular characters)"
+    },
+    {
+      "name": "p2_character",
+      "address": "0x107602",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "state",
+      "player": 2,
+      "is_signed": false,
+      "notes": "Character ID (0-11 for regular characters)"
+    },
+    {
+      "name": "p1_state",
+      "address": "0x107424",
+      "type": "byte",
+      "description": "Player 1 action state",
+      "category": "state",
+      "player": 1,
+      "is_signed": false,
+      "notes": "Various action states (standing, jumping, attacking, etc.)"
+    },
+    {
+      "name": "p2_state",
+      "address": "0x107624",
+      "type": "byte",
+      "description": "Player 2 action state",
+      "category": "state",
+      "player": 2,
+      "is_signed": false,
+      "notes": "Various action states (standing, jumping, attacking, etc.)"
+    },
+    {
+      "name": "timer",
+      "address": "0x106002",
+      "type": "word",
+      "description": "Round timer in frames",
+      "category": "state",
+      "player": 0,
+      "scale": 0.01667,
+      "offset": 0.0,
+      "endianness": "big",
+      "is_signed": false,
+      "notes": "Counts down from 5400 (90 seconds) at 60 frames per second"
+    },
+    {
+      "name": "game_state",
+      "address": "0x106000",
+      "type": "byte",
+      "description": "Current game state",
+      "category": "state",
+      "player": 0,
+      "is_signed": false,
+      "notes": "Various game states (menu, fighting, fatality, etc.)"
+    },
+    {
+      "name": "p1_wins",
+      "address": "0x106003",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "score",
+      "player": 1,
+      "is_signed": false
+    },
+    {
+      "name": "p2_wins",
+      "address": "0x106004",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "score",
+      "player": 2,
+      "is_signed": false
+    },
+    {
+      "name": "p1_input",
+      "address": "0x10740C",
+      "type": "word",
+      "description": "Player 1 input state",
+      "category": "input",
+      "player": 1,
+      "endianness": "big",
+      "is_signed": false,
+      "bit_mask": "0xFFFF",
+      "notes": "Bit field for input buttons (block, punch, etc.)"
+    },
+    {
+      "name": "p2_input",
+      "address": "0x10760C",
+      "type": "word",
+      "description": "Player 2 input state",
+      "category": "input",
+      "player": 2,
+      "endianness": "big",
+      "is_signed": false,
+      "bit_mask": "0xFFFF",
+      "notes": "Bit field for input buttons (block, punch, etc.)"
+    }
+  ],
+  "groups": [
+    {
+      "name": "health",
+      "description": "Health-related mappings",
+      "mappings": ["p1_health", "p2_health"]
+    },
+    {
+      "name": "position",
+      "description": "Position-related mappings",
+      "mappings": ["p1_x_position", "p1_y_position", "p2_x_position", "p2_y_position"]
+    },
+    {
+      "name": "state",
+      "description": "Game state mappings",
+      "mappings": ["p1_state", "p2_state", "timer", "game_state", "p1_character", "p2_character"]
+    },
+    {
+      "name": "input",
+      "description": "Input-related mappings",
+      "mappings": ["p1_input", "p2_input"]
+    },
+    {
+      "name": "score",
+      "description": "Score-related mappings",
+      "mappings": ["p1_wins", "p2_wins"]
+    }
+  ]
+} 

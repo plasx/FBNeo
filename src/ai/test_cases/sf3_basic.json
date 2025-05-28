@@ -1,0 +1,100 @@
+{
+  "game": "sf3",
+  "architecture": "CPS3",
+  "mapping_file": "src/ai/mappings/sf3.json",
+  "test_cases": [
+    {
+      "name": "idle_state",
+      "description": "Test mapping values in the idle state (character select screen)",
+      "setup_steps": [
+        "Start the game",
+        "Navigate to the character select screen",
+        "Do not select any character yet"
+      ],
+      "expected_values": {
+        "0xFF8400": 0,
+        "0xFF8404": 0,
+        "0xFF844C": 0,
+        "0xFF84C4": 0
+      },
+      "timestamp": "2023-05-23 10:15:30"
+    },
+    {
+      "name": "character_select",
+      "description": "Test mapping values after selecting characters",
+      "setup_steps": [
+        "Start the game",
+        "Navigate to the character select screen",
+        "Select Ken for Player 1",
+        "Select Ryu for Player 2",
+        "Wait for the match to be about to start, but before actual gameplay"
+      ],
+      "expected_values": {
+        "0xFF8400": 1,
+        "0xFF8404": 2,
+        "0xFF844C": 0,
+        "0xFF84C4": 0
+      },
+      "timestamp": "2023-05-23 10:20:45"
+    },
+    {
+      "name": "round_start",
+      "description": "Test mapping values at the start of a round",
+      "setup_steps": [
+        "Start a match with Ken (P1) vs Ryu (P2)",
+        "Wait for the round to begin",
+        "Don't make any moves yet"
+      ],
+      "expected_values": {
+        "0xFF8400": 1,
+        "0xFF8404": 2,
+        "0xFF844C": 160,
+        "0xFF84C4": 160,
+        "0xFF8808": 99,
+        "0xFF880C": 0,
+        "0xFF8810": 0
+      },
+      "timestamp": "2023-05-23 10:25:12"
+    },
+    {
+      "name": "mid_round",
+      "description": "Test mapping values during active gameplay",
+      "setup_steps": [
+        "Start a match with Ken (P1) vs Ryu (P2)",
+        "Play for a few seconds",
+        "Make sure both players have taken some damage",
+        "P1 should have about 70% health remaining",
+        "P2 should have about 50% health remaining",
+        "Pause at an interesting point in the match"
+      ],
+      "expected_values": {
+        "0xFF8400": 1,
+        "0xFF8404": 2,
+        "0xFF844C": 112,
+        "0xFF84C4": 80,
+        "0xFF8808": 75,
+        "0xFF880C": 0,
+        "0xFF8810": 0
+      },
+      "timestamp": "2023-05-23 10:30:55"
+    },
+    {
+      "name": "round_end",
+      "description": "Test mapping values at the end of a round",
+      "setup_steps": [
+        "Play a match until Player 1 (Ken) wins a round",
+        "Capture the state right after the round victory announcement"
+      ],
+      "expected_values": {
+        "0xFF8400": 1,
+        "0xFF8404": 2,
+        "0xFF844C": 70,
+        "0xFF84C4": 0,
+        "0xFF8808": 0,
+        "0xFF880C": 1,
+        "0xFF8810": 0
+      },
+      "timestamp": "2023-05-23 10:35:23"
+    }
+  ]
+} 

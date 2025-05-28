@@ -843,14 +843,14 @@ void deco16Scan()
 			memset(&ba, 0, sizeof(ba));
 			ba.Data	  = deco16_pf_ram[i];
 			ba.nLen	  = 0x2000;
-			sprintf (name, "Deco16ic RAM %d", i);
+			snprintf(name, sizeof(name), "Deco16ic RAM %d", i);
 			ba.szName = name;
 			BurnAcb(&ba);
 
 			memset(&ba, 0, sizeof(ba));
 			ba.Data	  = deco16_pf_rowscroll[i];
 			ba.nLen	  = 0x1000;
-			sprintf (name, "Deco16ic Rowscroll %d", i);
+			snprintf(name, sizeof(name), "Deco16ic Rowscroll %d", i);
 			ba.szName = name;
 			BurnAcb(&ba);
 		}

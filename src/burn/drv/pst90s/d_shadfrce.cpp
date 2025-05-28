@@ -376,7 +376,7 @@ static void __fastcall shadfrceZWrite(UINT16 a, UINT8 d)
 	{
 		case 0xC800:
 		case 0xC801:
-			BurnYM2151Write(a & 1, d);
+			BurnYM2151Write(0, a & 1, d);
 		break;
 
 		case 0xD800:

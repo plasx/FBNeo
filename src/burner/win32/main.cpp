@@ -60,7 +60,9 @@ bool bMonitorAutoCheck = true;
 TCHAR szChoice[MAX_PATH] = _T("");
 OPENFILENAME ofn;
 
-#if defined (UNICODE)
+#ifdef __cplusplus
+extern "C" {
+#endif
 char* TCHARToANSI(const TCHAR* pszInString, char* pszOutString, int nOutSize)
 {
 
@@ -90,25 +92,7 @@ TCHAR* ANSIToTCHAR(const char* pszInString, TCHAR* pszOutString, int nOutSize)
 
 	return NULL;
 }
-#else
-char* TCHARToANSI(const TCHAR* pszInString, char* pszOutString, int /*nOutSize*/)
-{
-	if (pszOutString) {
-		strcpy(pszOutString, pszInString);
-		return pszOutString;
-	}
-
-	return (char*)pszInString;
-}
-
-TCHAR* ANSIToTCHAR(const char* pszInString, TCHAR* pszOutString, int /*nOutSize*/)
-{
-	if (pszOutString) {
-		_tcscpy(pszOutString, pszInString);
-		return pszOutString;
-	}
-
-	return (TCHAR*)pszInString;
+#ifdef __cplusplus
 }
 #endif
 

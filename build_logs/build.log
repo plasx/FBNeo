@@ -1,0 +1,64 @@
+Initializing build directories...
+Compiling C++ file: src/burn/burn.cpp
+clang++ -O2 -fomit-frame-pointer -Wno-write-strings -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -std=c++17 -DUSE_METAL -DLSB_FIRST -DTCHAR_IS_CHAR -D__STDC_CONSTANT_MACROS -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/sound -Isrc/burn/snd -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes -I/opt/homebrew/include -c src/burn/burn.cpp -o obj/metal/burn/burn.o
+src/burn/burn.cpp:1857:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1857 |         sprintf(pNewEntry->szName, "%s:%s %i", module, name, instance);
+      |         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+1 warning generated.
+Compiling C++ file: src/burn/burn_sound.cpp
+clang++ -O2 -fomit-frame-pointer -Wno-write-strings -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -std=c++17 -DUSE_METAL -DLSB_FIRST -DTCHAR_IS_CHAR -D__STDC_CONSTANT_MACROS -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/sound -Isrc/burn/snd -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes -I/opt/homebrew/include -c src/burn/burn_sound.cpp -o obj/metal/burn/burn_sound.o
+Compiling C++ file: src/burn/burn_sound_c.cpp
+clang++ -O2 -fomit-frame-pointer -Wno-write-strings -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -std=c++17 -DUSE_METAL -DLSB_FIRST -DTCHAR_IS_CHAR -D__STDC_CONSTANT_MACROS -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/sound -Isrc/burn/snd -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes -I/opt/homebrew/include -c src/burn/burn_sound_c.cpp -o obj/metal/burn/burn_sound_c.o
+Compiling C++ file: src/burn/cheat.cpp
+clang++ -O2 -fomit-frame-pointer -Wno-write-strings -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -std=c++17 -DUSE_METAL -DLSB_FIRST -DTCHAR_IS_CHAR -D__STDC_CONSTANT_MACROS -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/sound -Isrc/burn/snd -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes -I/opt/homebrew/include -c src/burn/cheat.cpp -o obj/metal/burn/cheat.o
+src/burn/cheat.cpp:701:5: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  701 |                                 sprintf(Temp, "Address %08X Value %02X\n", nAddress, MemoryValues[nAddress]);
+      |                                 ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+1 warning generated.
+Compiling C++ file: src/burn/tiles_generic.cpp
+clang++ -O2 -fomit-frame-pointer -Wno-write-strings -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -std=c++17 -DUSE_METAL -DLSB_FIRST -DTCHAR_IS_CHAR -D__STDC_CONSTANT_MACROS -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/sound -Isrc/burn/snd -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes -I/opt/homebrew/include -c src/burn/tiles_generic.cpp -o obj/metal/burn/tiles_generic.o
+Compiling C++ file: src/burn/timer.cpp
+clang++ -O2 -fomit-frame-pointer -Wno-write-strings -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -std=c++17 -DUSE_METAL -DLSB_FIRST -DTCHAR_IS_CHAR -D__STDC_CONSTANT_MACROS -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/sound -Isrc/burn/snd -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes -I/opt/homebrew/include -c src/burn/timer.cpp -o obj/metal/burn/timer.o
+src/burn/timer.cpp:55:9: warning: variable 'nTimer' set but not used [-Wunused-but-set-variable]
+   55 |                 INT32 nTimer, nFirstTimer, nCyclesSegment, nTicksSegment;
+      |                       ^
+1 warning generated.
+Compiling C++ file: src/burn/snd/burn_ym2151.cpp
+clang++ -O2 -fomit-frame-pointer -Wno-write-strings -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -std=c++17 -DUSE_METAL -DLSB_FIRST -DTCHAR_IS_CHAR -D__STDC_CONSTANT_MACROS -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/sound -Isrc/burn/snd -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes -I/opt/homebrew/include -c src/burn/snd/burn_ym2151.cpp -o obj/metal/burn/snd/burn_ym2151.o
+Compiling C++ file: src/intf/video/vid_interface.cpp
+clang++ -O2 -fomit-frame-pointer -Wno-write-strings -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -std=c++17 -DUSE_METAL -DLSB_FIRST -DTCHAR_IS_CHAR -D__STDC_CONSTANT_MACROS -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/sound -Isrc/burn/snd -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes -I/opt/homebrew/include -c src/intf/video/vid_interface.cpp -o obj/metal/intf/video/vid_interface.o
+src/intf/video/vid_interface.cpp:70:34: error: excess elements in array initializer
+   70 | INT64 nVidBlitterOpt[VID_LEN] = {0, };                  // Options for the blitter module (meaning depens on module)
+      |                                  ^
+src/intf/video/vid_interface.cpp:145:36: error: use of undeclared identifier 'MAX_HARDCODED_FX'
+  145 | struct hardfx_config HardFXConfigs[MAX_HARDCODED_FX];
+      |                                    ^
+src/intf/video/vid_interface.cpp:245:32: error: use of undeclared identifier 'bDrvOkay'
+  245 |         if ((nVidSelect < VID_LEN) && bDrvOkay) {
+      |                                       ^
+src/intf/video/vid_interface.cpp:253:8: error: use of undeclared identifier 'bDrvOkay'
+  253 |                         if (bDrvOkay && (BurnDrvGetFlags() & BDF_16BIT_ONLY) && nVidImageBPP > 2) {
+      |                             ^
+src/intf/video/vid_interface.cpp:433:6: error: use of undeclared identifier 'bDrvOkay'
+  433 |         if (bDrvOkay) {
+      |             ^
+src/intf/video/vid_interface.cpp:476:18: error: use of undeclared identifier 'bDrvOkay'
+  476 |         if (bVidOkay && bDrvOkay) {
+      |                         ^
+src/intf/video/vid_interface.cpp:547:8: warning: unused variable 'rect' [-Wunused-variable]
+  547 |                 RECT rect;
+      |                      ^~~~
+1 warning and 6 errors generated.
+make: *** [obj/metal/intf/video/vid_interface.o] Error 1

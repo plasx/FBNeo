@@ -215,7 +215,7 @@ static void __fastcall exzisus_sound_write(UINT16 address, UINT8 data)
 	{
 		case 0x9000:
 		case 0x9001:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0xa000:
@@ -234,7 +234,7 @@ static UINT8 __fastcall exzisus_sound_read(UINT16 address)
 	{
 		case 0x9000:
 		case 0x9001:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0xa001:
 			return TC0140SYTSlaveCommRead();

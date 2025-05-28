@@ -1,0 +1,332 @@
+{
+  "game_name": "sf2ce",
+  "architecture": "CPS1",
+  "version": "1.0",
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0xFF8450",
+      "type": "word",
+      "description": "Player 1 health",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 176,
+      "scale": 0.00568
+    },
+    {
+      "name": "p2_health",
+      "address": "0xFF8850",
+      "type": "word",
+      "description": "Player 2 health",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 176,
+      "scale": 0.00568
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0xFF83C0",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "player1",
+      "scale": 0.001
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0xFF83C4",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "player1",
+      "scale": 0.001
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0xFF87C0",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "player2",
+      "scale": 0.001
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0xFF87C4",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "player2",
+      "scale": 0.001
+    },
+    {
+      "name": "p1_character_id",
+      "address": "0xFF8400",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 11,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_character_id",
+      "address": "0xFF8800",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 11,
+      "scale": 1.0
+    },
+    {
+      "name": "timer",
+      "address": "0xFF8AB8",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 99,
+      "scale": 0.01
+    },
+    {
+      "name": "p1_state",
+      "address": "0xFF8404",
+      "type": "byte",
+      "description": "Player 1 animation state",
+      "category": "player1",
+      "scale": 1.0
+    },
+    {
+      "name": "p2_state",
+      "address": "0xFF8804",
+      "type": "byte",
+      "description": "Player 2 animation state",
+      "category": "player2",
+      "scale": 1.0
+    },
+    {
+      "name": "p1_x_velocity",
+      "address": "0xFF83C8",
+      "type": "word",
+      "description": "Player 1 X velocity",
+      "category": "player1",
+      "scale": 0.001
+    },
+    {
+      "name": "p1_y_velocity",
+      "address": "0xFF83CC",
+      "type": "word",
+      "description": "Player 1 Y velocity",
+      "category": "player1",
+      "scale": 0.001
+    },
+    {
+      "name": "p2_x_velocity",
+      "address": "0xFF87C8",
+      "type": "word",
+      "description": "Player 2 X velocity",
+      "category": "player2",
+      "scale": 0.001
+    },
+    {
+      "name": "p2_y_velocity",
+      "address": "0xFF87CC",
+      "type": "word",
+      "description": "Player 2 Y velocity",
+      "category": "player2",
+      "scale": 0.001
+    },
+    {
+      "name": "p1_facing",
+      "address": "0xFF8408",
+      "type": "byte",
+      "description": "Player 1 facing direction (0=right, 1=left)",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_facing",
+      "address": "0xFF8808",
+      "type": "byte",
+      "description": "Player 2 facing direction (0=right, 1=left)",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "game_state",
+      "address": "0xFF8100",
+      "type": "byte",
+      "description": "Current game state",
+      "category": "game_state",
+      "scale": 1.0
+    },
+    {
+      "name": "stage_id",
+      "address": "0xFF8A8C",
+      "type": "byte",
+      "description": "Current stage ID",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 11,
+      "scale": 1.0
+    },
+    {
+      "name": "round_number",
+      "address": "0xFF8AAA",
+      "type": "byte",
+      "description": "Current round number",
+      "category": "game_state",
+      "min_value": 1,
+      "max_value": 3,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_wins",
+      "address": "0xFF8AAB",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 2,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_wins",
+      "address": "0xFF8AAC",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 2,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_dizzy",
+      "address": "0xFF8451",
+      "type": "byte",
+      "description": "Player 1 dizzy state",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_dizzy",
+      "address": "0xFF8851",
+      "type": "byte",
+      "description": "Player 2 dizzy state",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_stun_meter",
+      "address": "0xFF8488",
+      "type": "byte",
+      "description": "Player 1 stun meter",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 255,
+      "scale": 0.00392
+    },
+    {
+      "name": "p2_stun_meter",
+      "address": "0xFF8888",
+      "type": "byte",
+      "description": "Player 2 stun meter",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 255,
+      "scale": 0.00392
+    },
+    {
+      "name": "p1_blocking",
+      "address": "0xFF8418",
+      "type": "byte",
+      "description": "Player 1 blocking state",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_blocking",
+      "address": "0xFF8818",
+      "type": "byte",
+      "description": "Player 2 blocking state",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_throw_tech_window",
+      "address": "0xFF8440",
+      "type": "byte",
+      "description": "Player 1 throw tech window frames",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 10,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_throw_tech_window",
+      "address": "0xFF8840",
+      "type": "byte",
+      "description": "Player 2 throw tech window frames",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 10,
+      "scale": 1.0
+    }
+  ],
+  "groups": [
+    {
+      "name": "player1",
+      "mappings": [
+        "p1_health",
+        "p1_x_position",
+        "p1_y_position",
+        "p1_character_id",
+        "p1_state",
+        "p1_x_velocity",
+        "p1_y_velocity",
+        "p1_facing",
+        "p1_dizzy",
+        "p1_stun_meter",
+        "p1_blocking",
+        "p1_throw_tech_window"
+      ]
+    },
+    {
+      "name": "player2",
+      "mappings": [
+        "p2_health",
+        "p2_x_position",
+        "p2_y_position",
+        "p2_character_id",
+        "p2_state",
+        "p2_x_velocity",
+        "p2_y_velocity",
+        "p2_facing",
+        "p2_dizzy",
+        "p2_stun_meter",
+        "p2_blocking",
+        "p2_throw_tech_window"
+      ]
+    },
+    {
+      "name": "game_state",
+      "mappings": [
+        "timer",
+        "game_state",
+        "stage_id",
+        "round_number",
+        "p1_wins",
+        "p2_wins"
+      ]
+    }
+  ]
+} 

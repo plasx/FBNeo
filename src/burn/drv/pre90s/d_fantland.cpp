@@ -312,7 +312,7 @@ static UINT8 __fastcall fantland_sound_read_port(UINT32 port)
 			return soundlatch;
 
 		case 0x0101:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 	}
 	bprintf(0, _T("rp %X. "), port);
 	return 0;

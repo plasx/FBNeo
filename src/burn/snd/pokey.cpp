@@ -724,7 +724,7 @@ INT32 PokeyInit(INT32 clock, INT32 num, double vol, INT32 addtostream)
 		p->serout_w = intf.serout_w[chip];
 		p->interrupt_cb = intf.interrupt_cb[chip];
 
-		sprintf(name, "Pokey #%d", chip);
+		snprintf(name, sizeof(name), "Pokey #%d", chip);
 		p->channel = stream_init(name, intf.mixing_level[chip], Machine->sample_rate, chip, update[chip]);
 
 		if( p->channel == -1 )

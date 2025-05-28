@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 INT32 inputbuf_embed(FILE *fp);
 void inputbuf_load();
 void inputbuf_save();
@@ -9,4 +13,8 @@ UINT8 inputbuf_getbuffer();
 INT32 inputbuf_freeze(UINT8 **buf, INT32 *size);
 INT32 inputbuf_unfreeze(UINT8 *buf, INT32 size);
 INT32 inputbuf_freezer_size();
+
+#ifdef __cplusplus
+}
+#endif
 

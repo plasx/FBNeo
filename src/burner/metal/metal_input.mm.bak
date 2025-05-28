@@ -1,0 +1,401 @@
+#import <Cocoa/Cocoa.h>
+#import <GameController/GameController.h>
+#import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
+#import <MetalKit/MetalKit.h>
+
+#include "metal_declarations.h"
+#include "metal_input.h"
+#include <stdio.h>
+#include <string.h>
+
+// Maximum number of supported players
+#define MAX_PLAYERS 4
+
+// Maximum number of buttons per player
+#define MAX_BUTTONS 16
+
+// Input state structure
+typedef struct {
+    BOOL isInitialized;
+    BOOL keyboardEnabled;
+    BOOL mouseEnabled;
+    BOOL gamepadEnabled;
+    
+    // Game controllers
+    NSMutableArray* controllers;
+    
+    // Input state per player
+    struct {
+        // Button state (1 bit per button)
+        uint32_t buttonState;
+        
+        // Analog stick positions (-1.0 to 1.0)
+        float leftStickX;
+        float leftStickY;
+        float rightStickX;
+        float rightStickY;
+        
+        // Analog trigger values (0.0 to 1.0)
+        float leftTrigger;
+        float rightTrigger;
+        
+        // Connected game controller
+        GCController* controller;
+    } playerState[MAX_PLAYERS];
+    
+    // Keyboard state
+    uint8_t keyState[256];
+    
+    // Mouse state
+    struct {
+        float x;
+        float y;
+        uint32_t buttons;
+    } mouseState;
+    
+    // Key bindings for player 1
+    // Maps key codes to button indices
+    int keyBindings[256];
+    
+} MetalInputState;
+
+// Global input state
+static MetalInputState gInputState;
+
+// Key bindings
+#define KEY_MAP_SIZE 256
+#define MAX_AXES 8
+
+// Input state
+static bool keyState[KEY_MAP_SIZE] = {0};
+static bool buttonState[MAX_PLAYERS][MAX_BUTTONS] = {{0}};
+static int axisState[MAX_PLAYERS][MAX_AXES] = {{0}};
+
+// Key mapping
+static int keyMap[KEY_MAP_SIZE] = {0};
+static bool keyMapInitialized = false;
+
+// Device management
+static NSMutableArray<GCController*>* controllers = nil;
+static int activeDevice = 0;
+
+// Initialize default key mappings
+static void initDefaultKeymap() {
+    // WASD for directional controls
+    keyMap['w'] = 0; // Up
+    keyMap['s'] = 1; // Down
+    keyMap['a'] = 2; // Left
+    keyMap['d'] = 3; // Right
+    
+    // Common action buttons
+    keyMap['j'] = 4; // Button 1
+    keyMap['k'] = 5; // Button 2
+    keyMap['l'] = 6; // Button 3
+    keyMap['i'] = 7; // Button 4
+    keyMap['u'] = 8; // Button 5
+    keyMap['o'] = 9; // Button 6
+    
+    // Special buttons
+    keyMap[' '] = 10; // Start
+    keyMap['p'] = 11; // Coin
+    keyMap['1'] = 12; // Player 1 Start
+    keyMap['2'] = 13; // Player 2 Start
+    
+    keyMapInitialized = true;
+}
+
+// Update controllers list
+static void updateControllersList() {
+    if (!controllers) {
+        controllers = [NSMutableArray array];
+    }
+    
+    [controllers removeAllObjects];
+    
+    for (GCController* controller in [GCController controllers]) {
+        [controllers addObject:controller];
+    }
+    
+    NSLog(@"Found %lu controllers", (unsigned long)[controllers count]);
+}
+
+// Controller connection/disconnection handler
+static void setupControllerObservers() {
+    // Observer for controller connections
+    [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidConnectNotification 
+                                                      object:nil 
+                                                       queue:[NSOperationQueue mainQueue] 
+                                                  usingBlock:^(NSNotification *note) {
+        GCController *controller = note.object;
+        NSLog(@"Controller connected: %@", controller.vendorName);
+        updateControllersList();
+    }];
+    
+    // Observer for controller disconnections
+    [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidDisconnectNotification 
+                                                      object:nil 
+                                                       queue:[NSOperationQueue mainQueue] 
+                                                  usingBlock:^(NSNotification *note) {
+        GCController *controller = note.object;
+        NSLog(@"Controller disconnected: %@", controller.vendorName);
+        updateControllersList();
+    }];
+}
+
+// Process controller input
+static void processControllerInput() {
+    if ([controllers count] == 0) return;
+    
+    for (int player = 0; player < MIN([controllers count], MAX_PLAYERS); player++) {
+        GCController* controller = controllers[player];
+        
+        // Process gamepad input if available
+        if (controller.extendedGamepad) {
+            GCExtendedGamepad* gamepad = controller.extendedGamepad;
+            
+            // D-pad
+            buttonState[player][0] = gamepad.dpad.up.pressed;
+            buttonState[player][1] = gamepad.dpad.down.pressed;
+            buttonState[player][2] = gamepad.dpad.left.pressed;
+            buttonState[player][3] = gamepad.dpad.right.pressed;
+            
+            // Face buttons
+            buttonState[player][4] = gamepad.buttonA.pressed;
+            buttonState[player][5] = gamepad.buttonB.pressed;
+            buttonState[player][6] = gamepad.buttonX.pressed;
+            buttonState[player][7] = gamepad.buttonY.pressed;
+            
+            // Shoulder buttons
+            buttonState[player][8] = gamepad.leftShoulder.pressed;
+            buttonState[player][9] = gamepad.rightShoulder.pressed;
+            
+            // Triggers
+            buttonState[player][10] = gamepad.leftTrigger.pressed;
+            buttonState[player][11] = gamepad.rightTrigger.pressed;
+            
+            // Menu buttons
+            buttonState[player][12] = gamepad.buttonOptions ? gamepad.buttonOptions.pressed : false;
+            buttonState[player][13] = gamepad.buttonMenu ? gamepad.buttonMenu.pressed : false;
+            
+            // Thumbsticks
+            axisState[player][0] = (int)(gamepad.leftThumbstick.xAxis.value * 32767.0f);
+            axisState[player][1] = (int)(gamepad.leftThumbstick.yAxis.value * 32767.0f);
+            axisState[player][2] = (int)(gamepad.rightThumbstick.xAxis.value * 32767.0f);
+            axisState[player][3] = (int)(gamepad.rightThumbstick.yAxis.value * 32767.0f);
+            
+            // Triggers as axes
+            axisState[player][4] = (int)(gamepad.leftTrigger.value * 32767.0f);
+            axisState[player][5] = (int)(gamepad.rightTrigger.value * 32767.0f);
+        }
+        // Process gamepad input if available
+        else if (controller.gamepad) {
+            GCGamepad* gamepad = controller.gamepad;
+            
+            // D-pad
+            buttonState[player][0] = gamepad.dpad.up.pressed;
+            buttonState[player][1] = gamepad.dpad.down.pressed;
+            buttonState[player][2] = gamepad.dpad.left.pressed;
+            buttonState[player][3] = gamepad.dpad.right.pressed;
+            
+            // Face buttons
+            buttonState[player][4] = gamepad.buttonA.pressed;
+            buttonState[player][5] = gamepad.buttonB.pressed;
+            buttonState[player][6] = gamepad.buttonX.pressed;
+            buttonState[player][7] = gamepad.buttonY.pressed;
+            
+            // Shoulder buttons
+            buttonState[player][8] = gamepad.leftShoulder.pressed;
+            buttonState[player][9] = gamepad.rightShoulder.pressed;
+        }
+    }
+}
+
+// Initialize input system
+int MetalInput_Init() {
+    // Initialize key map if needed
+    if (!keyMapInitialized) {
+        initDefaultKeymap();
+    }
+    
+    // Clear input state
+    memset(keyState, 0, sizeof(keyState));
+    memset(buttonState, 0, sizeof(buttonState));
+    memset(axisState, 0, sizeof(axisState));
+    
+    // Initialize controller handling
+    controllers = [NSMutableArray array];
+    updateControllersList();
+    setupControllerObservers();
+    
+    NSLog(@"Metal input system initialized");
+    return 0;
+}
+
+// Shutdown input system
+int MetalInput_Exit() {
+    // Remove controller observers
+    [[NSNotificationCenter defaultCenter] removeObserver:nil
+                                                    name:GCControllerDidConnectNotification
+                                                  object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:nil
+                                                    name:GCControllerDidDisconnectNotification
+                                                  object:nil];
+    
+    controllers = nil;
+    
+    NSLog(@"Metal input system shutdown");
+    return 0;
+}
+
+// Process input (call every frame)
+int MetalInput_Make(bool bCopy) {
+    // Process controller input
+    processControllerInput();
+    
+    return 0;
+}
+
+// Set key state
+void MetalInput_SetKeyState(int key, bool isPressed) {
+    if (key >= 0 && key < KEY_MAP_SIZE) {
+        keyState[key] = isPressed;
+        
+        // Map to player 1 buttons if this key is mapped
+        int mappedButton = keyMap[key];
+        if (mappedButton >= 0 && mappedButton < MAX_BUTTONS) {
+            buttonState[0][mappedButton] = isPressed;
+        }
+    }
+}
+
+// Set joypad state
+void MetalInput_SetJoypadState(int player, int button, bool isPressed) {
+    if (player >= 0 && player < MAX_PLAYERS && button >= 0 && button < MAX_BUTTONS) {
+        buttonState[player][button] = isPressed;
+    }
+}
+
+// Set axis state
+void MetalInput_SetAxisState(int player, int axis, int value) {
+    if (player >= 0 && player < MAX_PLAYERS && axis >= 0 && axis < MAX_AXES) {
+        axisState[player][axis] = value;
+    }
+}
+
+// Set default keymap
+void MetalInput_SetDefaultKeymap() {
+    initDefaultKeymap();
+}
+
+// Load keymap from file
+void MetalInput_LoadKeymap(const char* filename) {
+    if (!filename) return;
+    
+    // Implement loading from plist or JSON file
+    NSString* path = [NSString stringWithUTF8String:filename];
+    NSDictionary* keymapDict = [NSDictionary dictionaryWithContentsOfFile:path];
+    
+    if (keymapDict) {
+        // Reset keymap
+        memset(keyMap, 0, sizeof(keyMap));
+        
+        // Load each mapping
+        for (NSString* keyStr in keymapDict) {
+            int key = [keyStr intValue];
+            int button = [keymapDict[keyStr] intValue];
+            
+            if (key >= 0 && key < KEY_MAP_SIZE) {
+                keyMap[key] = button;
+            }
+        }
+        
+        keyMapInitialized = true;
+        NSLog(@"Loaded keymap from %@", path);
+    }
+}
+
+// Save keymap to file
+void MetalInput_SaveKeymap(const char* filename) {
+    if (!filename) return;
+    
+    // Create dictionary from keymap
+    NSMutableDictionary* keymapDict = [NSMutableDictionary dictionary];
+    
+    for (int key = 0; key < KEY_MAP_SIZE; key++) {
+        if (keyMap[key] != 0) {
+            NSString* keyStr = [NSString stringWithFormat:@"%d", key];
+            NSNumber* buttonNum = [NSNumber numberWithInt:keyMap[key]];
+            keymapDict[keyStr] = buttonNum;
+        }
+    }
+    
+    // Save to file
+    NSString* path = [NSString stringWithUTF8String:filename];
+    [keymapDict writeToFile:path atomically:YES];
+    NSLog(@"Saved keymap to %@", path);
+}
+
+// Get number of connected devices
+int MetalInput_GetDeviceCount() {
+    return (int)[controllers count] + 1; // +1 for keyboard
+}
+
+// Get device name
+const char* MetalInput_GetDeviceName(int index) {
+    if (index == 0) {
+        return "Keyboard";
+    } else if (index > 0 && index <= (int)[controllers count]) {
+        GCController* controller = controllers[index - 1];
+        return [controller.vendorName UTF8String];
+    }
+    return "Unknown Device";
+}
+
+// Set active input device
+void MetalInput_SetActiveDevice(int index) {
+    activeDevice = index;
+}
+
+// Stubs required for FBNeo integration
+extern "C" {
+    // Initialize input
+    int InpInit() {
+        return MetalInput_Init();
+    }
+    
+    // Update input
+    int InpUpdate() {
+        return MetalInput_Make(false);
+    }
+    
+    // Clean up input
+    int InpExit() {
+        return MetalInput_Exit();
+    }
+    
+    // Get player 1's state (bit flags for buttons)
+    unsigned int InpGetPlayerState(int player) {
+        if (player < 0 || player >= MAX_PLAYERS) {
+            return 0;
+        }
+        
+        uint32_t state = 0;
+        for (int i = 0; i < MAX_BUTTONS; i++) {
+            if (buttonState[player][i]) {
+                state |= (1 << i);
+            }
+        }
+        return state;
+    }
+    
+    // Check if a key is pressed
+    int InpKeyIsPressed(int key) {
+        if (key < 0 || key >= KEY_MAP_SIZE) {
+            return 0;
+        }
+        
+        return keyState[key] ? 1 : 0;
+    }
+} 

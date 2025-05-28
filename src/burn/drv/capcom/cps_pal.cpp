@@ -1,10 +1,20 @@
+#include "burnint.h"
 #include "cps.h"
 #include "bitswap.h"
+
+// Include our fixes header for Metal builds
+#ifdef USE_METAL_FIXES
+#include "../../burner/metal/fixes/cps2_fixes.h"
+#endif
+
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
 
 // CPS (palette)
 
 static UINT8* CpsPalSrc = NULL;			// Copy of current input palette
-UINT32* CpsPal = NULL;					// Hicolor version of palette
+UINT32* CpstPal = NULL;					// Hicolor version of palette
 INT32 nCpsPalCtrlReg;
 INT32 bCpsUpdatePalEveryFrame = 0;		// Some of the hacks need this as they don't write to CpsReg 0x0a
 
@@ -20,8 +30,8 @@ INT32 CpsPalInit()
 	memset(CpsPalSrc, 0, nLen);
 
 	nLen = 0xc00 * sizeof(UINT32);
-	CpsPal = (UINT32*)BurnMalloc(nLen);
-	if (CpsPal == NULL) {
+	CpstPal = (UINT32*)BurnMalloc(nLen);
+	if (CpstPal == NULL) {
 		return 1;
 	}
 
@@ -30,7 +40,7 @@ INT32 CpsPalInit()
 
 INT32 CpsPalExit()
 {
-	BurnFree(CpsPal);
+	BurnFree(CpstPal);
 	BurnFree(CpsPalSrc);
 	return 0;
 }
@@ -60,7 +70,7 @@ INT32 CpsPalUpdate(UINT8* pNewPal)
 				g = ((Palette >> 4) & 0x0f) * 0x11 * Bright / 0x2d;
 				b = ((Palette >> 0) & 0x0f) * 0x11 * Bright / 0x2d;
 				
-				CpsPal[(0x200 * nPage) + (Offset ^ 15)] = BurnHighCol(r, g, b, 0);
+				CpstPal[(0x200 * nPage) + (Offset ^ 15)] = BurnHighCol(r, g, b, 0);
 			}
 		} else {
 			if (PaletteRAM != (UINT16*)CpsPalSrc) {

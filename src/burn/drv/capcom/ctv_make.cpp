@@ -33,20 +33,20 @@ int main()
 
 			  if (((nCuRows && (nCuSize != 16)) || (nCuRows && (nCuMask == 1)))) {
 				  printf("// Invalid combination of capabilities. rows %x  size %x  mask %x\n", nCuRows, nCuSize, nCuMask);
-			  }	else {
-				printf ("static INT32 ");
-				printf ("CtvDo");
-				printf ("%d",nCuBpp);
-				printf ("%.2d",nCuSize);
-					 if (nCuRows)  printf ("r"); else printf ("_");
-					 if (nCuCare)  printf ("c"); else printf ("_");
-					 if (nCuFlipX) printf ("f"); else printf ("_");
-					 if (nCuMask==1)  printf ("m()\n#include \"ctv_do.h\"\n");
-			    else if (nCuMask==2)  printf ("b()\n#include \"ctv_do.h\"\n");
-			    else                  printf ("_()\n#include \"ctv_do.h\"\n");
+			  } else {
+				// Emit CTV_BPP, CTV_SIZE, CTV_ROWS, CTV_CARE, CTV_FLIPX, CTV_MASK macros
+				printf("#define CTV_BPP %d\n", nCuBpp);
+				printf("#define CTV_SIZE %d\n", nCuSize);
+				printf("#define CTV_ROWS %c\n", (nCuRows ? 'r' : '_'));
+				printf("#define CTV_CARE %c\n", (nCuCare ? 'c' : '_'));
+				printf("#define CTV_FLIPX %c\n", (nCuFlipX ? 'f' : '_'));
+				char mask = '_';
+				if (nCuMask == 1) mask = 'm';
+				else if (nCuMask == 2) mask = 'b';
+				printf("#define CTV_MASK %c\n", mask);
+				printf("#include \"ctv_do_template.h\"\n");
+				printf("#undef CTV_BPP\n#undef CTV_SIZE\n#undef CTV_ROWS\n#undef CTV_CARE\n#undef CTV_FLIPX\n#undef CTV_MASK\n");
 			  }
-
-
 
               printf ("#undef  CU_FLIPX\n");
 			}
@@ -75,17 +75,17 @@ int main()
       if (nCuMask==1)
       {
 	     printf ("// Lookup table for %d bpp with Sprite Masking\n",nCuBpp);
-	     printf ("static CtvDoFn CtvDo%dm[0x20]={\n",nCuBpp);
+	     printf ("CtvDoFn CtvDo%dm[0x20]={\n",nCuBpp);
       }
       else if (nCuMask==2)
       {
 	     printf ("// Lookup table for %d bpp with BgHi\n",nCuBpp);
-         printf ("static CtvDoFn CtvDo%db[0x20]={\n",nCuBpp);
+         printf ("CtvDoFn CtvDo%db[0x20]={\n",nCuBpp);
       }
       else
       {
 	     printf ("// Lookup table for %d bpp\n",nCuBpp);
-         printf ("static CtvDoFn CtvDo%d[0x20]={\n",nCuBpp);
+         printf ("CtvDoFn CtvDo%d[0x20]={\n",nCuBpp);
       }
 
       for (i=0;i<0x20;i++)
@@ -98,7 +98,7 @@ int main()
 		if ((i&4) && (s!=16)) { printf ("_______"); goto End; }
 		if ((i&4) && (nCuMask==1)) { printf ("_______"); goto End; }
         printf ("%d",nCuBpp);
-        printf ("%.2d",s);
+        printf ("%d",s);
         if (i&4)     printf ("r"); else printf ("_");
         if (i&2)     printf ("c"); else printf ("_");
         if (i&1)     printf ("f"); else printf ("_");

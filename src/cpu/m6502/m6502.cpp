@@ -1026,7 +1026,7 @@ void m6502_get_info(UINT32 state, cpuinfo *info)
 		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s, "Copyright Juergen Buchmueller, all rights reserved."); break;
 
 		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c%c%c%c%c%c%c%c",
+			snprintf(info->s, sizeof(info->s), "%c%c%c%c%c%c%c%c",
 				m6502.p & 0x80 ? 'N':'.',
 				m6502.p & 0x40 ? 'V':'.',
 				m6502.p & 0x20 ? 'R':'.',
@@ -1037,14 +1037,14 @@ void m6502_get_info(UINT32 state, cpuinfo *info)
 				m6502.p & 0x01 ? 'C':'.');
 			break;
 
-		case CPUINFO_STR_REGISTER + M6502_PC:			sprintf(info->s, "PC:%04X", m6502.pc.w.l); break;
-		case CPUINFO_STR_REGISTER + M6502_S:			sprintf(info->s, "S:%02X", m6502.sp.b.l); break;
-		case CPUINFO_STR_REGISTER + M6502_P:			sprintf(info->s, "P:%02X", m6502.p); break;
-		case CPUINFO_STR_REGISTER + M6502_A:			sprintf(info->s, "A:%02X", m6502.a); break;
-		case CPUINFO_STR_REGISTER + M6502_X:			sprintf(info->s, "X:%02X", m6502.x); break;
-		case CPUINFO_STR_REGISTER + M6502_Y:			sprintf(info->s, "Y:%02X", m6502.y); break;
-		case CPUINFO_STR_REGISTER + M6502_EA:			sprintf(info->s, "EA:%04X", m6502.ea.w.l); break;
-		case CPUINFO_STR_REGISTER + M6502_ZP:			sprintf(info->s, "ZP:%03X", m6502.zp.w.l); break;
+		case CPUINFO_STR_REGISTER + M6502_PC:			snprintf(info->s, sizeof(info->s), "PC:%04X", m6502.pc.w.l); break;
+		case CPUINFO_STR_REGISTER + M6502_S:			snprintf(info->s, sizeof(info->s), "S:%02X", m6502.sp.b.l); break;
+		case CPUINFO_STR_REGISTER + M6502_P:			snprintf(info->s, sizeof(info->s), "P:%02X", m6502.p); break;
+		case CPUINFO_STR_REGISTER + M6502_A:			snprintf(info->s, sizeof(info->s), "A:%02X", m6502.a); break;
+		case CPUINFO_STR_REGISTER + M6502_X:			snprintf(info->s, sizeof(info->s), "X:%02X", m6502.x); break;
+		case CPUINFO_STR_REGISTER + M6502_Y:			snprintf(info->s, sizeof(info->s), "Y:%02X", m6502.y); break;
+		case CPUINFO_STR_REGISTER + M6502_EA:			snprintf(info->s, sizeof(info->s), "EA:%04X", m6502.ea.w.l); break;
+		case CPUINFO_STR_REGISTER + M6502_ZP:			snprintf(info->s, sizeof(info->s), "ZP:%03X", m6502.zp.w.l); break;
 	}
 }
 

@@ -404,7 +404,7 @@ static void GauntletSoundWrite(UINT16 Address, UINT8 Data)
 		}
 		
 		case 0x1810: // 1810 & 1811
-			BurnYM2151Write(Address & 1, Data);
+			BurnYM2151Write(0, Address & 1, Data);
 		return;
 		
 		case 0x1820: // 1820-182f

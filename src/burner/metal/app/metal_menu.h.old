@@ -1,0 +1,142 @@
+#pragma once
+
+#import <Cocoa/Cocoa.h>
+
+@class FBNeoMetalDelegate;
+
+// Settings structure to store user preferences
+typedef struct {
+    // Video settings
+    int displayMode;         // 0 = windowed, 1 = fullscreen
+    int scalingMode;         // 0 = nearest neighbor, 1 = linear, 2 = CRT
+    int aspectRatio;         // 0 = original, 1 = stretched, 2 = 4:3, 3 = 16:9
+    BOOL vsync;              // Vertical sync
+    int scanlineIntensity;   // 0-100%
+    BOOL showFPS;            // Show FPS counter
+    
+    // Audio settings
+    BOOL audioEnabled;
+    int sampleRate;          // 44100, 48000, etc.
+    int volume;              // 0-100%
+    
+    // Input settings
+    BOOL autofire;
+    int controllerType;      // 0 = keyboard, 1 = gamepad
+    
+    // Advanced settings
+    BOOL enableSpeedHacks;
+    BOOL enableCheats;
+    BOOL enableNetplay;
+    int frameSkip;           // 0 = none, 1-5 = skip frames
+    
+    // Game options
+    BOOL autoRun;            // Automatically run game when loaded
+    
+    // AI settings
+    BOOL aiEnabled;          // Enable AI features
+    int aiDifficulty;        // 0-10 (0 = easiest, 10 = hardest)
+    int aiControlledPlayer;  // 0 = none, 1 = P1, 2 = P2, 3 = both
+    BOOL aiTrainingMode;     // Enable training data collection
+    BOOL aiDebugOverlay;     // Show AI debug overlays
+    NSString *aiModelPath;   // Path to the AI model
+} FBNeoSettings;
+
+// Menu manager interface for Metal
+@interface FBNeoMenuManager : NSObject
+
+// Reference to main application delegate
+@property (nonatomic, weak) FBNeoMetalDelegate *appDelegate;
+
+// Current settings
+@property (nonatomic, assign) FBNeoSettings settings;
+
+// Menu paths for ROMs
+@property (nonatomic, strong) NSMutableArray *recentRoms;
+@property (nonatomic, strong) NSString *romsDirectory;
+
+// Menu bar and main items
+@property (nonatomic, strong) NSMenu *mainMenu;
+@property (nonatomic, strong) NSMenuItem *gameMenuItem;
+@property (nonatomic, strong) NSMenu *gameMenu;
+@property (nonatomic, strong) NSMenuItem *recentRomsMenuItem;
+@property (nonatomic, strong) NSMenu *recentRomsMenu;
+@property (nonatomic, strong) NSMenuItem *settingsMenuItem;
+@property (nonatomic, strong) NSMenu *settingsMenu;
+@property (nonatomic, strong) NSMenuItem *videoSettingsMenuItem;
+@property (nonatomic, strong) NSMenu *videoSettingsMenu;
+@property (nonatomic, strong) NSMenuItem *audioSettingsMenuItem;
+@property (nonatomic, strong) NSMenu *audioSettingsMenu;
+@property (nonatomic, strong) NSMenuItem *inputSettingsMenuItem;
+@property (nonatomic, strong) NSMenu *inputSettingsMenu;
+@property (nonatomic, strong) NSMenuItem *toolsMenuItem;
+@property (nonatomic, strong) NSMenu *toolsMenu;
+@property (nonatomic, strong) NSMenuItem *helpMenuItem;
+@property (nonatomic, strong) NSMenu *helpMenu;
+
+// AI-specific menu items
+@property (nonatomic, strong) NSMenuItem *aiMenuItem;
+@property (nonatomic, strong) NSMenu *aiMenu;
+@property (nonatomic, strong) NSMenuItem *aiModelsMenuItem;
+@property (nonatomic, strong) NSMenu *aiModelsMenu;
+@property (nonatomic, strong) NSMenuItem *aiDebugMenuItem;
+@property (nonatomic, strong) NSMenu *aiDebugMenu;
+
+// Initialize with app delegate
+- (instancetype)initWithAppDelegate:(FBNeoMetalDelegate *)delegate;
+
+// Create main menu structure
+- (void)createMainMenu;
+
+// Create submenus
+- (void)createGameMenu;
+- (void)createSettingsMenu;
+- (void)createVideoSettingsMenu;
+- (void)createAudioSettingsMenu;
+- (void)createInputSettingsMenu;
+- (void)createToolsMenu;
+- (void)createHelpMenu;
+- (void)createAIMenu;
+- (void)createAIDebugMenu;
+- (void)createAIModelsMenu;
+
+// Recent ROMs management
+- (void)loadRecentRomsList;
+- (void)saveRecentRomsList;
+- (void)addRecentRom:(NSString *)romPath;
+- (void)updateRecentRomsMenu;
+
+// Load and save settings
+- (void)loadSettings;
+- (void)saveSettings;
+
+// Update UI to reflect current settings
+- (void)updateSettingsMenuItems;
+
+// Settings accessors
+- (void)setDisplayMode:(int)mode;
+- (void)setScalingMode:(int)mode;
+- (void)setAspectRatio:(int)ratio;
+- (void)setVSync:(BOOL)enabled;
+- (void)setScanlineIntensity:(int)intensity;
+- (void)setShowFPS:(BOOL)show;
+- (void)setAudioEnabled:(BOOL)enabled;
+- (void)setSampleRate:(int)rate;
+- (void)setVolume:(int)volume;
+- (void)setAutofire:(BOOL)enabled;
+- (void)setControllerType:(int)type;
+- (void)setEnableSpeedHacks:(BOOL)enabled;
+- (void)setEnableCheats:(BOOL)enabled;
+- (void)setEnableNetplay:(BOOL)enabled;
+- (void)setFrameSkip:(int)frames;
+- (void)setAutoRun:(BOOL)enabled;
+
+// AI settings accessors
+- (void)setAIEnabled:(BOOL)enabled;
+- (void)setAIDifficulty:(int)level;
+- (void)setAIControlledPlayer:(int)player;
+- (void)setAITrainingMode:(BOOL)enabled;
+- (void)setAIDebugOverlay:(BOOL)enabled;
+- (void)setAIModelPath:(NSString *)path;
+- (void)loadAIModel:(NSString *)modelPath;
+
+@end 

@@ -1,6 +1,8 @@
 // vector.cpp, by iq_132.  aa mods by dink
 #include "tiles_generic.h"
 #include "math.h"
+#include "burnint.h"
+#include "metal_fixes.h"
 
 #define TABLE_SIZE  0x10000 // excessive?
 
@@ -86,7 +88,9 @@ void vector_rescale(INT32 x, INT32 y)
 		BurnTransferSetDimensions(x, y);
 		BurnDrvSetVisibleSize(x, y);
 	}
+#ifdef USE_REINITIALISE
 	Reinitialise();
+#endif
 	BurnTransferRealloc();
 	BurnFree(pBitmap);
 	pBitmap = (UINT32*)BurnMalloc(nScreenWidth * nScreenHeight * sizeof(INT32));

@@ -1,0 +1,6 @@
+2025-05-15 23:02:13.022 fbneo_metal[16787:18710009] Debug logging enabled
+2025-05-15 23:02:13.051 fbneo_metal[16787:18710009] [MTKRenderer] Initializing FBNeo Metal Renderer
+2025-05-15 23:02:13.052 fbneo_metal[16787:18710009] [MTKRenderer] Metal view setup complete
+2025-05-15 23:02:13.053 fbneo_metal[16787:18710009] [MTKRenderer] Metal pipeline setup complete
+2025-05-15 23:02:13.053 fbneo_metal[16787:18710009] [MTKRenderer] Created frame buffer 384x224 (344064 bytes)
+2025-05-15 23:02:13.053 fbneo_metal[16787:18710009] MetalRenderer_Init: Renderer initialized successfully

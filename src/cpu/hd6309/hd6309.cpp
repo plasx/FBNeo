@@ -150,7 +150,7 @@ HD6309_INLINE void fetch_effective_address( void );
 #define MD_DZ	0x80		/* Division by zero */
 
 /* 6309 registers */
-static hd6309_Regs hd6309;
+hd6309_Regs hd6309;
 static int (*insn_callback)(int cycles);
 //static int hd6309_slapstic = 0;
 
@@ -1346,7 +1346,7 @@ void hd6309_get_info(UINT32 state, cpuinfo *info)
 		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s, "Copyright John Butler and Tim Lindner"); break;
 
 		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c%c%c%c%c%c%c%c (MD:%c%c%c%c)",
+			snprintf(info->s, 64, "%c%c%c%c%c%c%c%c (MD:%c%c%c%c)",
 				hd6309.cc & 0x80 ? 'E':'.',
 				hd6309.cc & 0x40 ? 'F':'.',
 				hd6309.cc & 0x20 ? 'H':'.',
@@ -1362,19 +1362,19 @@ void hd6309_get_info(UINT32 state, cpuinfo *info)
 				hd6309.md & 0x01 ? 'Z':'z');
 			break;
 
-		case CPUINFO_STR_REGISTER + HD6309_PC:			sprintf(info->s, "PC:%04X", hd6309.pc.w.l); break;
-		case CPUINFO_STR_REGISTER + HD6309_S:			sprintf(info->s, "S:%04X", hd6309.s.w.l); break;
-		case CPUINFO_STR_REGISTER + HD6309_CC:			sprintf(info->s, "CC:%02X", hd6309.cc); break;
-		case CPUINFO_STR_REGISTER + HD6309_MD:			sprintf(info->s, "MD:%02X", hd6309.md); break;
-		case CPUINFO_STR_REGISTER + HD6309_U:			sprintf(info->s, "U:%04X", hd6309.u.w.l); break;
-		case CPUINFO_STR_REGISTER + HD6309_A:			sprintf(info->s, "A:%02X", hd6309.d.b.h); break;
-		case CPUINFO_STR_REGISTER + HD6309_B:			sprintf(info->s, "B:%02X", hd6309.d.b.l); break;
-		case CPUINFO_STR_REGISTER + HD6309_E:			sprintf(info->s, "E:%02X", hd6309.w.b.h); break;
-		case CPUINFO_STR_REGISTER + HD6309_F:			sprintf(info->s, "F:%02X", hd6309.w.b.l); break;
-		case CPUINFO_STR_REGISTER + HD6309_X:			sprintf(info->s, "X:%04X", hd6309.x.w.l); break;
-		case CPUINFO_STR_REGISTER + HD6309_Y:			sprintf(info->s, "Y:%04X", hd6309.y.w.l); break;
-		case CPUINFO_STR_REGISTER + HD6309_V:			sprintf(info->s, "V:%04X", hd6309.v.w.l); break;
-		case CPUINFO_STR_REGISTER + HD6309_DP:			sprintf(info->s, "DP:%02X", hd6309.dp.b.h); break;
+		case CPUINFO_STR_REGISTER + HD6309_PC:			snprintf(info->s, 64, "PC:%04X", hd6309.pc.w.l); break;
+		case CPUINFO_STR_REGISTER + HD6309_S:			snprintf(info->s, 64, "S:%04X", hd6309.s.w.l); break;
+		case CPUINFO_STR_REGISTER + HD6309_CC:			snprintf(info->s, 64, "CC:%02X", hd6309.cc); break;
+		case CPUINFO_STR_REGISTER + HD6309_MD:			snprintf(info->s, 64, "MD:%02X", hd6309.md); break;
+		case CPUINFO_STR_REGISTER + HD6309_U:			snprintf(info->s, 64, "U:%04X", hd6309.u.w.l); break;
+		case CPUINFO_STR_REGISTER + HD6309_A:			snprintf(info->s, 64, "A:%02X", hd6309.d.b.h); break;
+		case CPUINFO_STR_REGISTER + HD6309_B:			snprintf(info->s, 64, "B:%02X", hd6309.d.b.l); break;
+		case CPUINFO_STR_REGISTER + HD6309_E:			snprintf(info->s, 64, "E:%02X", hd6309.w.b.h); break;
+		case CPUINFO_STR_REGISTER + HD6309_F:			snprintf(info->s, 64, "F:%02X", hd6309.w.b.l); break;
+		case CPUINFO_STR_REGISTER + HD6309_X:			snprintf(info->s, 64, "X:%04X", hd6309.x.w.l); break;
+		case CPUINFO_STR_REGISTER + HD6309_Y:			snprintf(info->s, 64, "Y:%04X", hd6309.y.w.l); break;
+		case CPUINFO_STR_REGISTER + HD6309_V:			snprintf(info->s, 64, "V:%04X", hd6309.v.w.l); break;
+		case CPUINFO_STR_REGISTER + HD6309_DP:			snprintf(info->s, 64, "DP:%02X", hd6309.dp.b.h); break;
 	}
 }
 #endif

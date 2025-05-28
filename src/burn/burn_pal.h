@@ -46,3 +46,11 @@ void BurnPaletteWrite_RRRGGGBB_inverted(INT32 offset);
 #define pal3bit(x)	((((x) & 0x07)<<5)|(((x) & 0x07) << 2)|(((x) & 0x07) >> 1))
 #define pal2bit(x)	((((x) & 0x03)<<6)|(((x) & 0x03) << 4)|(((x) & 0x03) << 2) | ((x) & 0x03))
 #define pal1bit(x)	(((x) & 1) ? 0xff : 0)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void GetPalette(INT32 nStart, INT32 nNum);
+#ifdef __cplusplus
+}
+#endif

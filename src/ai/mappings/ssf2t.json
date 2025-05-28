@@ -1,0 +1,341 @@
+{
+  "game": "Super Street Fighter II Turbo",
+  "architecture": "CPS2",
+  "version": "1.0.0",
+  "description": "Memory mapping for Super Street Fighter II Turbo on CPS2 hardware",
+  "supported_roms": ["ssf2t", "ssf2ta", "ssf2tur1", "ssf2tu", "ssf2tur1", "ssf2xj"],
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0xFF83B2",
+      "type": "word",
+      "description": "Player 1 current health",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 176,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_health",
+      "address": "0xFF87B2",
+      "type": "word",
+      "description": "Player 2 current health",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 176,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_stun",
+      "address": "0xFF83C0",
+      "type": "byte",
+      "description": "Player 1 stun meter",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 255
+    },
+    {
+      "name": "p2_stun",
+      "address": "0xFF87C0",
+      "type": "byte",
+      "description": "Player 2 stun meter",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 255
+    },
+    {
+      "name": "p1_character_id",
+      "address": "0xFF8394",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 15
+    },
+    {
+      "name": "p2_character_id",
+      "address": "0xFF8794",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 15
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0xFF8344",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "position",
+      "player_index": 1,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0xFF8348",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "position",
+      "player_index": 1,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0xFF8744",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "position",
+      "player_index": 2,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0xFF8748",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "position",
+      "player_index": 2,
+      "endianness": "little"
+    },
+    {
+      "name": "timer",
+      "address": "0xFF8108",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 99
+    },
+    {
+      "name": "round",
+      "address": "0xFF810E",
+      "type": "byte",
+      "description": "Current round number",
+      "category": "game_state",
+      "min_value": 1,
+      "max_value": 5
+    },
+    {
+      "name": "p1_wins",
+      "address": "0xFF810C",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "game_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "p2_wins",
+      "address": "0xFF810D",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "game_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "game_state",
+      "address": "0xFF8008",
+      "type": "byte",
+      "description": "Game state (1=character select, 2=in-game, etc.)",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 10
+    },
+    {
+      "name": "p1_super_meter",
+      "address": "0xFF83E0",
+      "type": "word",
+      "description": "Player 1 super meter",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 144,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_super_meter",
+      "address": "0xFF87E0",
+      "type": "word",
+      "description": "Player 2 super meter",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 144,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_is_blocking",
+      "address": "0xFF8388",
+      "type": "byte",
+      "description": "Player 1 blocking state (0=not blocking, non-zero=blocking)",
+      "category": "action_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_is_blocking",
+      "address": "0xFF8788",
+      "type": "byte",
+      "description": "Player 2 blocking state (0=not blocking, non-zero=blocking)",
+      "category": "action_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p1_action_state",
+      "address": "0xFF8340",
+      "type": "byte",
+      "description": "Player 1 action state (standing, crouching, jumping, etc.)",
+      "category": "action_state",
+      "player_index": 1
+    },
+    {
+      "name": "p2_action_state",
+      "address": "0xFF8740",
+      "type": "byte",
+      "description": "Player 2 action state (standing, crouching, jumping, etc.)",
+      "category": "action_state",
+      "player_index": 2
+    },
+    {
+      "name": "p1_combo_counter",
+      "address": "0xFF83D0",
+      "type": "byte",
+      "description": "Player 1 combo counter",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 99
+    },
+    {
+      "name": "p2_combo_counter",
+      "address": "0xFF87D0",
+      "type": "byte",
+      "description": "Player 2 combo counter",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 99
+    },
+    {
+      "name": "p1_facing",
+      "address": "0xFF8368",
+      "type": "byte",
+      "description": "Player 1 facing direction (0=right, 1=left)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_facing",
+      "address": "0xFF8768",
+      "type": "byte",
+      "description": "Player 2 facing direction (0=right, 1=left)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p1_dizzy",
+      "address": "0xFF83C1",
+      "type": "byte",
+      "description": "Player 1 dizzy state (0=not dizzy, non-zero=dizzy)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_dizzy",
+      "address": "0xFF87C1",
+      "type": "byte",
+      "description": "Player 2 dizzy state (0=not dizzy, non-zero=dizzy)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p1_is_super",
+      "address": "0xFF8396",
+      "type": "byte",
+      "description": "Player 1 is using Super character (0=normal, 1=super)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_is_super",
+      "address": "0xFF8796",
+      "type": "byte",
+      "description": "Player 2 is using Super character (0=normal, 1=super)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    }
+  ],
+  "groups": [
+    {
+      "name": "player1",
+      "description": "Player 1 information",
+      "mappings": [
+        "p1_health",
+        "p1_stun",
+        "p1_character_id",
+        "p1_x_position",
+        "p1_y_position",
+        "p1_is_blocking",
+        "p1_action_state",
+        "p1_combo_counter",
+        "p1_facing",
+        "p1_dizzy",
+        "p1_super_meter",
+        "p1_is_super"
+      ]
+    },
+    {
+      "name": "player2",
+      "description": "Player 2 information",
+      "mappings": [
+        "p2_health",
+        "p2_stun",
+        "p2_character_id",
+        "p2_x_position",
+        "p2_y_position",
+        "p2_is_blocking",
+        "p2_action_state",
+        "p2_combo_counter",
+        "p2_facing",
+        "p2_dizzy",
+        "p2_super_meter",
+        "p2_is_super"
+      ]
+    },
+    {
+      "name": "match",
+      "description": "Match information",
+      "mappings": [
+        "timer",
+        "round",
+        "p1_wins",
+        "p2_wins",
+        "game_state"
+      ]
+    }
+  ]
+} 

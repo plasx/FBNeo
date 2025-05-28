@@ -1,0 +1,176 @@
+GNU Make 3.81
+Copyright (C) 2006  Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
+
+This program built for i386-apple-darwin11.3.0
+Reading makefiles...
+Reading makefile `makefile.sdl2'...
+Reading makefile `makefile.burn_rules' (search path) (no ~ expansion)...
+Updating makefiles....
+ Considering target file `makefile.burn_rules'.
+  Looking for an implicit rule for `makefile.burn_rules'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.o'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.c'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.cc'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.C'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.cpp'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.p'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.f'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.F'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.m'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.r'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.s'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.S'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.mod'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.sh'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules,v'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `RCS/makefile.burn_rules,v'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `RCS/makefile.burn_rules'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `s.makefile.burn_rules'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `SCCS/s.makefile.burn_rules'.
+  Trying pattern rule with stem `makefile.burn_rules'.
+  Trying implicit prerequisite `makefile.burn_rules.o'.
+  Looking for a rule with intermediate file `makefile.burn_rules.o'.
+   Avoiding implicit rule recursion.
+   Trying pattern rule with stem `makefile.burn_rules'.
+   Trying implicit prerequisite `makefile.burn_rules.c'.
+   Trying pattern rule with stem `makefile.burn_rules'.
+   Trying implicit prerequisite `makefile.burn_rules.asm'.
+   Trying pattern rule with stem `makefile.burn_rules'.
+  Found an implicit rule for `makefile.burn_rules'.
+  Finished prerequisites of target file `makefile.burn_rules'.
+  Prerequisite `makefile.burn_rules.o' of target `makefile.burn_rules' does not exist.
+ No need to remake target `makefile.burn_rules'.
+ Considering target file `makefile.sdl2'.
+  Looking for an implicit rule for `makefile.sdl2'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.o'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.c'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.cc'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.C'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.cpp'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.p'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.f'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.F'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.m'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.r'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.s'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.S'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.mod'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.sh'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2,v'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `RCS/makefile.sdl2,v'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `RCS/makefile.sdl2'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `s.makefile.sdl2'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `SCCS/s.makefile.sdl2'.
+  Trying pattern rule with stem `makefile.sdl2'.
+  Trying implicit prerequisite `makefile.sdl2.o'.
+  Looking for a rule with intermediate file `makefile.sdl2.o'.
+   Avoiding implicit rule recursion.
+   Trying pattern rule with stem `makefile.sdl2'.
+   Trying implicit prerequisite `makefile.sdl2.c'.
+   Trying pattern rule with stem `makefile.sdl2'.
+   Trying implicit prerequisite `makefile.sdl2.asm'.
+   Trying pattern rule with stem `makefile.sdl2'.
+  Found an implicit rule for `makefile.sdl2'.
+  Finished prerequisites of target file `makefile.sdl2'.
+  Prerequisite `makefile.sdl2.o' of target `makefile.sdl2' does not exist.
+ No need to remake target `makefile.sdl2'.
+Updating goal targets....
+Considering target file `obj/intf/video/sdl/Shaders.air'.
+  Considering target file `src/intf/video/sdl/Shaders.metal'.
+   Looking for an implicit rule for `src/intf/video/sdl/Shaders.metal'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.o'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.c'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.cc'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.C'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.cpp'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.p'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.f'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.F'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.m'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.r'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.s'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.S'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.mod'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.sh'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal,v'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/RCS/Shaders.metal,v'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/RCS/Shaders.metal'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/s.Shaders.metal'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/SCCS/s.Shaders.metal'.
+   Trying pattern rule with stem `Shaders.metal'.
+   Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.o'.
+   Looking for a rule with intermediate file `src/intf/video/sdl/Shaders.metal.o'.
+    Avoiding implicit rule recursion.
+    Trying pattern rule with stem `Shaders.metal'.
+    Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.c'.
+    Trying pattern rule with stem `Shaders.metal'.
+    Trying implicit prerequisite `src/intf/video/sdl/Shaders.metal.asm'.
+    Trying pattern rule with stem `Shaders.metal'.
+   Found an implicit rule for `src/intf/video/sdl/Shaders.metal'.
+   Finished prerequisites of target file `src/intf/video/sdl/Shaders.metal'.
+   Prerequisite `src/intf/video/sdl/Shaders.metal.o' of target `src/intf/video/sdl/Shaders.metal' does not exist.
+  No need to remake target `src/intf/video/sdl/Shaders.metal'.
+ Finished prerequisites of target file `obj/intf/video/sdl/Shaders.air'.
+ Prerequisite `src/intf/video/sdl/Shaders.metal' is older than target `obj/intf/video/sdl/Shaders.air'.
+No need to remake target `obj/intf/video/sdl/Shaders.air'.
+make: `obj/intf/video/sdl/Shaders.air' is up to date.

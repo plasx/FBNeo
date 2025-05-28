@@ -931,7 +931,6 @@ int I8039Run(int cycles)
 
 	i8039_ICount_cycles = cycles;
 	i8039_ICount = (cycles - R.irq_extra_cycles);
-	R.irq_extra_cycles = 0;
 	end_run = 0;
 
 	do
@@ -1070,7 +1069,7 @@ int I8039Scan(int nAction, int *pnMin)
 #endif
 
 	struct BurnArea ba;
-	char szName[16];
+	char szName[32];
 
 	if (pnMin != NULL) {
 		*pnMin = 0x029719;
@@ -1082,7 +1081,7 @@ int I8039Scan(int nAction, int *pnMin)
 			if (RAMStore[i]) {
 				ScanVar(&RegStore[i], sizeof(I8039_Regs), "I8039Regs");
 
-				sprintf(szName, "I8039RAM %d", i);
+				snprintf(szName, sizeof(szName), "I8039RAM %d", i);
 				memset(&ba, 0, sizeof(ba));
 				ba.Data	  = RAMStore[i];
 				ba.nLen	  = 128;
@@ -1285,34 +1284,34 @@ void i8039_get_info(UINT32 state, cpuinfo *info)
 		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s, "Copyright Mirko Buffoni\nBased on the original work Copyright Dan Boris"); break;
 
 		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c %c%c%c%c%c%c%c%c",
-				R.A11        ? 'M':'.',
-				R.PSW & 0x80 ? 'C':'.',
-				R.PSW & 0x40 ? 'A':'.',
-				R.PSW & 0x20 ? 'F':'.',
-				R.PSW & 0x10 ? 'B':'.',
-				R.PSW & 0x08 ? '?':'.',
-				R.PSW & 0x04 ? '4':'.',
-				R.PSW & 0x02 ? '2':'.',
-				R.PSW & 0x01 ? '1':'.');
+			snprintf(info->s, sizeof(info->s), "%c %c%c%c%c%c%c%c%c",
+				R.PSW & 0x08 ? 'C':'.',
+				R.irq_state & I8039_EXTERNAL_INT ? 'E':'.',
+				R.irq_state & I8039_TIMCNT_INT   ? 'T':'.',
+				R.t1_flag                        ? '1':'.',
+				R.timerON                        ? '+':'.',
+				R.countON                        ? '*':'.',
+				R.xirq_en                        ? 'X':'.',
+				R.tirq_en                        ? 'T':'.',
+				R.flags                          ? 'F':'.');
 			break;
 
-		case CPUINFO_STR_REGISTER + I8039_PC:			sprintf(info->s, "PC:%04X", R.PC.w.l); break;
-		case CPUINFO_STR_REGISTER + I8039_SP:			sprintf(info->s, "SP:%02X", R.SP); break;
-		case CPUINFO_STR_REGISTER + I8039_PSW:			sprintf(info->s, "PSW:%02X", R.PSW); break;
-		case CPUINFO_STR_REGISTER + I8039_A:			sprintf(info->s, "A:%02X", R.A); break;
-		case CPUINFO_STR_REGISTER + I8039_TC:			sprintf(info->s, "TC:%02X", R.timer); break;
-		case CPUINFO_STR_REGISTER + I8039_P1:			sprintf(info->s, "P1:%02X", R.P1); break;
-		case CPUINFO_STR_REGISTER + I8039_P2:			sprintf(info->s, "P2:%02X", R.P2); break;
-		case CPUINFO_STR_REGISTER + I8039_R0:			sprintf(info->s, "R0:%02X", R.RAM[R.regPtr+0]); break;
-		case CPUINFO_STR_REGISTER + I8039_R1:			sprintf(info->s, "R1:%02X", R.RAM[R.regPtr+1]); break;
-		case CPUINFO_STR_REGISTER + I8039_R2:			sprintf(info->s, "R2:%02X", R.RAM[R.regPtr+2]); break;
-		case CPUINFO_STR_REGISTER + I8039_R3:			sprintf(info->s, "R3:%02X", R.RAM[R.regPtr+3]); break;
-		case CPUINFO_STR_REGISTER + I8039_R4:			sprintf(info->s, "R4:%02X", R.RAM[R.regPtr+4]); break;
-		case CPUINFO_STR_REGISTER + I8039_R5:			sprintf(info->s, "R5:%02X", R.RAM[R.regPtr+5]); break;
-		case CPUINFO_STR_REGISTER + I8039_R6:			sprintf(info->s, "R6:%02X", R.RAM[R.regPtr+6]); break;
-		case CPUINFO_STR_REGISTER + I8039_R7:			sprintf(info->s, "R7:%02X", R.RAM[R.regPtr+7]); break;
-		case CPUINFO_STR_REGISTER + I8039_EA:			sprintf(info->s, "EA:%02X", R.EA); break;
+		case CPUINFO_STR_REGISTER + I8039_PC:			snprintf(info->s, sizeof(info->s), "PC:%04X", R.PC.w.l); break;
+		case CPUINFO_STR_REGISTER + I8039_SP:			snprintf(info->s, sizeof(info->s), "SP:%02X", R.SP); break;
+		case CPUINFO_STR_REGISTER + I8039_PSW:			snprintf(info->s, sizeof(info->s), "PSW:%02X", R.PSW); break;
+		case CPUINFO_STR_REGISTER + I8039_A:			snprintf(info->s, sizeof(info->s), "A:%02X", R.A); break;
+		case CPUINFO_STR_REGISTER + I8039_TC:			snprintf(info->s, sizeof(info->s), "TC:%02X", R.timer); break;
+		case CPUINFO_STR_REGISTER + I8039_P1:			snprintf(info->s, sizeof(info->s), "P1:%02X", R.P1); break;
+		case CPUINFO_STR_REGISTER + I8039_P2:			snprintf(info->s, sizeof(info->s), "P2:%02X", R.P2); break;
+		case CPUINFO_STR_REGISTER + I8039_R0:			snprintf(info->s, sizeof(info->s), "R0:%02X", R.RAM[R.regPtr+0]); break;
+		case CPUINFO_STR_REGISTER + I8039_R1:			snprintf(info->s, sizeof(info->s), "R1:%02X", R.RAM[R.regPtr+1]); break;
+		case CPUINFO_STR_REGISTER + I8039_R2:			snprintf(info->s, sizeof(info->s), "R2:%02X", R.RAM[R.regPtr+2]); break;
+		case CPUINFO_STR_REGISTER + I8039_R3:			snprintf(info->s, sizeof(info->s), "R3:%02X", R.RAM[R.regPtr+3]); break;
+		case CPUINFO_STR_REGISTER + I8039_R4:			snprintf(info->s, sizeof(info->s), "R4:%02X", R.RAM[R.regPtr+4]); break;
+		case CPUINFO_STR_REGISTER + I8039_R5:			snprintf(info->s, sizeof(info->s), "R5:%02X", R.RAM[R.regPtr+5]); break;
+		case CPUINFO_STR_REGISTER + I8039_R6:			snprintf(info->s, sizeof(info->s), "R6:%02X", R.RAM[R.regPtr+6]); break;
+		case CPUINFO_STR_REGISTER + I8039_R7:			snprintf(info->s, sizeof(info->s), "R7:%02X", R.RAM[R.regPtr+7]); break;
+		case CPUINFO_STR_REGISTER + I8039_EA:			snprintf(info->s, sizeof(info->s), "EA:%02X", R.EA); break;
 	}
 }
 

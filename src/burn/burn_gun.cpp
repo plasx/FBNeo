@@ -462,9 +462,18 @@ UINT8 BurnTrackballReadInterpolated(INT32 dev, INT32 isB, INT32 scanline) // 2 a
 	return (prev + ((now - prev) * scanline / (Max_Scanlines-1))) & 0xff;
 }
 
+void BurnTrackballReadResetAll()
+{
+	for (INT32 i = 0; i < MAX_GUNS; i++) {
+		BurnTrackballReadReset(i, 0);
+		BurnTrackballReadReset(i, 1);
+	}
+}
+
 void BurnTrackballReadReset(INT32 dev)
 {
-	BurnTrackballReadReset(dev >> 1, dev & 1);
+	BurnTrackballReadReset(dev, 0);
+	BurnTrackballReadReset(dev, 1);
 }
 
 void BurnTrackballReadReset(INT32 dev, INT32 isB)
@@ -473,14 +482,6 @@ void BurnTrackballReadReset(INT32 dev, INT32 isB)
 		TrackB[dev] = TrackDefault;
 	else
 		TrackA[dev] = TrackDefault;
-}
-
-void BurnTrackballReadReset()
-{
-	for (INT32 i = 0; i < MAX_GUNS; i++) {
-		BurnTrackballReadReset(i, 0);
-		BurnTrackballReadReset(i, 1);
-	}
 }
 
 void BurnTrackballSetResetDefault(INT32 nDefault)
@@ -590,7 +591,7 @@ void BurnTrackballInit(INT32 nNumPlayers)
 
 	BurnTrackballSetVelocityCurve(0);
 
-	BurnGunInit(nNumPlayers, false);
+	BurnGunInit(nNumPlayers, 0);
 
 	// When using trackball device, we set the mouse axis deltas to a more
 	// usable rate. (when mouse is mapped to the tb input)
@@ -604,13 +605,16 @@ void BurnTrackballInit(INT32 nNumPlayers, INT32 nDefault)
 	BurnTrackballSetResetDefault(nDefault);
 }
 
-void BurnGunInit(INT32 nNumPlayers, bool bDrawTargets)
+#ifdef __cplusplus
+extern "C" {
+#endif
+INT32 BurnGunInit(INT32 nNumPlayers, INT32 bDrawTargets)
 {
 	Debug_BurnGunInitted = 1;
 
 	if (nNumPlayers > MAX_GUNS) nNumPlayers = MAX_GUNS;
 	nBurnGunNumPlayers = nNumPlayers;
-	bBurnGunDrawTargets = bDrawTargets;
+	bBurnGunDrawTargets = (bDrawTargets ? true : false);
 	
 	if (BurnDrvGetFlags() & BDF_ORIENTATION_VERTICAL) {
 		BurnDrvGetVisibleSize(&nBurnGunMaxY, &nBurnGunMaxX);
@@ -644,7 +648,11 @@ void BurnGunInit(INT32 nNumPlayers, bool bDrawTargets)
 	}
 
 	TrackDefault = 0;
+	return 0;
 }
+#ifdef __cplusplus
+}
+#endif
 
 void BurnGunExit()
 {

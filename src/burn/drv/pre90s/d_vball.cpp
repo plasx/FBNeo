@@ -309,7 +309,7 @@ static void __fastcall vball_sound_write(UINT16 address, UINT8 data)
 	{
 		case 0x8800:
 		case 0x8801:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0x9800:
@@ -327,7 +327,7 @@ static UINT8 __fastcall vball_sound_read(UINT16 address)
 	{
 		case 0x8800:
 		case 0x8801:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0x9800:
 		case 0x9801:

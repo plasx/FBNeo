@@ -1441,8 +1441,8 @@ CPU_GET_INFO( tlcs900h )
 	case CPUINFO_PTR_INSTRUCTION_COUNTER:			info->icount = &cpustate->icount; break;
 	case DEVINFO_PTR_INTERNAL_MEMORY_MAP + ADDRESS_SPACE_PROGRAM:	info->internal_map8 = ADDRESS_MAP_NAME(tlcs900_mem); break;
 
-	case CPUINFO_STR_REGISTER + TLCS900_PC:			sprintf( info->s, "PC:%08x", cpustate->pc.d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_SR:			sprintf( info->s, "SR:%c%d%c%d%c%c%c%c%c%c%c%c",
+	case CPUINFO_STR_REGISTER + TLCS900_PC:			snprintf( info->s, sizeof( info->s), "PC:%08x", cpustate->pc.d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_SR:			snprintf( info->s, sizeof( info->s), "SR:%c%d%c%d%c%c%c%c%c%c%c%c",
 														cpustate->sr.w.l & 0x8000 ? 'S' : 'U',
 														( cpustate->sr.w.l & 0x7000 ) >> 12,
 														cpustate->sr.w.l & 0x0800 ? 'M' : 'N',
@@ -1456,43 +1456,43 @@ CPU_GET_INFO( tlcs900h )
 														cpustate->sr.w.l & 0x0002 ? 'N' : '.',
 														cpustate->sr.w.l & 0x0001 ? 'C' : '.' );
 													break;
-	case CPUINFO_STR_REGISTER + TLCS900_XWA0:		sprintf( info->s, "XWA0:%08x", cpustate->xwa[0].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XBC0:		sprintf( info->s, "XBC0:%08x", cpustate->xbc[0].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XDE0:		sprintf( info->s, "XDE0:%08x", cpustate->xde[0].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XHL0:		sprintf( info->s, "XHL0:%08x", cpustate->xhl[0].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XWA1:		sprintf( info->s, "XWA1:%08x", cpustate->xwa[1].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XBC1:		sprintf( info->s, "XBC1:%08x", cpustate->xbc[1].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XDE1:		sprintf( info->s, "XDE1:%08x", cpustate->xde[1].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XHL1:		sprintf( info->s, "XHL1:%08x", cpustate->xhl[1].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XWA2:		sprintf( info->s, "XWA2:%08x", cpustate->xwa[2].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XBC2:		sprintf( info->s, "XBC2:%08x", cpustate->xbc[2].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XDE2:		sprintf( info->s, "XDE2:%08x", cpustate->xde[2].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XHL2:		sprintf( info->s, "XHL2:%08x", cpustate->xhl[2].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XWA3:		sprintf( info->s, "XWA3:%08x", cpustate->xwa[3].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XBC3:		sprintf( info->s, "XBC3:%08x", cpustate->xbc[3].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XDE3:		sprintf( info->s, "XDE3:%08x", cpustate->xde[3].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XHL3:		sprintf( info->s, "XHL3:%08x", cpustate->xhl[3].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XIX:		sprintf( info->s, "XIX:%08x", cpustate->xix.d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XIY:		sprintf( info->s, "XIY:%08x", cpustate->xiy.d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XIZ:		sprintf( info->s, "XIZ:%08x", cpustate->xiz.d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XNSP:		sprintf( info->s, "XNSP:%08x", cpustate->xnsp.d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_XSSP:		sprintf( info->s, "XSSP:%08x", cpustate->xssp.d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAS0:		sprintf( info->s, "DMAS0:%08x", cpustate->dmas[0].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAD0:		sprintf( info->s, "DMAD0:%08x", cpustate->dmad[0].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAC0:		sprintf( info->s, "DMAC0:%04x", cpustate->dmac[0].w.l ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAM0:		sprintf( info->s, "DMAM0:%02x", cpustate->dmam[0].b.l ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAS1:		sprintf( info->s, "DMAS0:%08x", cpustate->dmas[1].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAD1:		sprintf( info->s, "DMAD0:%08x", cpustate->dmad[1].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAC1:		sprintf( info->s, "DMAC0:%04x", cpustate->dmac[1].w.l ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAM1:		sprintf( info->s, "DMAM0:%02x", cpustate->dmam[1].b.l ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAS2:		sprintf( info->s, "DMAS0:%08x", cpustate->dmas[2].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAD2:		sprintf( info->s, "DMAD0:%08x", cpustate->dmad[2].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAC2:		sprintf( info->s, "DMAC0:%04x", cpustate->dmac[2].w.l ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAM2:		sprintf( info->s, "DMAM0:%02x", cpustate->dmam[2].b.l ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAS3:		sprintf( info->s, "DMAS0:%08x", cpustate->dmas[3].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAD3:		sprintf( info->s, "DMAD0:%08x", cpustate->dmad[3].d ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAC3:		sprintf( info->s, "DMAC0:%04x", cpustate->dmac[3].w.l ); break;
-	case CPUINFO_STR_REGISTER + TLCS900_DMAM3:		sprintf( info->s, "DMAM0:%02x", cpustate->dmam[3].b.l ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XWA0:		snprintf( info->s, sizeof( info->s), "XWA0:%08x", cpustate->xwa[0].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XBC0:		snprintf( info->s, sizeof( info->s), "XBC0:%08x", cpustate->xbc[0].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XDE0:		snprintf( info->s, sizeof( info->s), "XDE0:%08x", cpustate->xde[0].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XHL0:		snprintf( info->s, sizeof( info->s), "XHL0:%08x", cpustate->xhl[0].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XWA1:		snprintf( info->s, sizeof( info->s), "XWA1:%08x", cpustate->xwa[1].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XBC1:		snprintf( info->s, sizeof( info->s), "XBC1:%08x", cpustate->xbc[1].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XDE1:		snprintf( info->s, sizeof( info->s), "XDE1:%08x", cpustate->xde[1].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XHL1:		snprintf( info->s, sizeof( info->s), "XHL1:%08x", cpustate->xhl[1].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XWA2:		snprintf( info->s, sizeof( info->s), "XWA2:%08x", cpustate->xwa[2].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XBC2:		snprintf( info->s, sizeof( info->s), "XBC2:%08x", cpustate->xbc[2].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XDE2:		snprintf( info->s, sizeof( info->s), "XDE2:%08x", cpustate->xde[2].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XHL2:		snprintf( info->s, sizeof( info->s), "XHL2:%08x", cpustate->xhl[2].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XWA3:		snprintf( info->s, sizeof( info->s), "XWA3:%08x", cpustate->xwa[3].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XBC3:		snprintf( info->s, sizeof( info->s), "XBC3:%08x", cpustate->xbc[3].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XDE3:		snprintf( info->s, sizeof( info->s), "XDE3:%08x", cpustate->xde[3].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XHL3:		snprintf( info->s, sizeof( info->s), "XHL3:%08x", cpustate->xhl[3].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XIX:		snprintf( info->s, sizeof( info->s), "XIX:%08x", cpustate->xix.d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XIY:		snprintf( info->s, sizeof( info->s), "XIY:%08x", cpustate->xiy.d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XIZ:		snprintf( info->s, sizeof( info->s), "XIZ:%08x", cpustate->xiz.d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XNSP:		snprintf( info->s, sizeof( info->s), "XNSP:%08x", cpustate->xnsp.d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_XSSP:		snprintf( info->s, sizeof( info->s), "XSSP:%08x", cpustate->xssp.d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAS0:		snprintf( info->s, sizeof( info->s), "DMAS0:%08x", cpustate->dmas[0].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAD0:		snprintf( info->s, sizeof( info->s), "DMAD0:%08x", cpustate->dmad[0].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAC0:		snprintf( info->s, sizeof( info->s), "DMAC0:%04x", cpustate->dmac[0].w.l ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAM0:		snprintf( info->s, sizeof( info->s), "DMAM0:%02x", cpustate->dmam[0].b.l ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAS1:		snprintf( info->s, sizeof( info->s), "DMAS0:%08x", cpustate->dmas[1].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAD1:		snprintf( info->s, sizeof( info->s), "DMAD0:%08x", cpustate->dmad[1].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAC1:		snprintf( info->s, sizeof( info->s), "DMAC0:%04x", cpustate->dmac[1].w.l ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAM1:		snprintf( info->s, sizeof( info->s), "DMAM0:%02x", cpustate->dmam[1].b.l ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAS2:		snprintf( info->s, sizeof( info->s), "DMAS0:%08x", cpustate->dmas[2].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAD2:		snprintf( info->s, sizeof( info->s), "DMAD0:%08x", cpustate->dmad[2].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAC2:		snprintf( info->s, sizeof( info->s), "DMAC0:%04x", cpustate->dmac[2].w.l ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAM2:		snprintf( info->s, sizeof( info->s), "DMAM0:%02x", cpustate->dmam[2].b.l ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAS3:		snprintf( info->s, sizeof( info->s), "DMAS0:%08x", cpustate->dmas[3].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAD3:		snprintf( info->s, sizeof( info->s), "DMAD0:%08x", cpustate->dmad[3].d ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAC3:		snprintf( info->s, sizeof( info->s), "DMAC0:%04x", cpustate->dmac[3].w.l ); break;
+	case CPUINFO_STR_REGISTER + TLCS900_DMAM3:		snprintf( info->s, sizeof( info->s), "DMAM0:%02x", cpustate->dmam[3].b.l ); break;
 
 	case DEVINFO_STR_NAME:							strcpy( info->s, "TLCS-900/H" ); break;
 	case DEVINFO_STR_FAMILY:					strcpy( info->s, "Toshiba TLCS-900" ); break;

@@ -66,10 +66,18 @@ static void mermaid_write_port(INT32 port, UINT8 data)
 		case MCS51_PORT_P3:
 		{
 			if ((data & 2) == 0) {
+#ifdef ZET_SINGLE
+				ZetSetRESETLine(1);
+#else
 				ZetSetRESETLine(1, 1);
+#endif
 				mermaid_sub_z80_reset = 1;
 			} else {
+#ifdef ZET_SINGLE
+				ZetSetRESETLine(0);
+#else
 				ZetSetRESETLine(1, 0);
+#endif
 				mermaid_sub_z80_reset = 0;
 			}
 		}

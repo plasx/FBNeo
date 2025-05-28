@@ -51,8 +51,8 @@ void wipingsnd_scan(INT32 , INT32 *)
 {
 	for (INT32 i = 0; i < MAX_VOICES; i++) {
 		struct BurnArea ba;
-		char szName[16];
-		sprintf(szName, "Wiping Ch#%d", i);
+		char szName[128];
+		snprintf(szName, sizeof(szName), "Wiping Ch#%d", i);
 
 		memset(&ba, 0, sizeof(ba));
 		ba.Data	  = &m_channel_list[i];

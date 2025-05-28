@@ -23,7 +23,7 @@ void process_menu()
 	nBurnDrvSelect=gametoplay;
  /*   
     char players[8];
-    sprintf(players, "%d", BurnDrvGetMaxPlayers());
+    snprintf(players, sizeof(players), "%d", BurnDrvGetMaxPlayers());
     SFont_Write(screen, greenfont,30 ,370 ,"Rom Name:");
     SFont_Write(screen, bluefont,150 ,370 ,BurnDrvGetTextA(DRV_NAME));
     SFont_Write(screen, greenfont,270 ,370 ,"Players:");
@@ -39,7 +39,7 @@ void process_menu()
 
     SFont_Write(screen, bluefont,30,5, "FB Alpha/SDL V");
     static char version[8];
-    sprintf(version,"%06x",nBurnVer);
+    snprintf(version, sizeof(version), "%06x", nBurnVer);
 
     SFont_Write(screen, bluefont,176,5, version);
     SDL_UpdateRect(screen, 0, 0,0,0);*/

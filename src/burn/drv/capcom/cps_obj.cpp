@@ -1,4 +1,14 @@
+#include "burnint.h"
 #include "cps.h"
+#include "cpst.h"
+
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
+
+#define ROUNDUP4BPP(x) ((((x) + 7) / 8) * 8)
+#define ROUNDUP8BPP(x) ((((x) + 3) / 4) * 4)
+
 // CPS Objs (sprites)
 
 INT32 nCpsObjectBank;
@@ -39,11 +49,11 @@ static void CpsBlendInit()
 {
 	blendtable = NULL;
 
-	TCHAR filename[MAX_PATH];
+	char filename[MAX_PATH] = { 0 };
 
-	_stprintf(filename, _T("%s%s.bld"), szAppBlendPath, BurnDrvGetText(DRV_NAME));
+	snprintf(filename, sizeof(filename), "%s%s.bld", szAppBlendPath, BurnDrvGetTextA(DRV_NAME));
 
-	FILE *fa = _tfopen(filename, _T("rt"));
+	FILE *fa = fopen(filename, "rt");
 
 	INT32 is_sfz3mix = strstr("sfz3mix", BurnDrvGetTextA(DRV_NAME)) != NULL;
 
@@ -54,9 +64,9 @@ static void CpsBlendInit()
 			return;
 		}
 
-		_stprintf(filename, _T("%s%s.bld"), szAppBlendPath, BurnDrvGetText(DRV_PARENT));
+		snprintf(filename, sizeof(filename), "%s%s.bld", szAppBlendPath, BurnDrvGetTextA(DRV_PARENT));
 
-		fa = _tfopen(filename, _T("rt"));
+		fa = fopen(filename, "rt");
 
 		if (fa == NULL) {
 			return;
@@ -305,7 +315,7 @@ INT32 Cps1ObjDraw(INT32 nLevelFrom,INT32 nLevelTo)
 		y+=pof->nShiftY;
 
 		// Find the palette for the tiles on this sprite
-		CpstPal = CpsPal + ((a & 0x1F) << 4);
+		CpstPal += ((a & 0x1F) << 4);
 
 		nFlip=(a>>5)&3;		
 
@@ -434,7 +444,7 @@ INT32 Cps2ObjDraw(INT32 nLevelFrom, INT32 nLevelTo)
 		}
 		
 		// Find the palette for the tiles on this sprite
-		CpstPal = CpsPal + ((a & 0x1F) << 4);
+		CpstPal += ((a & 0x1F) << 4);
 
 		nFlip = (a >> 5) & 3;
 		// Find out sprite size
@@ -862,7 +872,7 @@ INT32 FcrashObjDraw(INT32 nLevelFrom,INT32 nLevelTo)
 		y = 224 - y;
 
 		// Find the palette for the tiles on this sprite
-		CpstPal = CpsPal + ((a & 0x1F) << 4);
+		CpstPal += ((a & 0x1F) << 4);
 
 		nFlip=(a>>5)&3;		
 
@@ -883,3 +893,24 @@ INT32 FcrashObjDraw(INT32 nLevelFrom,INT32 nLevelTo)
 	
 	return 0;
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+UINT8* CpsFindGfxRam(INT32 nOffset, INT32 nLen) {
+    // This is a stub. You may need to adjust this logic to match your RAM layout.
+#ifndef USE_METAL_FIXES
+    extern UINT8* CpsRam708;
+#endif
+    extern UINT8* CpsRamFF;
+    if (nOffset >= 0x708000 && nOffset < 0x710000) {
+        return CpsRam708 + (nOffset - 0x708000);
+    }
+    if (nOffset >= 0xff0000 && nOffset < 0x1000000) {
+        return CpsRamFF + (nOffset - 0xff0000);
+    }
+    return NULL;
+}
+#ifdef __cplusplus
+}
+#endif

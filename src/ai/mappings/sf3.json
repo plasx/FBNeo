@@ -1,0 +1,316 @@
+{
+  "game_name": "Street Fighter III: 3rd Strike",
+  "architecture": "CPS3",
+  "version": "1.0.0",
+  "description": "Memory mapping for Street Fighter III: 3rd Strike (CPS3)",
+  "supported_roms": ["sfiii3", "sfiii3n", "sfiii3u"],
+  
+  "mappings": {
+    "player_state": [
+      {
+        "name": "p1_health",
+        "address": "0x02026784",
+        "type": "word",
+        "description": "Player 1 health",
+        "category": "player1",
+        "min_value": 0,
+        "max_value": 160,
+        "scale": 0.00625
+      },
+      {
+        "name": "p2_health",
+        "address": "0x02026F84",
+        "type": "word",
+        "description": "Player 2 health",
+        "category": "player2",
+        "min_value": 0,
+        "max_value": 160,
+        "scale": 0.00625
+      },
+      {
+        "name": "p1_stun",
+        "address": "0x02026E4C",
+        "type": "word",
+        "description": "Player 1 stun counter",
+        "player_index": 0,
+        "scale": 1.0,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 64,
+        "endianness": "little"
+      },
+      {
+        "name": "p2_stun",
+        "address": "0x02026E4E",
+        "type": "word",
+        "description": "Player 2 stun counter",
+        "player_index": 1,
+        "scale": 1.0,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 64,
+        "endianness": "little"
+      },
+      {
+        "name": "p1_super_meter",
+        "address": "0x02026E44", 
+        "type": "word",
+        "description": "Player 1 super meter",
+        "player_index": 0,
+        "scale": 1.0,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 128,
+        "endianness": "little"
+      },
+      {
+        "name": "p2_super_meter",
+        "address": "0x02026E46", 
+        "type": "word",
+        "description": "Player 2 super meter",
+        "player_index": 1,
+        "scale": 1.0,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 128,
+        "endianness": "little"
+      }
+    ],
+    "position": [
+      {
+        "name": "p1_x_position",
+        "address": "0x02026704",
+        "type": "dword",
+        "description": "Player 1 X position",
+        "category": "player1",
+        "scale": 0.01
+      },
+      {
+        "name": "p1_y_position",
+        "address": "0x02026708",
+        "type": "dword",
+        "description": "Player 1 Y position",
+        "category": "player1",
+        "scale": 0.01
+      },
+      {
+        "name": "p2_x_position",
+        "address": "0x02026F04",
+        "type": "dword",
+        "description": "Player 2 X position",
+        "category": "player2",
+        "scale": 0.01
+      },
+      {
+        "name": "p2_y_position",
+        "address": "0x02026F08",
+        "type": "dword",
+        "description": "Player 2 Y position",
+        "category": "player2",
+        "scale": 0.01
+      }
+    ],
+    "game_state": [
+      {
+        "name": "timer",
+        "address": "0x0200D9B0",
+        "type": "word",
+        "description": "Round timer",
+        "category": "game_state",
+        "min_value": 0,
+        "max_value": 99,
+        "scale": 0.01
+      },
+      {
+        "name": "round_number",
+        "address": "0x0200D9B4",
+        "type": "byte",
+        "description": "Current round number",
+        "category": "game_state",
+        "min_value": 1,
+        "max_value": 5,
+        "scale": 1.0
+      },
+      {
+        "name": "p1_rounds_won",
+        "address": "0x0200D9B8",
+        "type": "byte",
+        "description": "Player 1 rounds won",
+        "category": "game_state",
+        "min_value": 0,
+        "max_value": 2,
+        "scale": 1.0
+      },
+      {
+        "name": "p2_rounds_won",
+        "address": "0x0200D9BC",
+        "type": "byte",
+        "description": "Player 2 rounds won",
+        "category": "game_state",
+        "min_value": 0,
+        "max_value": 2,
+        "scale": 1.0
+      },
+      {
+        "name": "match_state",
+        "address": "0x02026E20",
+        "type": "byte",
+        "description": "Match state (0=fighting, 1=round over, 2=match over)",
+        "min_value": 0,
+        "max_value": 2
+      }
+    ],
+    "character_state": [
+      {
+        "name": "p1_character_id",
+        "address": "0x02026700",
+        "type": "byte",
+        "description": "Player 1 character ID",
+        "category": "player1",
+        "min_value": 0,
+        "max_value": 19,
+        "scale": 1.0
+      },
+      {
+        "name": "p2_character_id",
+        "address": "0x02026F00",
+        "type": "byte",
+        "description": "Player 2 character ID",
+        "category": "player2",
+        "min_value": 0,
+        "max_value": 19,
+        "scale": 1.0
+      },
+      {
+        "name": "p1_facing",
+        "address": "0x02026714",
+        "type": "byte",
+        "description": "Player 1 facing direction (0=right, 1=left)",
+        "category": "player1",
+        "min_value": 0,
+        "max_value": 1,
+        "scale": 1.0
+      },
+      {
+        "name": "p2_facing",
+        "address": "0x02026F14",
+        "type": "byte",
+        "description": "Player 2 facing direction (0=right, 1=left)",
+        "category": "player2",
+        "min_value": 0,
+        "max_value": 1,
+        "scale": 1.0
+      }
+    ],
+    "action_state": [
+      {
+        "name": "p1_state",
+        "address": "0x02026710",
+        "type": "word",
+        "description": "Player 1 animation state",
+        "category": "player1",
+        "scale": 1.0
+      },
+      {
+        "name": "p2_state",
+        "address": "0x02026F10",
+        "type": "word",
+        "description": "Player 2 animation state",
+        "category": "player2",
+        "scale": 1.0
+      },
+      {
+        "name": "p1_super_meter",
+        "address": "0x02026798",
+        "type": "word",
+        "description": "Player 1 super meter",
+        "category": "player1",
+        "min_value": 0,
+        "max_value": 192,
+        "scale": 0.0052
+      },
+      {
+        "name": "p2_super_meter",
+        "address": "0x02026F98",
+        "type": "word",
+        "description": "Player 2 super meter",
+        "category": "player2",
+        "min_value": 0,
+        "max_value": 192,
+        "scale": 0.0052
+      },
+      {
+        "name": "p1_stun",
+        "address": "0x02026788",
+        "type": "word",
+        "description": "Player 1 stun gauge",
+        "category": "player1",
+        "min_value": 0,
+        "max_value": 64,
+        "scale": 0.0156
+      },
+      {
+        "name": "p2_stun",
+        "address": "0x02026F88",
+        "type": "word",
+        "description": "Player 2 stun gauge",
+        "category": "player2",
+        "min_value": 0,
+        "max_value": 64,
+        "scale": 0.0156
+      },
+      {
+        "name": "p1_parry_state",
+        "address": "0x020267A0",
+        "type": "byte",
+        "description": "Player 1 parry state (0=none, 1=high, 2=low, 3=air)",
+        "category": "player1",
+        "min_value": 0,
+        "max_value": 3,
+        "scale": 1.0
+      },
+      {
+        "name": "p2_parry_state",
+        "address": "0x02026FA0",
+        "type": "byte",
+        "description": "Player 2 parry state (0=none, 1=high, 2=low, 3=air)",
+        "category": "player2",
+        "min_value": 0,
+        "max_value": 3,
+        "scale": 1.0
+      }
+    ]
+  },
+  
+  "groups": {
+    "player1": [
+      "p1_health",
+      "p1_x_position",
+      "p1_y_position",
+      "p1_character_id",
+      "p1_state",
+      "p1_facing",
+      "p1_super_meter",
+      "p1_stun",
+      "p1_parry_state"
+    ],
+    "player2": [
+      "p2_health",
+      "p2_x_position",
+      "p2_y_position",
+      "p2_character_id",
+      "p2_state",
+      "p2_facing",
+      "p2_super_meter",
+      "p2_stun",
+      "p2_parry_state"
+    ],
+    "match_info": [
+      "timer",
+      "round_number",
+      "p1_rounds_won",
+      "p2_rounds_won",
+      "match_state"
+    ]
+  }
+} 

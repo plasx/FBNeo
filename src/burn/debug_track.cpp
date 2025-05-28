@@ -2,6 +2,10 @@
 
 #include "burnint.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 UINT8 Debug_BurnTransferInitted;
 UINT8 Debug_BurnGunInitted;
 UINT8 Debug_BurnLedInitted;
@@ -78,6 +82,10 @@ UINT8 DebugCPU_ZetInitted;
 UINT8 DebugCPU_PIC16C5XInitted;
 UINT8 DebugCPU_I8039Initted;
 UINT8 DebugCPU_SH2Initted;
+
+#ifdef __cplusplus
+}
+#endif
 
 void DebugTrackerExit()
 {

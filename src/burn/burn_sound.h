@@ -1,7 +1,9 @@
 // burn_sound.h - General sound support functions
 // based on code by Daniel Moreno (ComaC) < comac2k@teleline.es >
 #if defined BUILD_X86_ASM
+#ifdef __cplusplus
 extern "C" {
+#endif
 	int __cdecl ChannelMix_QS_A(int* Dest, int nLen,
 								char* Sample, int LoopEnd,
 								int* Pos,
@@ -22,7 +24,9 @@ extern "C" {
 	/* SrcOPN should have left channel data at SrcOPN, right channel at SrcOPN + 4096, SrcPSG should have all summed channels */
 	void __cdecl BurnSoundCopy_FM_OPN_A(short* SrcOPN, int* SrcPSG, short* Dest, int Len, int VolPSGL, int VolPSGR);
 	void __cdecl BurnSoundCopy_FM_OPN_Add_A(short* SrcOPN, int* SrcPSG, short* Dest, int Len, int VolPSGL, int VolPSGR);
+#ifdef __cplusplus
 }
+#endif
 #endif
 
 void BurnSoundCopyClamp_C(INT32* Src, INT16* Dest, INT32 Len);
@@ -32,12 +36,7 @@ void BurnSoundCopyClamp_Mono_Add_C(INT32* Src, INT16* Dest, INT32 Len);
 
 void BurnSoundInit(); // init cubic filter table, etc
 
-inline INT32 BURN_SND_CLIP(INT32 sam)
-{
-	if (sam > 0x7fff) return 0x7fff;
-	else if (sam < -0x8000) return -0x8000;
-	else return sam;
-}
+#define BURN_SND_CLIP(A) ((A) < -0x8000 ? -0x8000 : (A) > 0x7fff ? 0x7fff : (A))
 
 void BurnSoundDCFilter();
 void BurnSoundDCFilterReset(); // called in burn.cpp: BurnDrvInit()
@@ -60,3 +59,11 @@ extern "C" INT16 Precalc[];
 #define INTERPOLATE4PU_8BIT(fp, sN, s0, s1, s2)      (((UINT32)((sN) * Precalc[(INT32)(fp) * 4 + 0]) + (UINT32)((s0) * Precalc[(INT32)(fp) * 4 + 1]) + (UINT32)((s1) * Precalc[(INT32)(fp) * 4 + 2]) + (UINT32)((s2) * Precalc[(INT32)(fp) * 4 + 3])) / 64)
 #define INTERPOLATE4PU_16BIT(fp, sN, s0, s1, s2)     (((UINT32)((sN) * Precalc[(INT32)(fp) * 4 + 0]) + (UINT32)((s0) * Precalc[(INT32)(fp) * 4 + 1]) + (UINT32)((s1) * Precalc[(INT32)(fp) * 4 + 2]) + (UINT32)((s2) * Precalc[(INT32)(fp) * 4 + 3])) / 16384)
 #define INTERPOLATE4PU_CUSTOM(fp, sN, s0, s1, s2, v) (((UINT32)((sN) * Precalc[(INT32)(fp) * 4 + 0]) + (UINT32)((s0) * Precalc[(INT32)(fp) * 4 + 1]) + (UINT32)((s1) * Precalc[(INT32)(fp) * 4 + 2]) + (UINT32)((s2) * Precalc[(INT32)(fp) * 4 + 3])) / (UINT32)(v))
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+INT32 BurnSoundRender(INT16* pDst, INT32 nLen);
+#ifdef __cplusplus
+}
+#endif

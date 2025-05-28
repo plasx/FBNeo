@@ -33,6 +33,29 @@ static INT32 nOpenedCPU = -1;
 static INT32 nCPUCount = 0;
 INT32 nHasZet = -1;
 
+#ifdef ZET_SINGLE
+static void ZetSetIRQLine_Wrapper(INT32, const INT32 line, const INT32 status) { ZetSetIRQLine(line, status); }
+
+cpu_core_config ZetConfig = {
+    "Z80",
+    ZetCPUPush,
+    ZetCPUPop,
+    ZetCheatRead,
+    ZetCheatWriteROM,
+    ZetGetActive,
+    ZetTotalCycles,
+    ZetNewFrame,
+    ZetIdle,
+    ZetSetIRQLine_Wrapper,
+    ZetRun,
+    ZetRunEnd,
+    ZetReset,
+    ZetScan,
+    ZetExit,
+    0x10000,
+    0
+};
+#else
 cpu_core_config ZetConfig =
 {
 	"Z80",
@@ -44,15 +67,16 @@ cpu_core_config ZetConfig =
 	ZetTotalCycles,
 	ZetNewFrame,
 	ZetIdle,
-	ZetSetIRQLine,
-	ZetRun,
-	ZetRunEnd,
-	ZetReset,
+	ZetSetIRQLine, // void ZetSetIRQLine(INT32 nCPU, const INT32 line, const INT32 status)
+	ZetRun,        // INT32 ZetRun(INT32 nCPU, INT32 nCycles)
+	ZetRunEnd,     // void ZetRunEnd(INT32 nCPU)
+	ZetReset,      // void ZetReset(INT32 nCPU)
 	ZetScan,
 	ZetExit,
 	0x10000,
 	0
 };
+#endif
 
 UINT8 __fastcall ZetDummyReadHandler(UINT16) { return 0; }
 void __fastcall ZetDummyWriteHandler(UINT16, UINT8) { }
@@ -1141,3 +1165,12 @@ void ZetSetSP(INT32 n, UINT16 value)
 }
 
 #undef MAX_Z80
+
+#ifdef ZET_SINGLE
+// Single-CPU function pointer table and implementations
+// (Use the correct function signatures for single-CPU mode)
+// ...
+#else
+// Multi-CPU function pointer table and implementations
+// ...
+#endif

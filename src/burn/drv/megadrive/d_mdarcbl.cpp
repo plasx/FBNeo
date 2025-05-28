@@ -62,6 +62,18 @@ static struct BurnRomInfo sbubsmRomDesc[] = {
 STD_ROM_PICK(sbubsm)
 STD_ROM_FN(sbubsm)
 
+#ifdef __APPLE__
+// On macOS, use struct initializer with proper casts for pointers
+struct BurnDriver BurnDrvSbubsm = {
+	"sbubsm", NULL, NULL, NULL, "1996",
+	"Super Bubble Bobble (Sun Mixing, Mega Drive clone hardware)\0", NULL, "Sun Mixing", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY, 2, HARDWARE_MISC_POST90S | HARDWARE_SEGA_MEGADRIVE_PCB_SBUBBOB | HARDWARE_SEGA_MEGADRIVE_SRAM_04000 | SEGA_MD_ARCADE_SUNMIXING, GBF_PLATFORM, 0,
+	NULL, (void*)sbubsmRomInfo, (void*)sbubsmRomName, NULL, NULL, NULL, NULL, (void*)SbubsmInputInfo, NULL,
+	(void*)mdarcblInit, (void*)MegadriveExit, (void*)MegadriveFrame, (void*)MegadriveDraw, (void*)MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
+#else
 struct BurnDriver BurnDrvSbubsm = {
 	"sbubsm", NULL, NULL, NULL, "1996",
 	"Super Bubble Bobble (Sun Mixing, Mega Drive clone hardware)\0", NULL, "Sun Mixing", "Sega Megadrive",
@@ -71,6 +83,7 @@ struct BurnDriver BurnDrvSbubsm = {
 	mdarcblInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
+#endif
 
 
 // Top Shooter
@@ -85,6 +98,18 @@ static struct BurnRomInfo topshootRomDesc[] = {
 STD_ROM_PICK(topshoot)
 STD_ROM_FN(topshoot)
 
+#ifdef __APPLE__
+// On macOS, use struct initializer with proper casts for pointers
+struct BurnDriver BurnDrvTopshoot = {
+	"topshoot", NULL, NULL, NULL, "1995",
+	"Top Shooter\0", NULL, "Sun Mixing", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY, 2, HARDWARE_MISC_POST90S | HARDWARE_SEGA_MEGADRIVE_SRAM_04000 | SEGA_MD_ARCADE_SUNMIXING, GBF_SPORTSMISC, 0,
+	NULL, (void*)topshootRomInfo, (void*)topshootRomName, NULL, NULL, NULL, NULL, (void*)TopshootInputInfo, NULL,
+	(void*)mdarcblInit, (void*)MegadriveExit, (void*)MegadriveFrame, (void*)MegadriveDraw, (void*)MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
+#else
 struct BurnDriver BurnDrvTopshoot = {
 	"topshoot", NULL, NULL, NULL, "1995",
 	"Top Shooter\0", NULL, "Sun Mixing", "Sega Megadrive",
@@ -94,3 +119,4 @@ struct BurnDriver BurnDrvTopshoot = {
 	mdarcblInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
+#endif

@@ -1,4 +1,46 @@
-#pragma once
+#ifndef _INTERFACE_H_
+#define _INTERFACE_H_
+
+#include <stdint.h>
+#include <vector>
+// #include "intf/video/metal/metal_common.h"
+
+// Define RECT for all builds
+#if !defined(RECT) && !defined(tagRECT)
+typedef struct {
+    int left;
+    int top;
+    int right;
+    int bottom;
+} RECT;
+#endif
+
+// macOS helpers
+#if defined(__APPLE__)
+#include <stdio.h>
+#include <stdarg.h>
+
+// Define _T macro for string literals
+#ifndef _T
+#define _T(x) x
+#endif
+
+// snprintf helper for macOS
+#ifndef _sntprintf
+inline int _sntprintf(char* buffer, size_t count, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    int result = vsnprintf(buffer, count, format, args);
+    va_end(args);
+    return result;
+}
+#endif
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef FBNEO_DEBUG
  #define PRINT_DEBUG_INFO
 #endif
@@ -8,9 +50,9 @@
 #endif
 
 // GameInp structure
-#include "gameinp.h"
+#include "../burner/gameinp.h"
 // Key codes
-#include "inp_keys.h"
+#include "input/inp_keys.h"
 
 // Interface info (used for all modules)
 struct InterfaceInfo {
@@ -53,8 +95,11 @@ INT32 InputFind(const INT32 nFlags);
 INT32 InputGetControlName(INT32 nCode, TCHAR* pszDeviceName, TCHAR* pszControlName);
 InterfaceInfo* InputGetInfo();
 
-#if defined(__APPLE__)
-std::vector<const InputInOut *> InputGetInterfaces();  // this & include @ top is breaking the build..
+#ifdef __cplusplus
+}
+
+// C++ only functions
+std::vector<const InputInOut *> InputGetInterfaces();
 #endif
 
 extern bool bInputOkay;
@@ -77,7 +122,7 @@ struct CDEmuDo {
 	const TCHAR*	 szModuleName;
 };
 
-#include "cd_interface.h"
+#include "cd/cd_interface.h"
 
 InterfaceInfo* CDEmuGetInfo();
 
@@ -167,8 +212,13 @@ INT32 VidReInitialise();
 INT32 VidFrame();
 INT32 VidFrameCallback(bool bRedraw);        // Called from blitter  (VidFrame() -> VidDoFrame() -> Blitter -> this.)
 INT32 VidRedraw();
+#ifdef __cplusplus
+extern "C" {
+#endif
 INT32 VidRecalcPal();
-INT32 VidPaint(INT32 bValidate);
+#ifdef __cplusplus
+}
+#endif
 INT32 VidImageSize(RECT* pRect, INT32 nGameWidth, INT32 nGameHeight);
 const TCHAR* VidGetModuleName();
 InterfaceInfo* VidGetInfo();
@@ -277,4 +327,6 @@ extern INT32 nMinChatFontSize;
 extern bool bEditActive;
 extern bool bEditTextChanged;
 extern TCHAR EditText[MAX_CHAT_SIZE + 1];
+
+#endif
 

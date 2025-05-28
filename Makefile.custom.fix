@@ -1,0 +1,11 @@
+CXXFLAGS := -O2 -std=c++17 -arch arm64 -fomit-frame-pointer -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -Wno-unused -Wno-conversion -Wno-attributes -Wno-unused-parameter -Wno-unused-value -Wno-unused-result -Wno-macro-redefined -DUSE_METAL -DBUILD_METAL -DFILENAME=fbneo_metal -Isrc/burn/drv/capcom/wrappers -Isrc/dep/generated -Isrc/burn -Isrc/burn/devices -Isrc/burn/snd -Isrc/burn/sound -Isrc/cpu -Isrc/cpu/m68k -Isrc/cpu/z80 -Isrc/intf -Isrc/intf/video -Isrc/intf/video/metal -Isrc/intf/audio -Isrc/intf/input -Isrc/burner -Isrc/burner/metal -Isrc/burner/metal/fixes -Isrc/dep/libs/libspng -Isrc/dep/libs/zlib -Isrc/burn/drv/capcom -Isrc/burn/drv/cps3 -I/opt/homebrew/include -Isrc/burn -Isrc/burn/drv/capcom -Isrc/burn/drv -Isrc/burner -Isrc/burner/metal -Isrc/intf/video -Isrc/intf/audio -Isrc/intf/input -Isrc/intf/video/metal -Isrc/burner/metal/fixes
+
+all: c_symbols_fix.o
+	make -f makefile.metal EXTRAOBJS="c_symbols_fix.o" FBA_LDFLAGS="-Wl,-force_load,c_symbols_fix.o"
+
+c_symbols_fix.o: c_symbols_fix.cpp
+	clang++ $(CXXFLAGS) -c c_symbols_fix.cpp -o c_symbols_fix.o
+
+clean:
+	rm -f c_symbols_fix.o
+	make -f makefile.metal clean 

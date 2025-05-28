@@ -1431,7 +1431,7 @@ static void ym2151_state_save_register( int numchips )
 		{
 			YM2151Operator *op;
 
-			sprintf(buf1,"YM2151.op%02i",j);
+			snprintf(buf1, sizeof(buf1), "YM2151.op%02i", j);
 			op = &YMPSG[i].oper[(j&7)*4+(j>>3)];
 
 			state_save_register_UINT32 (buf1, i, "phase", &op->phase, 1);
@@ -1476,7 +1476,7 @@ static void ym2151_state_save_register( int numchips )
 			state_save_register_UINT32 (buf1, i, "rsrvd1",&op->reserved1, 1);
 		}
 
-		sprintf(buf1,"YM2151.registers");
+		snprintf(buf1, sizeof(buf1), "YM2151.registers");
 
 		state_save_register_UINT32 (buf1, i, "pan"     , &YMPSG[i].pan[0], 16);
 

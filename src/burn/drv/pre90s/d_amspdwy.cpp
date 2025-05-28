@@ -191,7 +191,7 @@ static UINT8 __fastcall amspdwy_main_read(UINT16 address)
 			return steering_read(1);
 
 		case 0xb400:
-			return (BurnYM2151Read() & ~0x30) | (~DrvInputs[2] & 0x30);
+			return (BurnYM2151Read(0) & ~0x30) | (~DrvInputs[2] & 0x30);
 	}
 
 	return 0;
@@ -213,7 +213,7 @@ static void __fastcall amspdwy_sound_write(UINT16 address, UINT8 data)
 
 		case 0xa000:
 		case 0xa001:
-			BurnYM2151Write(address, data);
+			BurnYM2151Write(0, address, data);
 		return;
 	}
 }
@@ -227,7 +227,7 @@ static UINT8 __fastcall amspdwy_sound_read(UINT16 address)
 
 		case 0xa000:
 		case 0xa001:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0xffff:
 			return 0; // nop

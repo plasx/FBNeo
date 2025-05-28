@@ -2,7 +2,14 @@
 
 // Internal Divider / 2!
 
-#include "m37710.h"
+#ifndef __M377_INTF_H__
+#define __M377_INTF_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "m377/m37710.h"
 
 // cpu types:
 //#define M37702 (1 << 0)  // from m37710.h
@@ -44,3 +51,11 @@ extern struct cpu_core_config M377Config;
 
 #define BurnTimerAttachM377(clock)	\
 	BurnTimerAttach(&M377Config, clock)
+
+#define M377_IRQ_LINE  0
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __M377_INTF_H__

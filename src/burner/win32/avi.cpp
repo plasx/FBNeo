@@ -140,11 +140,11 @@ static INT32 AviCreateFile()
 	// construct our filename -> "romname-mm-dd-hms.avi"
 
 	if (nAviSplit == 0) { // Create the filename @ the first file in our set
-		sprintf(szAviFileName, "%s%s-%.2d-%.2d-%.2d%.2d%.2d", TAVI_DIRECTORY, BurnDrvGetTextA(DRV_NAME), tmTime->tm_mon + 1, tmTime->tm_mday, tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec);
+		snprintf(szAviFileName, sizeof(szAviFileName), "%s%s-%.2d-%.2d-%.2d%.2d%.2d", TAVI_DIRECTORY, BurnDrvGetTextA(DRV_NAME), tmTime->tm_mon + 1, tmTime->tm_mday, tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec);
 	}
 
 	// add the set# and extension to our file.
-	sprintf(szFilePath, "%s_%X.avi", szAviFileName, nAviSplit);
+	snprintf(szFilePath, sizeof(szFilePath), "%s_%X.avi", szAviFileName, nAviSplit);
 
 	hRet = AVIFileOpenA(
 				&FBAvi.pFile,           // returned file pointer

@@ -931,7 +931,7 @@ static INT32 n54xxCheckBuffer(UINT8 *n54xxBuffer, UINT32 bufferSize)
 				retVal = sampleEntry->sampleNo;
 			}
 #if n54xxDebug
-			sprintf(bufCheck, "%d, %d %02x,%02x,%02x,%02x : %02x,%02x,%02x,%02x",
+			snprintf(bufCheck, sizeof(bufCheck), "%d, %d %02x,%02x,%02x,%02x : %02x,%02x,%02x,%02x",
 					retVal,
 					sampleEntry->sampleNo,
 					n54xxBuffer[0],

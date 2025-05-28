@@ -1,6 +1,13 @@
-// PSound (CPS1 sound)
+#include "burnint.h"
 #include "cps.h"
 #include "driver.h"
+#include "burn_ym2151.h"
+
+// Include our fixes header for Metal builds
+#ifdef USE_METAL_FIXES
+#include "../../burner/metal/fixes/cps2_fixes.h"
+#endif
+
 extern "C" {
  #include "ym2151.h"
 }

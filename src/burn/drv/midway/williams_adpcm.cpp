@@ -49,7 +49,7 @@ static void adpcm_write(UINT16 address, UINT8 data)
 		return;
 
 		case 0x2400:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0x2800:

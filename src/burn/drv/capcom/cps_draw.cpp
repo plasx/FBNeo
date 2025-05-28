@@ -1,4 +1,11 @@
+#include "burnint.h"
 #include "cps.h"
+
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
+
+#include "burn_pal.h"
 // CPS - Draw
 
 UINT8 CpsRecalcPal = 0;			// Flag - If it is 1, recalc the whole palette
@@ -33,11 +40,13 @@ INT32 nCps1LayerOffs[3] = { -1, -1, -1 };
 static void Cps1Layers();
 static void Cps2Layers();
 
+#ifndef CPS_DRAW_TYPEDEFS_DEFINED
 typedef INT32  (*CpsObjDrawDoFn)(INT32,INT32);
 typedef INT32  (*CpsScrXDrawDoFn)(UINT8 *,INT32,INT32);
 typedef void (*CpsLayersDoFn)();
 typedef INT32  (*CpsrPrepareDoFn)();
 typedef INT32  (*CpsrRenderDoFn)();
+#endif
 
 CpsObjDrawDoFn  CpsObjDrawDoX;
 CpsScrXDrawDoFn CpsScr1DrawDoX;
@@ -216,12 +225,12 @@ static INT32 DrawStar(INT32 nLayer)
 		nStarColour = pStar[nStar];
 
 		if (nStarColour != 0x0F) {
-			nStarXPos = (((nStar >> 8) << 5) - *((INT16*)(CpsSaveReg[0] + 0x18 + (nLayer << 2))) + (nStarColour & 0x1F) - 64) & 0x01FF;
-			nStarYPos = ((nStar & 0xFF) - *((INT16*)(CpsSaveReg[0] + 0x1A + (nLayer << 2))) - 16) & 0xFF;
+			nStarXPos = (((nStar >> 8) << 5) - *((INT16*)((uint8_t*)CpsSaveReg[0] + 0x18 + (nLayer << 2))) + (nStarColour & 0x1F) - 64) & 0x01FF;
+			nStarYPos = ((nStar & 0xFF) - *((INT16*)((uint8_t*)CpsSaveReg[0] + 0x1A + (nLayer << 2))) - 16) & 0xFF;
 
 			if (nStarXPos < nCpsScreenWidth && nStarYPos < nCpsScreenHeight) {
 				nStarColour = ((nStarColour & 0xE0) >> 1) + ((GetCurrentFrame() >> 4) % ((nStarColour & 0x80) ? 0xe : 0xf));
-				PutPix(pBurnDraw + (nBurnPitch * nStarYPos) + (nBurnBpp * nStarXPos), CpsPal[0x0800 + (nLayer << 9) + nStarColour]);
+				PutPix(pBurnDraw + (nBurnPitch * nStarYPos) + (nBurnBpp * nStarXPos), CpstPal[0x0800 + (nLayer << 9) + nStarColour]);
 			}
 		}
 	}
@@ -236,7 +245,7 @@ static void Cps1Layers()
   INT32 i=0;
 
   nDrawMask=1; // Sprites always on
-  LayerCont = BURN_ENDIAN_SWAP_INT16(*((UINT16 *)(CpsSaveReg[0] + nCpsLcReg)));
+  LayerCont = BURN_ENDIAN_SWAP_INT16(*((UINT16 *)((uint8_t*)CpsSaveReg[0] + nCpsLcReg)));
   // Get correct bits from Layer Controller
   if (LayerCont & CpsLayEn[1]) nDrawMask|=2;
   if (LayerCont & CpsLayEn[2]) nDrawMask|=4;
@@ -327,7 +336,7 @@ static void Cps2Layers()
 
 	INT32 nSlice = 0;
 	do {
-		LayerCont = BURN_ENDIAN_SWAP_INT16(*((UINT16 *)(CpsSaveReg[nSlice] + nCpsLcReg)));
+		LayerCont = BURN_ENDIAN_SWAP_INT16(*((UINT16 *)((uint8_t*)CpsSaveReg[nSlice] + nCpsLcReg)));
 
 		// Determine which layers are enabled
 		nDrawMask[nSlice] = 1;								// Sprites always on
@@ -336,7 +345,7 @@ static void Cps2Layers()
 		if (LayerCont & CpsLayEn[3]) nDrawMask[nSlice] |= 8;
 		nDrawMask[nSlice] &= nBurnLayer;					// User choice of layers to display
 
-		// Determine layerö priority:
+		// Determine layerï¿½ priority:
 		Draw[nSlice][3] = (LayerCont >> 12) & 3;			// top layer
 		Draw[nSlice][2] = (LayerCont >> 10) & 3;
 		Draw[nSlice][1] = (LayerCont >> 8) & 3;
@@ -443,7 +452,7 @@ void CpsClearScreen()
 		switch (nBurnBpp) {
 			case 4: {
 				UINT32* pClear = (UINT32*)pBurnDraw;
-				UINT32 nColour = (fFakeDip & 1) ? 0 : CpsPal[0xbff ^ 15];
+				UINT32 nColour = (fFakeDip & 1) ? 0 : CpstPal[0xbff ^ 15];
 				for (INT32 i = 0; i < nCpsScreenWidth * nCpsScreenHeight / 8; i++) {
 					*pClear++ = nColour;
 					*pClear++ = nColour;
@@ -459,9 +468,9 @@ void CpsClearScreen()
 
 			case 3: {
 				UINT8* pClear = pBurnDraw;
-				UINT8 r = (CpsPal[0xbff ^ 15] >> 0) & 0xFF;
-				UINT8 g = (CpsPal[0xbff ^ 15] >> 8) & 0xFF;
-				UINT8 b = (CpsPal[0xbff ^ 15] >> 16) & 0xFF;
+				UINT8 r = (CpstPal[0xbff ^ 15] >> 0) & 0xFF;
+				UINT8 g = (CpstPal[0xbff ^ 15] >> 8) & 0xFF;
+				UINT8 b = (CpstPal[0xbff ^ 15] >> 16) & 0xFF;
 				if (fFakeDip & 1) r = g = b = 0;
 
 				for (INT32 i = 0; i < nCpsScreenWidth * nCpsScreenHeight; i++) {
@@ -474,7 +483,7 @@ void CpsClearScreen()
 
 			case 2: {
 				UINT32* pClear = (UINT32*)pBurnDraw;
-				UINT32 nColour = CpsPal[0xbff ^ 15] | CpsPal[0xbff ^ 15] << 16;
+				UINT32 nColour = CpstPal[0xbff ^ 15] | CpstPal[0xbff ^ 15] << 16;
 				if (fFakeDip & 1) nColour = 0;
 
 				for (INT32 i = 0; i < nCpsScreenWidth * nCpsScreenHeight / 16; i++) {

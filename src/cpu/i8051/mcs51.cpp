@@ -2775,7 +2775,7 @@ static CPU_GET_INFO( mcs51 )
 		case DEVINFO_STR_CREDITS:					strcpy(info->s, "Copyright Steve Ellenoff"); break;
 
 		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c%c%c%c%c%c%c%c",
+			snprintf(info->s, sizeof(info->s), "%c%c%c%c%c%c%c%c",
 				PSW & 0x80 ? 'C':'.',
 				PSW & 0x40 ? 'A':'.',
 				PSW & 0x20 ? 'F':'.',
@@ -2786,25 +2786,27 @@ static CPU_GET_INFO( mcs51 )
 				PSW & 0x01 ? 'P':'.');
 			break;
 
-		case CPUINFO_STR_REGISTER + MCS51_PC:       	sprintf(info->s, "PC:%04X", mcs51_state->pc);		break;
-		case CPUINFO_STR_REGISTER + MCS51_SP:       	sprintf(info->s, "SP:%02X", SP);			break;
-		case CPUINFO_STR_REGISTER + MCS51_PSW:      	sprintf(info->s, "PSW:%02X", PSW);			break;
-		case CPUINFO_STR_REGISTER + MCS51_ACC:      	sprintf(info->s, "A:%02X", ACC);			break;
-		case CPUINFO_STR_REGISTER + MCS51_B:        	sprintf(info->s, "B:%02X", B);				break;
-		case CPUINFO_STR_REGISTER + MCS51_DPH:      	sprintf(info->s, "DPH:%02X", DPH);			break;
-		case CPUINFO_STR_REGISTER + MCS51_DPL:      	sprintf(info->s, "DPL:%02X", DPL);			break;
-		case CPUINFO_STR_REGISTER + MCS51_IE:       	sprintf(info->s, "IE:%02X", IE);			break;
-		case CPUINFO_STR_REGISTER + MCS51_R0:       	sprintf(info->s, "R0:%02X", R_REG(0));		break;
-		case CPUINFO_STR_REGISTER + MCS51_R1:       	sprintf(info->s, "R1:%02X", R_REG(1));		break;
-		case CPUINFO_STR_REGISTER + MCS51_R2:       	sprintf(info->s, "R2:%02X", R_REG(2));		break;
-		case CPUINFO_STR_REGISTER + MCS51_R3:			sprintf(info->s, "R3:%02X", R_REG(3));		break;
-		case CPUINFO_STR_REGISTER + MCS51_R4:			sprintf(info->s, "R4:%02X", R_REG(4));		break;
-		case CPUINFO_STR_REGISTER + MCS51_R5:			sprintf(info->s, "R5:%02X", R_REG(5));		break;
-		case CPUINFO_STR_REGISTER + MCS51_R6:			sprintf(info->s, "R6:%02X", R_REG(6));		break;
-		case CPUINFO_STR_REGISTER + MCS51_R7:			sprintf(info->s, "R7:%02X", R_REG(7));		break;
-		case CPUINFO_STR_REGISTER + MCS51_RB:			sprintf(info->s, "RB:%02X", ((PSW & 0x18)>>3)); break;
+		case CPUINFO_STR_REGISTER + MCS51_PC:       	snprintf(info->s, sizeof(info->s), "PC:%04X", mcs51_state->pc);		break;
+		case CPUINFO_STR_REGISTER + MCS51_SP:       	snprintf(info->s, sizeof(info->s), "SP:%02X", SP);			break;
+		case CPUINFO_STR_REGISTER + MCS51_PSW:      	snprintf(info->s, sizeof(info->s), "PSW:%02X", PSW);			break;
+		case CPUINFO_STR_REGISTER + MCS51_ACC:      	snprintf(info->s, sizeof(info->s), "A:%02X", ACC);			break;
+		case CPUINFO_STR_REGISTER + MCS51_B:        	snprintf(info->s, sizeof(info->s), "B:%02X", B);				break;
+		case CPUINFO_STR_REGISTER + MCS51_DPH:      	snprintf(info->s, sizeof(info->s), "DPH:%02X", DPH);			break;
+		case CPUINFO_STR_REGISTER + MCS51_DPL:      	snprintf(info->s, sizeof(info->s), "DPL:%02X", DPL);			break;
+		case CPUINFO_STR_REGISTER + MCS51_IE:       	snprintf(info->s, sizeof(info->s), "IE:%02X", IE);			break;
+		case CPUINFO_STR_REGISTER + MCS51_R0:       	snprintf(info->s, sizeof(info->s), "R0:%02X", R_REG(0));		break;
+		case CPUINFO_STR_REGISTER + MCS51_R1:       	snprintf(info->s, sizeof(info->s), "R1:%02X", R_REG(1));		break;
+		case CPUINFO_STR_REGISTER + MCS51_R2:       	snprintf(info->s, sizeof(info->s), "R2:%02X", R_REG(2));		break;
+		case CPUINFO_STR_REGISTER + MCS51_R3:			snprintf(info->s, sizeof(info->s), "R3:%02X", R_REG(3));		break;
+		case CPUINFO_STR_REGISTER + MCS51_R4:			snprintf(info->s, sizeof(info->s), "R4:%02X", R_REG(4));		break;
+		case CPUINFO_STR_REGISTER + MCS51_R5:			snprintf(info->s, sizeof(info->s), "R5:%02X", R_REG(5));		break;
+		case CPUINFO_STR_REGISTER + MCS51_R6:			snprintf(info->s, sizeof(info->s), "R6:%02X", R_REG(6));		break;
+		case CPUINFO_STR_REGISTER + MCS51_R7:			snprintf(info->s, sizeof(info->s), "R7:%02X", R_REG(7));		break;
+		case CPUINFO_STR_REGISTER + MCS51_RB:			snprintf(info->s, sizeof(info->s), "RB:%02X", ((PSW & 0x18)>>3)); break;
 	}
 }
+
+
 
 /**************************************************************************
  * Specific get_info

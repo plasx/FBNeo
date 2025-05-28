@@ -57,7 +57,7 @@ static void __fastcall goori_write_byte(UINT32 address, UINT8 data)
 	{
 		case 0x300000:
 		case 0x300002:
-			BurnYM2151Write((address / 2) & 1, data);
+			BurnYM2151Write(0, (address / 2) & 1, data);
 		return;
 
 		case 0x300004:

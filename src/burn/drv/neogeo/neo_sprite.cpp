@@ -82,7 +82,7 @@ void NeoSpriteCalcLimit()
 }
 
 // Include the tile rendering functions
-#include "neo_sprite_func.h"
+#include "../../dep/generated/neo_sprite_func.h"
 
 static UINT8 nSpriteDisableLut[0x200];
 

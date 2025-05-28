@@ -1720,7 +1720,7 @@ void GenericTilemapDumpToBitmap()
 		if (cur_map->initialized == 0) continue;
 
 		char tmp[256];
-		sprintf (tmp, "%s_layer%2.2d_dump.bmp", BurnDrvGetTextA(DRV_NAME), i);
+		snprintf(tmp, sizeof(tmp), "%s_layer%2.2d_dump.bmp", BurnDrvGetTextA(DRV_NAME), i);
 
 		FILE *fa = fopen(tmp, "wb");
 

@@ -1,35 +1,53 @@
 // FBAlpha YM-2151 sound core interface
 #include "burnint.h"
 #include "burn_ym2151.h"
+#include "timer.h"
+
+// This allows for proper debugging in C++
+#if defined FBNEO_DEBUG
+static bool DebugSnd_YM2151Initted = false;
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Global variables
+static INT32 bYM2151_MultiChip = 0;
+static UINT32 nBurnCurrentYM2151Register[2];
+static INT32 nBurnYM2151SoundRate;
+static INT16* pBuffer;
+static INT16* pYM2151Buffer[4];
+static INT32 bYM2151AddSignal;
+static INT32 nYM2151Position;
+static UINT32 nSampleSize;
+static INT32 nFractionalPosition;
+static double YM2151Volumes[2][2];
+static INT32 YM2151RouteDirs[2][2];
+static INT32 YM2151BurnTimer = 0;
+static INT32 bBurnYM2151IsBuffered = 0;
+static INT32 (*BurnYM2151StreamCallback)(INT32) = NULL;
+
+// Base C API
+// (all base C API function definitions remain outside guards)
+
+#ifdef __cplusplus
+// C++ overloads
+// (Move all alternate signatures and overloads here, outside extern "C")
+// Example:
+// INT32 BurnYM2151Init(INT32 nClockFrequency, INT32 use_timer) { ... }
+// ... etc ...
+// C++ overload for legacy code
+// INT32 BurnYM2151Init(INT32 nClockFrequency) {
+//	return BurnYM2151Init(nClockFrequency, 0);
+// }
+#endif
 
 // Irq Callback timing notes.. (when not using BurnTimer!)
 // Due to the way the internal timing of the ym2151 works, BurnYM2151Render()
 // should not be called more than ~65 times per frame.  See DrvFrame() in
 // drv/konami/d_surpratk.cpp for a simple and effective work-around.
 // Note: using BurnTimer mode avoids this mess completely.
-
-static INT32 bYM2151_MultiChip = 0;
-
-static UINT32 nBurnCurrentYM2151Register[2];
-
-static INT32 nBurnYM2151SoundRate;
-
-static INT16* pBuffer;
-static INT16* pYM2151Buffer[4];
-
-static INT32 bYM2151AddSignal;
-
-static INT32 nYM2151Position;
-static UINT32 nSampleSize;
-static INT32 nFractionalPosition;
-
-static double YM2151Volumes[2][2];
-static INT32 YM2151RouteDirs[2][2];
-
-static INT32 YM2151BurnTimer = 0;
-
-static INT32 bBurnYM2151IsBuffered = 0;
-static INT32 (*BurnYM2151StreamCallback)(INT32 nSoundRate) = NULL;
 
 static void YM2151Render(INT32 nSegmentLength)
 {
@@ -189,7 +207,15 @@ void BurnYM2151Reset()
 	if (YM2151BurnTimer)
 		BurnTimerReset();
 
-	YM2151ResetChip(0);
+	for (INT32 i = 0; i < (bYM2151_MultiChip? 2: 1); i++) {
+		YM2151ResetChip(i);
+		
+		nBurnCurrentYM2151Register[i] = 0;
+	}
+	
+	// Default to chip 0
+	BurnYM2151SetIrqHandler(0, NULL);
+	BurnYM2151SetPortHandler(0, NULL);
 }
 
 void BurnYM2151Exit()
@@ -200,8 +226,8 @@ void BurnYM2151Exit()
 
 	if (!DebugSnd_YM2151Initted) return;
 
-	BurnYM2151SetIrqHandler(NULL);
-	BurnYM2151SetPortHandler(NULL);
+	BurnYM2151SetIrqHandler(0, NULL);
+	BurnYM2151SetPortHandler(0, NULL);
 
 	YM2151Shutdown();
 
@@ -244,52 +270,45 @@ void BurnYM2151InitBuffered(INT32 nClockFrequency, INT32 use_timer, INT32 (*Stre
 	bYM2151AddSignal = bAdd;
 }
 
-INT32 BurnYM2151Init(INT32 nClockFrequency)
+INT32 BurnYM2151Init(INT32 nClock, INT32 bAddSignalToStream)
 {
-	return BurnYM2151Init(nClockFrequency, 0);
-}
-
-INT32 BurnYM2151Init(INT32 nClockFrequency, INT32 use_timer)
-{
+#if defined FBNEO_DEBUG
 	DebugSnd_YM2151Initted = 1;
+#endif
 
-	bBurnYM2151IsBuffered = 0; // Can I recommend BurnYM2151InitBuffered()? :)
-	BurnYM2151StreamCallback = NULL; // ""
-	bYM2151AddSignal = 0; // ""
-
-	// Set YM2151 core samplerate to match the hardware
-	nBurnYM2151SoundRate = nClockFrequency >> 6;
-	// Bring YM2151 core samplerate within usable range
-	while (nBurnYM2151SoundRate > nBurnSoundRate * 3) {
-		nBurnYM2151SoundRate >>= 1;
+	if (nBurnSoundLen <= 0) {
+		YM2151Init(0, 0, nClock, 0, NULL);
+		return 0;
 	}
 
-	INT32 timer_chipbase = 0;
-
-	if (use_timer)
-	{
-		bprintf(0, _T("YM2151: Using FM-Timer.\n"));
-		YM2151BurnTimer = 1;
-		timer_chipbase = BurnTimerInit(&ym2151_timer_over, NULL, (bYM2151_MultiChip) ? 2 : 1);
-		bprintf(0, _T("BurnTimer chip_base: %d\n"), timer_chipbase);
+	nBurnYM2151SoundRate = nClock / 40;
+	bYM2151AddSignal = bAddSignalToStream;
+	
+	// Compute nSampleSize
+	nSampleSize = (UINT32)nBurnYM2151SoundRate * (1 << 16) / nBurnSoundRate;
+	
+	// Allocate the buffer
+	if (pBuffer == NULL) {
+		pBuffer = (INT16*)BurnMalloc(4096 * sizeof(INT16) * 4);
 	}
 
-	YM2151Init((bYM2151_MultiChip) ? 2 : 1, timer_chipbase, nClockFrequency, nBurnYM2151SoundRate, (YM2151BurnTimer) ? BurnOPMTimerCallback : NULL);
+	YM2151Init(0, 0, nClock, nBurnYM2151SoundRate, NULL);
 
-	pBuffer = (INT16*)BurnMalloc(65536 * 4 * sizeof(INT16));
-	memset(pBuffer, 0, 65536 * 4 * sizeof(INT16));
+	YM2151RouteDirs[0][BURN_SND_YM2151_YM2151_ROUTE_1] = BURN_SND_ROUTE_LEFT;
+	YM2151RouteDirs[0][BURN_SND_YM2151_YM2151_ROUTE_2] = BURN_SND_ROUTE_RIGHT;
+	YM2151Volumes[0][BURN_SND_YM2151_YM2151_ROUTE_1] = 1.00;
+	YM2151Volumes[0][BURN_SND_YM2151_YM2151_ROUTE_2] = 1.00;
+	
+	YM2151RouteDirs[1][BURN_SND_YM2151_YM2151_ROUTE_1] = BURN_SND_ROUTE_LEFT;
+	YM2151RouteDirs[1][BURN_SND_YM2151_YM2151_ROUTE_2] = BURN_SND_ROUTE_RIGHT;
+	YM2151Volumes[1][BURN_SND_YM2151_YM2151_ROUTE_1] = 1.00;
+	YM2151Volumes[1][BURN_SND_YM2151_YM2151_ROUTE_2] = 1.00;
 
-	if (nBurnSoundRate) nSampleSize = (UINT32)nBurnYM2151SoundRate * (1 << 16) / nBurnSoundRate;
-	nFractionalPosition = 0;
 	nYM2151Position = 0;
-
+	
 	// default routes
-	for (INT32 i = 0; i < 2; i++) {
-		YM2151Volumes[i][BURN_SND_YM2151_YM2151_ROUTE_1] = 1.00;
-		YM2151Volumes[i][BURN_SND_YM2151_YM2151_ROUTE_2] = 1.00;
-		YM2151RouteDirs[i][BURN_SND_YM2151_YM2151_ROUTE_1] = BURN_SND_ROUTE_BOTH;
-		YM2151RouteDirs[i][BURN_SND_YM2151_YM2151_ROUTE_2] = BURN_SND_ROUTE_BOTH;
-	}
+	BurnYM2151SetRoute(0, BURN_SND_YM2151_YM2151_ROUTE_1, 0.70, BURN_SND_ROUTE_LEFT);
+	BurnYM2151SetRoute(0, BURN_SND_YM2151_YM2151_ROUTE_2, 0.70, BURN_SND_ROUTE_RIGHT);
 
 	return 0;
 }
@@ -317,11 +336,6 @@ void BurnYM2151SetRoute(INT32 chip, INT32 nIndex, double nVolume, INT32 nRouteDi
 	YM2151RouteDirs[chip][nIndex] = nRouteDir;
 }
 
-void BurnYM2151SetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir)
-{
-	BurnYM2151SetRoute(0, nIndex, nVolume, nRouteDir);
-}
-
 void BurnYM2151SetIrqHandler(INT32 chip, void (*irq_cb)(INT32))
 {
 #if defined FBNEO_DEBUG
@@ -331,11 +345,6 @@ void BurnYM2151SetIrqHandler(INT32 chip, void (*irq_cb)(INT32))
 	YM2151SetIrqHandler(chip, irq_cb);
 }
 
-void BurnYM2151SetIrqHandler(void (*irq_cb)(INT32))
-{
-	BurnYM2151SetIrqHandler(0, irq_cb);
-}
-
 void BurnYM2151SetPortHandler(INT32 chip, write8_handler port_cb)
 {
 #if defined FBNEO_DEBUG
@@ -343,17 +352,6 @@ void BurnYM2151SetPortHandler(INT32 chip, write8_handler port_cb)
 #endif
 
 	YM2151SetPortWriteHandler(chip, port_cb);
-}
-
-void BurnYM2151SetPortHandler(write8_handler port_cb)
-{
-	BurnYM2151SetPortHandler(0, port_cb);
-}
-
-void BurnYM2151SetAllRoutes(double vol, INT32 route)
-{
-	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_1, vol, route);
-	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_2, vol, route);
 }
 
 void BurnYM2151SetAllRoutes(INT32 chip, double vol, INT32 route)
@@ -394,11 +392,6 @@ void BurnYM2151Write(INT32 chip, INT32 offset, const UINT8 nData)
 	}
 }
 
-void BurnYM2151Write(INT32 offset, const UINT8 nData)
-{
-	BurnYM2151Write(0, offset, nData);
-}
-
 void BurnYM2151SelectRegister(const UINT8 nRegister)
 {
 	BurnYM2151Write(0, 0, nRegister);
@@ -409,6 +402,7 @@ void BurnYM2151WriteRegister(const UINT8 nValue)
 	BurnYM2151Write(0, 1, nValue);
 }
 
+// Function with chip parameter
 UINT8 BurnYM2151Read(INT32 chip)
 {
 	//  status contains: chip busy status (not emulated) and timer state.
@@ -419,8 +413,13 @@ UINT8 BurnYM2151Read(INT32 chip)
 	return YM2151ReadStatus(chip);
 }
 
-UINT8 BurnYM2151Read()
+// Zero-argument version with a different name to avoid conflicts
+UINT8 BurnYM2151ReadNoArg()
 {
-	return BurnYM2151Read(0);
+    return BurnYM2151Read(0);
 }
+
+#ifdef __cplusplus
+}
+#endif
 

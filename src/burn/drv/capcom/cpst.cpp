@@ -1,4 +1,15 @@
+#include "burnint.h"
+#include "m68000_intf.h" // For SekOpen() call
+#include "burn_gun.h"
 #include "cps.h"
+#include "cpst.h"
+
+// CPS Tile drawing functions
+
+// Arguments
+extern UINT8 *pCtvTile;    // Pointer to tile data
+extern INT32 nCtvTileAdd;  // Tile data increment
+extern UINT8 *pCtvLine;    // Pointer to output bitmap
 
 // CPS Tiles
 UINT32 *CpstPal=NULL;
@@ -24,7 +35,8 @@ static INT32 CpstOneObjZ();
 CpstOneDoFn CpstOneDoX[3]    = { CpstOne, CpstOneBgHi, Cps2tOne};
 CpstOneDoFn CpstOneObjDoX[2] = { CpstOne, CpstOneObjZ};
 
-static INT32 CpstOne()
+// Render a single tile
+INT32 CpstOne()
 {
   INT32 nFun; INT32 nSize;
   nSize=(nCpstType&24)+8;

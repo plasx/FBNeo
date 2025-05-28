@@ -1,0 +1,174 @@
+{
+    "game_name": "Street Fighter III: 3rd Strike",
+    "game_id": "sf3",
+    "architecture": "cps3",
+    "description": "Memory mapping for Street Fighter III: 3rd Strike",
+    "addresses": {
+        "time_remaining": {
+            "address": "0x02011395",
+            "data_type": "byte",
+            "description": "Time remaining in current round",
+            "scale": 0.01,
+            "min": 0.0,
+            "max": 1.0
+        },
+        "round": {
+            "address": "0x02011396",
+            "data_type": "byte",
+            "description": "Current round number",
+            "scale": 0.5,
+            "min": 0.0,
+            "max": 1.0
+        },
+        "p1_x": {
+            "address": "0x02026840",
+            "data_type": "word",
+            "description": "Player 1 X position",
+            "scale": 0.0005,
+            "offset": 0.0,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 0
+        },
+        "p1_y": {
+            "address": "0x02026844",
+            "data_type": "word",
+            "description": "Player 1 Y position",
+            "scale": 0.001,
+            "offset": 0.0,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 0
+        },
+        "p1_health": {
+            "address": "0x02026878",
+            "data_type": "word",
+            "description": "Player 1 health",
+            "scale": 0.001,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 0
+        },
+        "p1_meter": {
+            "address": "0x02026890",
+            "data_type": "word",
+            "description": "Player 1 super meter",
+            "scale": 0.001,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 0
+        },
+        "p1_state": {
+            "address": "0x020268A0",
+            "data_type": "byte",
+            "description": "Player 1 character state",
+            "scale": 0.1,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 0
+        },
+        "p1_facing": {
+            "address": "0x020268A4",
+            "data_type": "byte",
+            "description": "Player 1 facing direction (1=right, 0=left)",
+            "scale": 2.0,
+            "offset": -1.0,
+            "min": -1.0,
+            "max": 1.0,
+            "player_index": 0
+        },
+        "p1_attacking": {
+            "address": "0x020268C0",
+            "data_type": "byte",
+            "description": "Player 1 attack flag",
+            "scale": 1.0,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 0
+        },
+        "p1_blocking": {
+            "address": "0x020268C4",
+            "data_type": "byte",
+            "description": "Player 1 block flag",
+            "scale": 1.0,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 0
+        },
+        "p2_x": {
+            "address": "0x02026940",
+            "data_type": "word",
+            "description": "Player 2 X position",
+            "scale": 0.0005,
+            "offset": 0.0,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 1
+        },
+        "p2_y": {
+            "address": "0x02026944",
+            "data_type": "word",
+            "description": "Player 2 Y position",
+            "scale": 0.001,
+            "offset": 0.0,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 1
+        },
+        "p2_health": {
+            "address": "0x02026978",
+            "data_type": "word",
+            "description": "Player 2 health",
+            "scale": 0.001,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 1
+        },
+        "p2_meter": {
+            "address": "0x02026990",
+            "data_type": "word",
+            "description": "Player 2 super meter",
+            "scale": 0.001,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 1
+        },
+        "p2_state": {
+            "address": "0x020269A0",
+            "data_type": "byte",
+            "description": "Player 2 character state",
+            "scale": 0.1,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 1
+        },
+        "p2_facing": {
+            "address": "0x020269A4",
+            "data_type": "byte",
+            "description": "Player 2 facing direction (1=right, 0=left)",
+            "scale": 2.0,
+            "offset": -1.0,
+            "min": -1.0,
+            "max": 1.0,
+            "player_index": 1
+        },
+        "p2_attacking": {
+            "address": "0x020269C0",
+            "data_type": "byte",
+            "description": "Player 2 attack flag",
+            "scale": 1.0,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 1
+        },
+        "p2_blocking": {
+            "address": "0x020269C4",
+            "data_type": "byte",
+            "description": "Player 2 block flag",
+            "scale": 1.0,
+            "min": 0.0,
+            "max": 1.0,
+            "player_index": 1
+        }
+    }
+} 

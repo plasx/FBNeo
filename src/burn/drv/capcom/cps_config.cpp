@@ -1,5 +1,9 @@
 #include "cps.h"
 
+#ifdef USE_METAL_FIXES
+#include "metal_fixes.h"
+#endif
+
 struct GfxRange {
 	INT32 Type;
 	INT32 Start;

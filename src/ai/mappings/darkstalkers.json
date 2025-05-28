@@ -1,0 +1,273 @@
+{
+  "game": "Darkstalkers: The Night Warriors",
+  "architecture": "CPS2",
+  "version": "1.0.0",
+  "description": "Memory mapping for Darkstalkers (Vampire) on CPS2 hardware",
+  "supported_roms": ["dstlk", "dstlka", "dstlku", "dstlkur1", "vampj", "vampja", "vampjr1"],
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0xFF8428",
+      "type": "word",
+      "description": "Player 1 current health",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 72,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_health",
+      "address": "0xFF8828",
+      "type": "word",
+      "description": "Player 2 current health",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 72,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_character",
+      "address": "0xFF8414",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 10
+    },
+    {
+      "name": "p2_character",
+      "address": "0xFF8814",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 10
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0xFF840C",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "position",
+      "player_index": 1,
+      "endianness": "little"
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0xFF8410",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "position",
+      "player_index": 1,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0xFF880C",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "position",
+      "player_index": 2,
+      "endianness": "little"
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0xFF8810",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "position",
+      "player_index": 2,
+      "endianness": "little"
+    },
+    {
+      "name": "timer",
+      "address": "0xFF8108",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 99
+    },
+    {
+      "name": "round",
+      "address": "0xFF8116",
+      "type": "byte",
+      "description": "Current round number",
+      "category": "game_state",
+      "min_value": 1,
+      "max_value": 5
+    },
+    {
+      "name": "p1_wins",
+      "address": "0xFF810C",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "game_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "p2_wins",
+      "address": "0xFF810D",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "game_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 2
+    },
+    {
+      "name": "game_state",
+      "address": "0xFF8112",
+      "type": "byte",
+      "description": "Game state (0=demo, 1=title, 2=character select, 3=in-game, etc.)",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 10
+    },
+    {
+      "name": "p1_action_state",
+      "address": "0xFF844E",
+      "type": "byte",
+      "description": "Player 1 action state (standing, crouching, jumping, attacking, etc.)",
+      "category": "action_state",
+      "player_index": 1
+    },
+    {
+      "name": "p2_action_state",
+      "address": "0xFF884E",
+      "type": "byte",
+      "description": "Player 2 action state (standing, crouching, jumping, attacking, etc.)",
+      "category": "action_state",
+      "player_index": 2
+    },
+    {
+      "name": "p1_direction",
+      "address": "0xFF841D",
+      "type": "byte",
+      "description": "Player 1 facing direction (0=facing right, 1=facing left)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_direction",
+      "address": "0xFF881D",
+      "type": "byte",
+      "description": "Player 2 facing direction (0=facing right, 1=facing left)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p1_es_gauge",
+      "address": "0xFF8439",
+      "type": "byte",
+      "description": "Player 1 ES (special move) gauge",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 48
+    },
+    {
+      "name": "p2_es_gauge",
+      "address": "0xFF8839",
+      "type": "byte",
+      "description": "Player 2 ES (special move) gauge",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 48
+    },
+    {
+      "name": "p1_dizzy",
+      "address": "0xFF843C",
+      "type": "byte",
+      "description": "Player 1 dizzy state (0=normal, non-zero=dizzy)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_dizzy",
+      "address": "0xFF883C",
+      "type": "byte",
+      "description": "Player 2 dizzy state (0=normal, non-zero=dizzy)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p1_air",
+      "address": "0xFF843D",
+      "type": "byte",
+      "description": "Player 1 air state (0=grounded, non-zero=airborne)",
+      "category": "player_state",
+      "player_index": 1,
+      "min_value": 0,
+      "max_value": 1
+    },
+    {
+      "name": "p2_air",
+      "address": "0xFF883D",
+      "type": "byte",
+      "description": "Player 2 air state (0=grounded, non-zero=airborne)",
+      "category": "player_state",
+      "player_index": 2,
+      "min_value": 0,
+      "max_value": 1
+    }
+  ],
+  "groups": [
+    {
+      "name": "player1",
+      "description": "Player 1 information",
+      "mappings": [
+        "p1_health",
+        "p1_character",
+        "p1_x_position",
+        "p1_y_position",
+        "p1_action_state",
+        "p1_direction",
+        "p1_es_gauge",
+        "p1_dizzy",
+        "p1_air"
+      ]
+    },
+    {
+      "name": "player2",
+      "description": "Player 2 information",
+      "mappings": [
+        "p2_health",
+        "p2_character",
+        "p2_x_position",
+        "p2_y_position",
+        "p2_action_state",
+        "p2_direction",
+        "p2_es_gauge",
+        "p2_dizzy",
+        "p2_air"
+      ]
+    },
+    {
+      "name": "match",
+      "description": "Match information",
+      "mappings": [
+        "timer",
+        "round",
+        "p1_wins",
+        "p2_wins",
+        "game_state"
+      ]
+    }
+  ]
+} 

@@ -139,7 +139,7 @@ void GenericTilesSetGfx(INT32 nNum, UINT8 *GfxBase, INT32 nDepth, INT32 nTileWid
 // Colour-depth independant image transfer
 
 UINT16* pTransDraw = NULL;
-UINT8 *pPrioDraw = NULL;
+// pPrioDraw is already declared in tiles_generic.h with type PRIORITY_TYPE*
 
 static INT32 nTransWidth, nTransHeight;
 

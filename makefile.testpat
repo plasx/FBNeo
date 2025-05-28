@@ -1,0 +1,28 @@
+# Simple makefile for building the Metal test pattern app
+
+TARGET = test_pattern
+OBJDIR = obj/testpat
+
+CFLAGS = -g -O2 -Wall
+FRAMEWORKS = -framework Cocoa -framework Metal -framework MetalKit -framework QuartzCore
+OBJC_FLAGS = -fobjc-arc
+CPPLIBS = -lc++
+LD_FLAGS = $(FRAMEWORKS) $(CPPLIBS)
+
+SRCS = src/burner/metal/test_pattern.mm
+
+# Create object directory
+$(shell mkdir -p $(OBJDIR))
+
+all: $(TARGET)
+
+$(TARGET): $(SRCS)
+	clang++ $(CFLAGS) $(OBJC_FLAGS) $(SRCS) $(LD_FLAGS) -o $(TARGET)
+
+clean:
+	rm -rf $(OBJDIR) $(TARGET)
+
+run: $(TARGET)
+	./$(TARGET)
+
+.PHONY: all clean run 

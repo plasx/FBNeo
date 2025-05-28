@@ -1050,7 +1050,7 @@ static void __fastcall TwinhawkZ80Write(UINT16 a, UINT8 d)
 	switch (a) {
 		case 0xe000:
 		case 0xe001: {
-			BurnYM2151Write(a & 1, d);
+			BurnYM2151Write(0, a & 1, d);
 			return;
 		}
 		

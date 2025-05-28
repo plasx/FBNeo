@@ -913,7 +913,7 @@ static UINT8 sound_read(UINT16 address)
 			return adpcm_idle[0] + (adpcm_idle[1] << 1);
 
 		case 0x2801:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 	}
 
 	return 0;
@@ -924,7 +924,7 @@ static void sound_write(UINT16 address, UINT8 data)
 	switch (address) {
 		case 0x2800:
 		case 0x2801:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 			return;
 
 		case 0x3800:
@@ -955,7 +955,7 @@ static UINT8 __fastcall dd2_sound_read(UINT16 address)
 {
 	switch (address) {
 		case 0x8801:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0x9800:
 			return MSM6295Read(0);
@@ -972,7 +972,7 @@ static void __fastcall dd2_sound_write(UINT16 address, UINT8 data)
 	switch (address) {
 		case 0x8800:
 		case 0x8801:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 			return;
 
 		case 0x9800:

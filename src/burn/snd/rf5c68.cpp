@@ -5,6 +5,7 @@
 
 #include "burnint.h"
 #include "rf5c68.h"
+#include "burn_sound.h"  // Include burn_sound.h for INTERPOLATE4PS_16BIT macro
 
 #define NUM_CHANNELS	(8)
 

@@ -1,0 +1,297 @@
+{
+  "game_name": "kof98",
+  "architecture": "NEOGEO",
+  "version": "1.0",
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0x10803A",
+      "type": "word",
+      "description": "Player 1 health",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_health",
+      "address": "0x10823A",
+      "type": "word",
+      "description": "Player 2 health",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0x108010",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "player1",
+      "scale": 1.0
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0x108014",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "player1",
+      "scale": 1.0
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0x108210",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "player2",
+      "scale": 1.0
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0x108214",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "player2",
+      "scale": 1.0
+    },
+    {
+      "name": "p1_power_gauge",
+      "address": "0x10804A",
+      "type": "word",
+      "description": "Player 1 power gauge",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 128,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_power_gauge",
+      "address": "0x10824A",
+      "type": "word",
+      "description": "Player 2 power gauge",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 128,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_character",
+      "address": "0x108109",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 38,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_character",
+      "address": "0x108309",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 38,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_state",
+      "address": "0x108044",
+      "type": "byte",
+      "description": "Player 1 animation state",
+      "category": "player1",
+      "scale": 1.0
+    },
+    {
+      "name": "p2_state",
+      "address": "0x108244",
+      "type": "byte",
+      "description": "Player 2 animation state",
+      "category": "player2",
+      "scale": 1.0
+    },
+    {
+      "name": "timer",
+      "address": "0x10F0B5",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 60,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_facing",
+      "address": "0x108031",
+      "type": "byte",
+      "description": "Player 1 facing direction (0=right, 1=left)",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0,
+      "mask": "0x01"
+    },
+    {
+      "name": "p2_facing",
+      "address": "0x108231",
+      "type": "byte",
+      "description": "Player 2 facing direction (0=right, 1=left)",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0,
+      "mask": "0x01"
+    },
+    {
+      "name": "p1_rounds_won",
+      "address": "0x10F0AC",
+      "type": "byte",
+      "description": "Player 1 rounds won",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 2,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_rounds_won",
+      "address": "0x10F0AD",
+      "type": "byte",
+      "description": "Player 2 rounds won",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 2,
+      "scale": 1.0
+    },
+    {
+      "name": "current_round",
+      "address": "0x10F0AE",
+      "type": "byte",
+      "description": "Current round number",
+      "category": "game_state",
+      "min_value": 1,
+      "max_value": 5,
+      "scale": 1.0
+    },
+    {
+      "name": "game_mode",
+      "address": "0x10FDAE",
+      "type": "byte",
+      "description": "Game mode (0=arcade, 1=versus, etc.)",
+      "category": "game_state",
+      "scale": 1.0
+    },
+    {
+      "name": "p1_mode",
+      "address": "0x108046",
+      "type": "byte",
+      "description": "Player 1 mode (advanced/extra)",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_mode",
+      "address": "0x108246",
+      "type": "byte",
+      "description": "Player 2 mode (advanced/extra)",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_teammate1_health",
+      "address": "0x10843A",
+      "type": "word",
+      "description": "Player 1 teammate 1 health",
+      "category": "player1_team",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_teammate2_health",
+      "address": "0x10883A",
+      "type": "word",
+      "description": "Player 1 teammate 2 health",
+      "category": "player1_team",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_teammate1_health",
+      "address": "0x10863A",
+      "type": "word",
+      "description": "Player 2 teammate 1 health",
+      "category": "player2_team",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_teammate2_health",
+      "address": "0x108A3A",
+      "type": "word",
+      "description": "Player 2 teammate 2 health",
+      "category": "player2_team",
+      "min_value": 0,
+      "max_value": 103,
+      "scale": 1.0
+    }
+  ],
+  "groups": [
+    {
+      "name": "player1",
+      "mappings": [
+        "p1_health",
+        "p1_x_position",
+        "p1_y_position",
+        "p1_character",
+        "p1_state",
+        "p1_power_gauge",
+        "p1_facing",
+        "p1_rounds_won",
+        "p1_mode"
+      ]
+    },
+    {
+      "name": "player2",
+      "mappings": [
+        "p2_health",
+        "p2_x_position",
+        "p2_y_position",
+        "p2_character",
+        "p2_state",
+        "p2_power_gauge",
+        "p2_facing",
+        "p2_rounds_won",
+        "p2_mode"
+      ]
+    },
+    {
+      "name": "player1_team",
+      "mappings": [
+        "p1_teammate1_health",
+        "p1_teammate2_health"
+      ]
+    },
+    {
+      "name": "player2_team",
+      "mappings": [
+        "p2_teammate1_health",
+        "p2_teammate2_health"
+      ]
+    },
+    {
+      "name": "game_state",
+      "mappings": [
+        "timer",
+        "current_round",
+        "game_mode"
+      ]
+    }
+  ]
+} 

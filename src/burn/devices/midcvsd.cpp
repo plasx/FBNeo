@@ -1,4 +1,3 @@
-
 #include "burnint.h"
 #include "m6809_intf.h"
 #include "burn_ym2151.h"
@@ -28,7 +27,7 @@ static void bankswitch(INT32 data)
 static void cvsd_write(UINT16 address, UINT8 data)
 {
 	if ((address & 0xe000) == 0x2000) {
-		BurnYM2151Write(address & 1, data);
+		BurnYM2151Write(0, address & 1, data);
 		return;
 	}
 
@@ -57,7 +56,7 @@ static void cvsd_write(UINT16 address, UINT8 data)
 static UINT8 cvsd_read(UINT16 address)
 {
 	if ((address & 0xe001) == 0x2001) {
-		return BurnYM2151Read();
+		return BurnYM2151Read(0);
 	}
 
 	if ((address & 0xe000) == 0x4000) {
@@ -205,13 +204,19 @@ void cvsd_init(INT32 m6809num, INT32 dacnum, INT32 pianum, UINT8 *rom, UINT8 *ra
 	if (pia_select == 0) pia_init();
 	pia_config(pia_select, 0, &pia_0);
 
-	BurnYM2151InitBuffered(3579545, 1, NULL, 0);
-	BurnYM2151SetIrqHandler(&CVSDYM2151IrqHandler);
-	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_1, 0.15, BURN_SND_ROUTE_LEFT);
-	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_2, 0.15, BURN_SND_ROUTE_RIGHT);
+	// Always initialize YM2151 with proper parameters
+	BurnYM2151Init(3579545, 0);  // Use the raw frequency value without divider
+	BurnYM2151SetIrqHandler(0, &CVSDYM2151IrqHandler);
+	BurnYM2151SetRoute(0, BURN_SND_YM2151_YM2151_ROUTE_1, 0.15, BURN_SND_ROUTE_LEFT);
+	BurnYM2151SetRoute(0, BURN_SND_YM2151_YM2151_ROUTE_2, 0.15, BURN_SND_ROUTE_RIGHT);
+
 	BurnTimerAttachM6809(2000000);
 
-	DACInit(dacnum, 0, 1, M6809TotalCycles, 2000000);
+#ifdef __cplusplus
+	DACInit(0, 0, 1, M6809TotalCycles, 8000000);
+#else
+	DACInit(0, 0, 1, M6809TotalCycles);
+#endif
 	DACSetRoute(dacnum, 0.50, BURN_SND_ROUTE_BOTH);
 
 	hc55516_init(M6809TotalCycles, 2000000);

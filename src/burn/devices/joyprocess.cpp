@@ -1,6 +1,9 @@
 // JoyProcess (c)2016-2021 dink & iq_132
 #include "burnint.h"
 #include "joyprocess.h"
+#ifdef __cplusplus
+#include "joyprocess_cpp.h"
+#endif
 
 // Digital Processing
 void ProcessJoystick(UINT8 *input, INT8 playernum, INT8 up_bit, INT8 down_bit, INT8 left_bit, INT8 right_bit, UINT8 flags)

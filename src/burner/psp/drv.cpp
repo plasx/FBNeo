@@ -69,7 +69,7 @@ static int DrvLoadRom(unsigned char* Dest, int* pnWrote, int i)
 		char* pszFilename;
 
 		BurnDrvGetRomName(&pszFilename, i, 0);
-		sprintf(szText, "Error loading %s, requested by %s.\nThe emulation will likely suffer problems.", pszFilename, BurnDrvGetTextA(0));
+		snprintf(szText, sizeof(szText), "Error loading %s, requested by %s.\nThe emulation will likely suffer problems.", pszFilename, BurnDrvGetTextA(0));
 	}
 
 	BzipClose();

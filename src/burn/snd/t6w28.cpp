@@ -31,6 +31,7 @@ Offset 0:
 
 #include "burnint.h"
 #include "t6w28.h"
+#include "burn_sound.h"  // Include burn_sound.h for INTERPOLATE4PS_16BIT macro
 
 static int   m_sample_rate;
 static int   m_vol_table[16];    /* volume table         */

@@ -452,7 +452,7 @@ static void __fastcall dbz_sound_write(UINT16 address, UINT8 data)
 	{
 		case 0xc000:
 		case 0xc001:
-			BurnYM2151Write(address & 1, data);
+			BurnYM2151Write(0, address & 1, data);
 		return;
 
 		case 0xd000:

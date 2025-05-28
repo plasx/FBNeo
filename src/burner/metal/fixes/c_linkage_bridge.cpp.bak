@@ -1,0 +1,444 @@
+#include "burnint.h"
+#include "burner.h"
+#include "c_linkage_bridge.h"
+#include "direct_minimal.h"
+#include "extern_c_exports.h"
+#include "c_symbols_header.h"
+#include <stdio.h>
+
+// Forward declare external functions to avoid include conflicts
+extern "C" {
+    // These are defined in z80.cpp
+    void Z80StopExecute();
+    INT32 z80TotalCycles();
+}
+
+// We include m68000_intf.h within the namespace to avoid conflicts
+namespace MetalBridgeFixes {
+    // Define the missing variables and functions that are referenced in the implementations
+    INT32 nZetCyclesTotal = 0;
+    UINT8* CpsGfx = NULL;
+    UINT32 nCpsGfxLen = 0;
+    
+    // Forward these calls to the externally defined implementations
+    void Z80StopExecute() {
+        // Forward to the external implementation
+        ::Z80StopExecute();
+    }
+    
+    INT32 z80TotalCycles() {
+        // Forward to the external implementation
+        return ::z80TotalCycles();
+    }
+    
+    // Include necessary headers for implementation 
+    #include "../../../cpu/m68000_intf.h"
+
+    // Add this implementation for CpsFindGfxRam
+    UINT8* __CpsFindGfxRam(INT32 nOffset, INT32 nLen) {
+        // This is a placeholder implementation - you should implement proper logic here
+        
+        if (nOffset >= 0x10000 || nOffset < 0) {
+            return NULL;
+        }
+        if (nOffset + nLen > 0x10000) {
+            return NULL;
+        }
+        
+        return CpsGfx + nOffset;
+    }
+
+    // Implementation for ZetMapMemory with INT32 return type
+    INT32 __ZetMapMemory(UINT8* Mem, INT32 nStart, INT32 nEnd, INT32 nMode) {
+        // Stub implementation - should pass to actual implementation if available
+        return 0;
+    }
+
+    // BurnSample functions
+    
+    // SekSetResetCallback
+    INT32 __SekSetResetCallback(INT32 (*pCallback)()) { return 0; }
+    INT32 __SekSetReadByteHandler(INT32 i, UINT8 (*pHandler)(UINT32)) { return 0; }
+    INT32 __SekSetReadWordHandler(INT32 i, UINT16 (*pHandler)(UINT32)) { return 0; }
+    
+    // Input functions
+    
+    // Gun Functions
+
+    // CPS2 functions implementations
+    INT32 __Cps2Init() { 
+        // Implementation should call the original function or provide equivalent logic
+        // For now just return success
+        return 0; 
+    }
+    
+    INT32 __CpsLoadTiles(UINT8 *Tile, INT32 nStart) { return 0; }
+    INT32 __CpsLoadTilesSIM(UINT8 *Tile, INT32 nStart) { return 0; }
+    INT32 __CpsLoadTilesSRM(UINT8 *Tile, INT32 nStart) { return 0; }
+    INT32 __CpsLoadTilesByte(UINT8 *Tile, INT32 nStart) { return 0; }
+    INT32 __CpsLoadTilesByteSIM(UINT8 *Tile, INT32 nStart) { return 0; }
+    INT32 __CpsLoadTilesForgottn(UINT8 *Tile, INT32 nStart) { return 0; }
+    INT32 __CpsLoadTilesGhouls(UINT8 *Tile, INT32 nStart) { return 0; }
+    INT32 __CpsLoadTiles1(UINT8 *Tile, INT32 nStart) { return 0; }
+    INT32 __CpsLoadStars(UINT8 *pStar, INT32 nStart) { return 0; }
+    INT32 __CpsLoadStarsByte(UINT8 *pStar, INT32 nStart) { return 0; }
+    INT32 __CpsLoadStarsForgottnAlt(UINT8 *pStar, INT32 nStart) { return 0; }
+    INT32 __CpsDrawSprite(UINT8 *pSprite, INT32 nStart) { return 0; }
+    INT32 __Cps1ObjDraw(INT32 nLevelFrom, INT32 nLevelTo) { return 0; }
+    INT32 __Cps2ObjDraw(INT32 nLevelFrom, INT32 nLevelTo) { return 0; }
+    INT32 __Cps2ObjGetZBuffer() { return 0; }
+    INT32 __CpsObjInit() { return 0; }
+    INT32 __CpsObjExit() { return 0; }
+    UINT8 CpsReset = 0;
+    INT32 __Cps1Frame() { return 0; }
+    INT32 __Cps2Frame() { return 0; }
+    void __CpsWriteSpriteByte(UINT8 *Tile, INT32 nStart) { }
+    INT32 __CpsLoadOneBootleg(UINT8 *Tile, INT32 nStart, INT32 nSize) { return 0; }
+    INT32 __CpsLoadOneCBomber(UINT8 *Tile, INT32 nStart, INT32 nSize) { return 0; }
+    INT32 __CpsLoadOneSF2B(UINT8 *Tile, INT32 nStart, INT32 nSize) { return 0; }
+    INT32 __CpsLoadOneSF2ebbl(UINT8 *Tile, INT32 nStart, INT32 nSize) { return 0; }
+    INT32 __CpsLoadTilesCoin(UINT8* Tile, INT32 nStart) { return 0; }
+    void __CpsPmReset() { }
+    void __CpsPmInit() { }
+    void __CpsPmExit() { }
+    void __CpsFreeFrame() { }
+    INT32 __CpsDrawScreen() { return 0; }
+    void __CpsMaskRect(UINT32 nScreenMask, INT32 nBitMask, INT32 nLeft, INT32 nTop, INT32 nRight, INT32 nBottom) { }
+    void __DoD012Stuff() { }
+    INT32 __CpsLayersInit() { return 0; }
+    INT32 __CpsLayersExit() { return 0; }
+    void __GetPalette(INT32 nStart, INT32 nCount) { }
+
+    // Z80 functions
+    INT32 __ZetGetActive() { return 0; }
+    void __ZetNewFrame() { }
+    UINT32 __ZetGetPC(INT32 n) { return 0; }
+    void __ZetNmi() { }
+    INT32 __ZetMemCallback(INT32 nStart, INT32 nEnd, INT32 nMode) { return 0; }
+    void __ZetSetReadHandler(UINT8 (*pHandler)(UINT16)) { }
+    void __ZetSetWriteHandler(void (*pHandler)(UINT16, UINT8)) { }
+    void __ZetSetIRQLine(INT32 nIRQLine, INT32 nStatus) { }
+    void __ZetRunEnd() { 
+        // Call Z80StopExecute to stop the current CPU execution
+        ::Z80StopExecute();
+    }
+    INT32 __ZetIdle(INT32 nCycles) { 
+        // Increment the total cycles count without executing instructions
+        // as seen in the original implementation
+        nZetCyclesTotal += nCycles;
+        return nCycles;
+    }
+
+    // Sound functions
+    INT32 __QsndInit() { return 0; }
+    void __QsndReset() { }
+    void __QsndExit() { }
+    void __QsndNewFrame() { }
+    void __QsndEndFrame() { }
+    void __QsndSyncZ80() { }
+    INT32 __QsndScan(INT32 nAction) { return 0; }
+    void __QsndSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir) { }
+
+    // Trackball Functions
+
+    // NeoCD Functions
+
+    // Memory management bridge functions
+    UINT8* __BurnMallocFunc(INT32 size) { return (UINT8*)malloc(size); }
+    void __BurnFreeFunc(void *ptr) { free(ptr); }
+    
+    // Palette functions
+    UINT32 __CalcCol(UINT8 r, UINT8 g, UINT8 b) { return 0; }
+    void __CalcAll() { }
+    
+    // QSound functions
+    void __QscReset() { }
+    void __QscExit() { }
+    INT32 __QscInitFunc(INT32 nRate) { return 0; }
+    void __QscSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir) { }
+    INT32 __QscScan(INT32 nAction) { return 0; }
+    void __QscNewFrame() { }
+    void __QscWrite(INT32 a, INT32 d) { }
+    INT32 __QscUpdate(INT32 nEnd) { return 0; }
+
+
+
+
+
+
+} 
+
+// These are the C linkage functions that are called from external code
+// Using extern "C" to ensure C linkage (no name mangling)
+extern "C" {
+    // All functions must have __attribute__((visibility("default"))) to be properly exported
+
+    // CPS2 functions
+    __attribute__((visibility("default"))) INT32 Cps2Init() {
+        return MetalBridgeFixes::__Cps2Init();
+    }
+    
+    __attribute__((visibility("default"))) INT32 CpsInit() { return MetalBridgeFixes::__CpsInit(); }
+    __attribute__((visibility("default"))) INT32 CpsExit() { return MetalBridgeFixes::__CpsExit(); }
+    __attribute__((visibility("default"))) INT32 CpsLoadTiles(UINT8 *Tile, INT32 nStart) { return MetalBridgeFixes::__CpsLoadTiles(Tile, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadTilesSIM(UINT8 *Tile, INT32 nStart) { return MetalBridgeFixes::__CpsLoadTilesSIM(Tile, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadTilesSRM(UINT8 *Tile, INT32 nStart) { return MetalBridgeFixes::__CpsLoadTilesSRM(Tile, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadTilesByte(UINT8 *Tile, INT32 nStart) { return MetalBridgeFixes::__CpsLoadTilesByte(Tile, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadTilesByteSIM(UINT8 *Tile, INT32 nStart) { return MetalBridgeFixes::__CpsLoadTilesByteSIM(Tile, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadTilesForgottn(UINT8 *Tile, INT32 nStart) { return MetalBridgeFixes::__CpsLoadTilesForgottn(Tile, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadTilesGhouls(UINT8 *Tile, INT32 nStart) { return MetalBridgeFixes::__CpsLoadTilesGhouls(Tile, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadTiles1(UINT8 *Tile, INT32 nStart) { return MetalBridgeFixes::__CpsLoadTiles1(Tile, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadStars(UINT8 *pStar, INT32 nStart) { return MetalBridgeFixes::__CpsLoadStars(pStar, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadStarsByte(UINT8 *pStar, INT32 nStart) { return MetalBridgeFixes::__CpsLoadStarsByte(pStar, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadStarsForgottnAlt(UINT8 *pStar, INT32 nStart) { return MetalBridgeFixes::__CpsLoadStarsForgottnAlt(pStar, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsDrawSprite(UINT8 *pSprite, INT32 nStart) { return MetalBridgeFixes::__CpsDrawSprite(pSprite, nStart); }
+    __attribute__((visibility("default"))) INT32 Cps1ObjDraw(INT32 nLevelFrom, INT32 nLevelTo) { return MetalBridgeFixes::__Cps1ObjDraw(nLevelFrom, nLevelTo); }
+    __attribute__((visibility("default"))) INT32 Cps2ObjDraw(INT32 nLevelFrom, INT32 nLevelTo) { return MetalBridgeFixes::__Cps2ObjDraw(nLevelFrom, nLevelTo); }
+    __attribute__((visibility("default"))) INT32 Cps2ObjGetZBuffer() { return MetalBridgeFixes::__Cps2ObjGetZBuffer(); }
+    __attribute__((visibility("default"))) INT32 CpsObjInit() { return MetalBridgeFixes::__CpsObjInit(); }
+    __attribute__((visibility("default"))) INT32 CpsObjExit() { return MetalBridgeFixes::__CpsObjExit(); }
+    __attribute__((visibility("default"))) UINT8 CpsReset = 0;
+    __attribute__((visibility("default"))) INT32 Cps1Frame() { return MetalBridgeFixes::__Cps1Frame(); }
+    __attribute__((visibility("default"))) INT32 Cps2Frame() { return MetalBridgeFixes::__Cps2Frame(); }
+    
+    // Global variables
+    __attribute__((visibility("default"))) UINT8 *CpsQSamRom = NULL;
+    __attribute__((visibility("default"))) UINT8 *CpsZRom = NULL;
+    __attribute__((visibility("default"))) UINT8 *CpsAd = NULL;
+    __attribute__((visibility("default"))) UINT8 *CpsQSam = NULL;
+    
+    // Add CpsFindGfxRam implementation
+    __attribute__((visibility("default"))) UINT8* CpsFindGfxRam(INT32 nOffset, INT32 nLen) {
+        return MetalBridgeFixes::__CpsFindGfxRam(nOffset, nLen);
+    }
+    
+    __attribute__((visibility("default"))) void CpsWriteSpriteByte(UINT8 *Tile, INT32 nStart) { MetalBridgeFixes::__CpsWriteSpriteByte(Tile, nStart); }
+    __attribute__((visibility("default"))) INT32 CpsLoadOneBootleg(UINT8 *Tile, INT32 nStart, INT32 nSize) { return MetalBridgeFixes::__CpsLoadOneBootleg(Tile, nStart, nSize); }
+    __attribute__((visibility("default"))) INT32 CpsLoadOneCBomber(UINT8 *Tile, INT32 nStart, INT32 nSize) { return MetalBridgeFixes::__CpsLoadOneCBomber(Tile, nStart, nSize); }
+    __attribute__((visibility("default"))) INT32 CpsLoadOneSF2B(UINT8 *Tile, INT32 nStart, INT32 nSize) { return MetalBridgeFixes::__CpsLoadOneSF2B(Tile, nStart, nSize); }
+    __attribute__((visibility("default"))) INT32 CpsLoadOneSF2ebbl(UINT8 *Tile, INT32 nStart, INT32 nSize) { return MetalBridgeFixes::__CpsLoadOneSF2ebbl(Tile, nStart, nSize); }
+    __attribute__((visibility("default"))) INT32 CpsLoadTilesCoin(UINT8* Tile, INT32 nStart) { return MetalBridgeFixes::__CpsLoadTilesCoin(Tile, nStart); }
+    __attribute__((visibility("default"))) void CpsPmReset() { MetalBridgeFixes::__CpsPmReset(); }
+    __attribute__((visibility("default"))) void CpsPmInit() { MetalBridgeFixes::__CpsPmInit(); }
+    __attribute__((visibility("default"))) void CpsPmExit() { MetalBridgeFixes::__CpsPmExit(); }
+    __attribute__((visibility("default"))) void CpsFreeFrame() { MetalBridgeFixes::__CpsFreeFrame(); }
+    __attribute__((visibility("default"))) INT32 CpsDrawScreen() { return MetalBridgeFixes::__CpsDrawScreen(); }
+    __attribute__((visibility("default"))) void CpsMaskRect(UINT32 nScreenMask, INT32 nBitMask, INT32 nLeft, INT32 nTop, INT32 nRight, INT32 nBottom) { 
+        MetalBridgeFixes::__CpsMaskRect(nScreenMask, nBitMask, nLeft, nTop, nRight, nBottom); 
+    }
+    __attribute__((visibility("default"))) void DoD012Stuff() { MetalBridgeFixes::__DoD012Stuff(); }
+    __attribute__((visibility("default"))) INT32 CpsLayersInit() { return MetalBridgeFixes::__CpsLayersInit(); }
+    __attribute__((visibility("default"))) INT32 CpsLayersExit() { return MetalBridgeFixes::__CpsLayersExit(); }
+    __attribute__((visibility("default"))) void GetPalette(INT32 nStart, INT32 nCount) { MetalBridgeFixes::__GetPalette(nStart, nCount); }
+
+    // Z80 functions
+    __attribute__((visibility("default"))) INT32 ZetInit(INT32 nCPU) { return MetalBridgeFixes::__ZetInit(nCPU); }
+    __attribute__((visibility("default"))) void ZetExit() { MetalBridgeFixes::__ZetExit(); }
+    __attribute__((visibility("default"))) void ZetOpen(INT32 nCPU) { MetalBridgeFixes::__ZetOpen(nCPU); }
+    __attribute__((visibility("default"))) void ZetClose() { MetalBridgeFixes::__ZetClose(); }
+    __attribute__((visibility("default"))) INT32 ZetGetActive() { return MetalBridgeFixes::__ZetGetActive(); }
+    __attribute__((visibility("default"))) void ZetNewFrame() { MetalBridgeFixes::__ZetNewFrame(); }
+    __attribute__((visibility("default"))) void ZetReset() { MetalBridgeFixes::__ZetReset(); }
+    __attribute__((visibility("default"))) INT32 ZetScan(INT32 nAction) { return MetalBridgeFixes::__ZetScan(nAction); }
+    __attribute__((visibility("default"))) INT32 ZetTotalCycles() { return MetalBridgeFixes::__ZetTotalCycles(); }
+    __attribute__((visibility("default"))) INT32 ZetMemCallback(INT32 nStart, INT32 nEnd, INT32 nMode) { 
+        return MetalBridgeFixes::__ZetMemCallback(nStart, nEnd, nMode); 
+    }
+    __attribute__((visibility("default"))) void ZetSetReadHandler(UINT8 (*pHandler)(UINT16)) { MetalBridgeFixes::__ZetSetReadHandler(pHandler); }
+    __attribute__((visibility("default"))) void ZetSetWriteHandler(void (*pHandler)(UINT16, UINT8)) { MetalBridgeFixes::__ZetSetWriteHandler(pHandler); }
+    __attribute__((visibility("default"))) void ZetRunEnd() { MetalBridgeFixes::__ZetRunEnd(); }
+    __attribute__((visibility("default"))) INT32 ZetIdle(INT32 nCycles) { return MetalBridgeFixes::__ZetIdle(nCycles); }
+
+    // Sound functions
+    __attribute__((visibility("default"))) INT32 PsndInit() { return MetalBridgeFixes::__PsndInit(); }
+    __attribute__((visibility("default"))) INT32 PsndExit() { return MetalBridgeFixes::__PsndExit(); }
+    __attribute__((visibility("default"))) void PsndNewFrame() { MetalBridgeFixes::__PsndNewFrame(); }
+    __attribute__((visibility("default"))) void PsndEndFrame() { MetalBridgeFixes::__PsndEndFrame(); }
+    __attribute__((visibility("default"))) INT32 PsndSyncZ80(INT32 nCycles) { return MetalBridgeFixes::__PsndSyncZ80(nCycles); }
+    __attribute__((visibility("default"))) INT32 PsmUpdateEnd() { return MetalBridgeFixes::__PsmUpdateEnd(); }
+    __attribute__((visibility("default"))) INT32 QsndInit() { return MetalBridgeFixes::__QsndInit(); }
+    __attribute__((visibility("default"))) void QsndReset() { MetalBridgeFixes::__QsndReset(); }
+    __attribute__((visibility("default"))) void QsndExit() { MetalBridgeFixes::__QsndExit(); }
+    __attribute__((visibility("default"))) void QsndNewFrame() { MetalBridgeFixes::__QsndNewFrame(); }
+    __attribute__((visibility("default"))) void QsndEndFrame() { MetalBridgeFixes::__QsndEndFrame(); }
+    __attribute__((visibility("default"))) void QsndSyncZ80() { MetalBridgeFixes::__QsndSyncZ80(); }
+    __attribute__((visibility("default"))) INT32 QsndScan(INT32 nAction) { return MetalBridgeFixes::__QsndScan(nAction); }
+    __attribute__((visibility("default"))) void QsndSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir) { 
+        MetalBridgeFixes::__QsndSetRoute(nIndex, nVolume, nRouteDir); 
+    }
+    
+    // Sample functions
+    __attribute__((visibility("default"))) void BurnSampleInit(INT32 nSampleRate) { MetalBridgeFixes::__BurnSampleInit(nSampleRate); }
+    __attribute__((visibility("default"))) void BurnSampleSetRoute(INT32 nSample, INT32 nChannel, double flVolume, INT32 nRouteDir) { 
+        MetalBridgeFixes::__BurnSampleSetRoute(nSample, nChannel, flVolume, nRouteDir); 
+    }
+    __attribute__((visibility("default"))) INT32 BurnSoundRender(INT16* pDst, INT32 nLen) { return MetalBridgeFixes::__BurnSoundRender(pDst, nLen); }
+    __attribute__((visibility("default"))) void BurnSampleExit() { MetalBridgeFixes::__BurnSampleExit(); }
+    __attribute__((visibility("default"))) INT32 BurnSampleScan(INT32 nAction, INT32* pnMin) { return MetalBridgeFixes::__BurnSampleScan(nAction, pnMin); }
+    __attribute__((visibility("default"))) void BurnSampleRender(INT16* pDest, UINT32 nLen) { MetalBridgeFixes::__BurnSampleRender(pDest, nLen); }
+    __attribute__((visibility("default"))) INT32 BurnSampleGetChannelStatus(INT32 nSample) { return MetalBridgeFixes::__BurnSampleGetChannelStatus(nSample); }
+    __attribute__((visibility("default"))) void BurnSampleChannelPlay(INT32 channel, INT32 sample, bool loop) { MetalBridgeFixes::__BurnSampleChannelPlay(channel, sample, loop); }
+
+    // Trackball Functions
+    __attribute__((visibility("default"))) INT32 __BurnTrackballInit(INT32 nPlayer) { return MetalBridgeFixes::__BurnTrackballInit(nPlayer); }
+    __attribute__((visibility("default"))) void BurnTrackballConfig(INT32 nPlayer, INT32 nDeviceType, INT32 nDevID) { 
+        MetalBridgeFixes::__BurnTrackballConfig(nPlayer, nDeviceType, nDevID); 
+    }
+    __attribute__((visibility("default"))) void BurnTrackballFrame(int iPlayer, int x1, int y1, int x2, int y2, int* a4, int* a5) {
+        MetalBridgeFixes::__BurnTrackballFrame(iPlayer, x1, y1, x2, y2, a4, a5);
+    }
+    __attribute__((visibility("default"))) void BurnTrackballUpdate(INT32 nPlayer) { MetalBridgeFixes::__BurnTrackballUpdate(nPlayer); }
+    __attribute__((visibility("default"))) INT32 BurnTrackballReadSigned(INT32 nPlayer) { return MetalBridgeFixes::__BurnTrackballReadSigned(nPlayer); }
+    __attribute__((visibility("default"))) INT32 BurnTrackballGetDirection(INT32 nPlayer) { return MetalBridgeFixes::__BurnTrackballGetDirection(nPlayer); }
+    __attribute__((visibility("default"))) void BurnTrackballReadReset() { MetalBridgeFixes::__BurnTrackballReadReset(); }
+
+    // NeoCD Functions
+    __attribute__((visibility("default"))) int NeoCDInfo_ID() { return MetalBridgeFixes::__NeoCDInfo_ID(); }
+    __attribute__((visibility("default"))) int NeoCDInfo_Text(int nID) { return MetalBridgeFixes::__NeoCDInfo_Text(nID); }
+
+    // Input functions
+    __attribute__((visibility("default"))) void FreezeInput(UINT8** buf, INT32* size) { MetalBridgeFixes::__FreezeInput(buf, size); }
+    __attribute__((visibility("default"))) INT32 UnfreezeInput(const UINT8* buf, INT32 size) { return MetalBridgeFixes::__UnfreezeInput(buf, size); }
+
+    // Game Input functions are handled elsewhere
+    
+    // Palette functions
+    __attribute__((visibility("default"))) UINT32 CalcCol(UINT8 r, UINT8 g, UINT8 b) { return MetalBridgeFixes::__CalcCol(r, g, b); }
+    __attribute__((visibility("default"))) void CalcAll() { MetalBridgeFixes::__CalcAll(); }
+    
+    // QSound functions
+    __attribute__((visibility("default"))) void QscReset() { MetalBridgeFixes::__QscReset(); }
+    __attribute__((visibility("default"))) void QscExit() { MetalBridgeFixes::__QscExit(); }
+    __attribute__((visibility("default"))) INT32 QscInit(INT32 nRate) { return MetalBridgeFixes::__QscInitFunc(nRate); }
+    __attribute__((visibility("default"))) void QscSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir) { MetalBridgeFixes::__QscSetRoute(nIndex, nVolume, nRouteDir); }
+    __attribute__((visibility("default"))) INT32 QscScan(INT32 nAction) { return MetalBridgeFixes::__QscScan(nAction); }
+    __attribute__((visibility("default"))) void QscNewFrame() { MetalBridgeFixes::__QscNewFrame(); }
+    __attribute__((visibility("default"))) void QscWrite(INT32 a, INT32 d) { MetalBridgeFixes::__QscWrite(a, d); }
+    __attribute__((visibility("default"))) INT32 QscUpdate(INT32 nEnd) { return MetalBridgeFixes::__QscUpdate(nEnd); }
+
+    // SekSet functions
+    __attribute__((visibility("default"))) INT32 SekSetResetCallback(INT32 (*pCallback)()) { return MetalBridgeFixes::__SekSetResetCallback(pCallback); }
+    __attribute__((visibility("default"))) INT32 SekSetReadByteHandler(INT32 i, UINT8 (*pHandler)(UINT32)) { return MetalBridgeFixes::__SekSetReadByteHandler(i, pHandler); }
+    __attribute__((visibility("default"))) INT32 SekSetReadWordHandler(INT32 i, UINT16 (*pHandler)(UINT32)) { return MetalBridgeFixes::__SekSetReadWordHandler(i, pHandler); }
+
+    // Add SekScan with empty implementation
+    __attribute__((visibility("default"))) INT32 SekScan(INT32 nAction) { return 0; }
+
+    // Add CtvReady with empty implementation  
+    __attribute__((visibility("default"))) INT32 CtvReady() { return 0; }
+
+    // Add PsndScan with empty implementation
+    __attribute__((visibility("default"))) INT32 PsndScan(INT32 nAction, INT32* pnMin) { return 0; }
+
+    // Add ZetMapMemory implementation
+    __attribute__((visibility("default"))) void ZetMapMemory(UINT8* Mem, INT32 nStart, INT32 nEnd, INT32 nMode) {
+        MetalBridgeFixes::__ZetMapMemory(Mem, nStart, nEnd, nMode);
+    }
+
+    __attribute__((visibility("default"))) INT32 BurnGunInit(INT32 nNumPlayers, INT32 bDrawTargets) { return MetalBridgeFixes::__BurnGunInit(nNumPlayers, bDrawTargets); }
+
+    __attribute__((visibility("default"))) void BurnGunMakeInputs(INT32 nPlayer, INT16 nXPosRaw, INT16 nYPosRaw) { MetalBridgeFixes::__BurnGunMakeInputs(nPlayer, nXPosRaw, nYPosRaw); }
+
+    __attribute__((visibility("default"))) void BurnGunDrawTarget(INT32 num, INT32 x, INT32 y) { MetalBridgeFixes::__BurnGunDrawTarget(num, x, y); }
+
+    __attribute__((visibility("default"))) UINT8 BurnGunReturnX(INT32 nPlayer) { return MetalBridgeFixes::__BurnGunReturnX(nPlayer); }
+
+    __attribute__((visibility("default"))) UINT8 BurnGunReturnY(INT32 nPlayer) { return MetalBridgeFixes::__BurnGunReturnY(nPlayer); }
+
+    __attribute__((visibility("default"))) void BurnGunExit() { MetalBridgeFixes::__BurnGunExit(); }
+
+    __attribute__((visibility("default"))) void BurnGunScan() { MetalBridgeFixes::__BurnGunScan(); }
+
+    // Add double underscore exports for compatibility with direct_linkage.cpp
+    __attribute__((visibility("default"))) INT32 __ZetInit(INT32 nCPU) { return MetalBridgeFixes::__ZetInit(nCPU); }
+    __attribute__((visibility("default"))) void __ZetExit() { MetalBridgeFixes::__ZetExit(); }
+    __attribute__((visibility("default"))) void __ZetOpen(INT32 nCPU) { MetalBridgeFixes::__ZetOpen(nCPU); }
+    __attribute__((visibility("default"))) void __ZetClose() { MetalBridgeFixes::__ZetClose(); }
+    __attribute__((visibility("default"))) void __ZetReset() { MetalBridgeFixes::__ZetReset(); }
+    __attribute__((visibility("default"))) INT32 __ZetScan(INT32 nAction) { return MetalBridgeFixes::__ZetScan(nAction); }
+    __attribute__((visibility("default"))) INT32 __ZetTotalCycles() { return MetalBridgeFixes::__ZetTotalCycles(); }
+    __attribute__((visibility("default"))) INT32 __ZetGetPC() { return MetalBridgeFixes::__ZetGetPC(0); }
+    __attribute__((visibility("default"))) void __ZetNmi() { MetalBridgeFixes::__ZetNmi(); }
+    
+    // Sound double underscore functions
+    __attribute__((visibility("default"))) INT32 __PsndInit() { return MetalBridgeFixes::__PsndInit(); }
+    __attribute__((visibility("default"))) INT32 __PsndExit() { return MetalBridgeFixes::__PsndExit(); }
+    __attribute__((visibility("default"))) INT32 __PsndScan(INT32 nAction, INT32* pnMin) { return 0; }
+    __attribute__((visibility("default"))) void __PsndNewFrame() { MetalBridgeFixes::__PsndNewFrame(); }
+    __attribute__((visibility("default"))) void __PsndEndFrame() { MetalBridgeFixes::__PsndEndFrame(); }
+    __attribute__((visibility("default"))) INT32 __PsmUpdateEnd() { return MetalBridgeFixes::__PsmUpdateEnd(); }
+    __attribute__((visibility("default"))) INT32 __PsndSyncZ80(INT32 nCycles) { return MetalBridgeFixes::__PsndSyncZ80(nCycles); }
+    
+    // Sample double underscore functions
+    __attribute__((visibility("default"))) INT32 __BurnSoundRender(INT16* pDst, INT32 nLen) { return MetalBridgeFixes::__BurnSoundRender(pDst, nLen); }
+    __attribute__((visibility("default"))) void __BurnSampleExit() { MetalBridgeFixes::__BurnSampleExit(); }
+    __attribute__((visibility("default"))) void __BurnSampleInit(INT32 bAdd) { MetalBridgeFixes::__BurnSampleInit(bAdd); }
+    __attribute__((visibility("default"))) INT32 __BurnSampleScan(INT32 nAction, INT32* pnMin) { return MetalBridgeFixes::__BurnSampleScan(nAction, pnMin); }
+    __attribute__((visibility("default"))) void __BurnSampleRender(INT16* pDest, UINT32 nLen) { MetalBridgeFixes::__BurnSampleRender(pDest, nLen); }
+    __attribute__((visibility("default"))) INT32 __BurnSampleGetChannelStatus(INT32 nSample) { return MetalBridgeFixes::__BurnSampleGetChannelStatus(nSample); }
+    __attribute__((visibility("default"))) void __BurnSampleChannelPlay(INT32 channel, INT32 sample, bool loop) { MetalBridgeFixes::__BurnSampleChannelPlay(channel, sample, loop); }
+    __attribute__((visibility("default"))) void __BurnSampleSetRoute(INT32 nSample, INT32 nOutput, double nVolume, INT32 nRouteType) { 
+        MetalBridgeFixes::__BurnSampleSetRoute(nSample, nOutput, nVolume, nRouteType); 
+    }
+
+    // NeoCD double underscore functions
+    __attribute__((visibility("default"))) int __NeoCDInfo_ID() { return MetalBridgeFixes::__NeoCDInfo_ID(); }
+    __attribute__((visibility("default"))) int __NeoCDInfo_Text(int nID) { return MetalBridgeFixes::__NeoCDInfo_Text(nID); }
+
+    // Input double underscore functions
+    __attribute__((visibility("default"))) void __FreezeInput(UINT8** buf, INT32* size) { MetalBridgeFixes::__FreezeInput(buf, size); }
+    __attribute__((visibility("default"))) INT32 __UnfreezeInput(const UINT8* buf, INT32 size) { return MetalBridgeFixes::__UnfreezeInput(buf, size); }
+
+    // Gun double underscore functions
+    __attribute__((visibility("default"))) void __BurnGunExit() { MetalBridgeFixes::__BurnGunExit(); }
+    __attribute__((visibility("default"))) INT32 __BurnGunInit(INT32 nNumPlayers, INT32 bDrawTargets) { return MetalBridgeFixes::__BurnGunInit(nNumPlayers, bDrawTargets); }
+    __attribute__((visibility("default"))) void __BurnGunMakeInputs(INT32 nPlayer, INT16 nXPosRaw, INT16 nYPosRaw) { MetalBridgeFixes::__BurnGunMakeInputs(nPlayer, nXPosRaw, nYPosRaw); }
+    __attribute__((visibility("default"))) void __BurnGunDrawTarget(INT32 num, INT32 x, INT32 y) { MetalBridgeFixes::__BurnGunDrawTarget(num, x, y); }
+    __attribute__((visibility("default"))) UINT8 __BurnGunReturnX(INT32 nPlayer) { return MetalBridgeFixes::__BurnGunReturnX(nPlayer); }
+    __attribute__((visibility("default"))) UINT8 __BurnGunReturnY(INT32 nPlayer) { return MetalBridgeFixes::__BurnGunReturnY(nPlayer); }
+    __attribute__((visibility("default"))) void __BurnGunScan() { MetalBridgeFixes::__BurnGunScan(); }
+
+    // Trackball double underscore functions
+    __attribute__((visibility("default"))) void __BurnTrackballConfig(INT32 nPlayer, INT32 nDeviceType, INT32 nDevID) { 
+        MetalBridgeFixes::__BurnTrackballConfig(nPlayer, nDeviceType, nDevID); 
+    }
+    __attribute__((visibility("default"))) void __BurnTrackballFrame(int iPlayer, int x1, int y1, int x2, int y2, int* a4, int* a5) {
+        MetalBridgeFixes::__BurnTrackballFrame(iPlayer, x1, y1, x2, y2, a4, a5);
+    }
+    __attribute__((visibility("default"))) void __BurnTrackballUpdate(INT32 nPlayer) { MetalBridgeFixes::__BurnTrackballUpdate(nPlayer); }
+    __attribute__((visibility("default"))) INT32 __BurnTrackballReadSigned(INT32 nPlayer) { return MetalBridgeFixes::__BurnTrackballReadSigned(nPlayer); }
+    __attribute__((visibility("default"))) INT32 __BurnTrackballGetDirection(INT32 nPlayer) { return MetalBridgeFixes::__BurnTrackballGetDirection(nPlayer); }
+    __attribute__((visibility("default"))) void __BurnTrackballReadReset() { MetalBridgeFixes::__BurnTrackballReadReset(); }
+
+    // CPS double underscore functions
+    __attribute__((visibility("default"))) INT32 __CpsInit() { return MetalBridgeFixes::__CpsInit(); }
+    __attribute__((visibility("default"))) INT32 __CpsExit() { return MetalBridgeFixes::__CpsExit(); }
+    __attribute__((visibility("default"))) INT32 __Cps2InitDD() { return MetalBridgeFixes::__Cps2Init(); }
+    __attribute__((visibility("default"))) INT32 __CtvReady() { return 0; }
+
+    // SekSet double underscore functions
+    __attribute__((visibility("default"))) INT32 __SekScan(INT32 nAction) { return 0; }
+    __attribute__((visibility("default"))) INT32 __SekSetResetCallback(INT32 (*pCallback)()) { return MetalBridgeFixes::__SekSetResetCallback(pCallback); }
+    __attribute__((visibility("default"))) INT32 __SekSetReadByteHandler(INT32 i, UINT8 (*pHandler)(UINT32)) { return MetalBridgeFixes::__SekSetReadByteHandler(i, pHandler); }
+    __attribute__((visibility("default"))) INT32 __SekSetReadWordHandler(INT32 i, UINT16 (*pHandler)(UINT32)) { return MetalBridgeFixes::__SekSetReadWordHandler(i, pHandler); }
+
+    // QSound double underscore functions
+    __attribute__((visibility("default"))) INT32 __QsndInit() { return MetalBridgeFixes::__QsndInit(); }
+    __attribute__((visibility("default"))) void __QsndReset() { MetalBridgeFixes::__QsndReset(); }
+    __attribute__((visibility("default"))) void __QsndExit() { MetalBridgeFixes::__QsndExit(); }
+    __attribute__((visibility("default"))) void __QsndNewFrame() { MetalBridgeFixes::__QsndNewFrame(); }
+    __attribute__((visibility("default"))) void __QsndEndFrame() { MetalBridgeFixes::__QsndEndFrame(); }
+    __attribute__((visibility("default"))) void __QsndSyncZ80() { MetalBridgeFixes::__QsndSyncZ80(); }
+    __attribute__((visibility("default"))) INT32 __QsndScan(INT32 nAction) { return MetalBridgeFixes::__QsndScan(nAction); }
+    __attribute__((visibility("default"))) void __QsndSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir) { 
+        MetalBridgeFixes::__QsndSetRoute(nIndex, nVolume, nRouteDir); 
+    }
+
+    __attribute__((visibility("default"))) void __ZetSetIRQLine(INT32 nIRQLine, INT32 nStatus) { 
+        MetalBridgeFixes::__ZetSetIRQLine(nIRQLine, nStatus); 
+    }
+
+}
+
+// Global variable that needs to be externally linkable
+INT32 (__cdecl *BurnExtLoadRom)(UINT8* Dest, INT32* pnWrote, INT32 i) = NULL; 

@@ -1229,7 +1229,7 @@ void m6809_get_info(UINT32 state, cpuinfo *info)
 		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s, "Copyright John Butler"); break;
 
 		case CPUINFO_STR_FLAGS:
-			sprintf(info->s, "%c%c%c%c%c%c%c%c",
+			snprintf(info->s, sizeof(info->s), "%c%c%c%c%c%c%c%c",
 				m6809.cc & 0x80 ? 'E':'.',
 				m6809.cc & 0x40 ? 'F':'.',
                 m6809.cc & 0x20 ? 'H':'.',
@@ -1240,15 +1240,15 @@ void m6809_get_info(UINT32 state, cpuinfo *info)
                 m6809.cc & 0x01 ? 'C':'.');
             break;
 
-		case CPUINFO_STR_REGISTER + M6809_PC:			sprintf(info->s, "PC:%04X", m6809.pc.w.l); break;
-		case CPUINFO_STR_REGISTER + M6809_S:			sprintf(info->s, "S:%04X", m6809.s.w.l); break;
-		case CPUINFO_STR_REGISTER + M6809_CC:			sprintf(info->s, "CC:%02X", m6809.cc); break;
-		case CPUINFO_STR_REGISTER + M6809_U:			sprintf(info->s, "U:%04X", m6809.u.w.l); break;
-		case CPUINFO_STR_REGISTER + M6809_A:			sprintf(info->s, "A:%02X", m6809.d.b.h); break;
-		case CPUINFO_STR_REGISTER + M6809_B:			sprintf(info->s, "B:%02X", m6809.d.b.l); break;
-		case CPUINFO_STR_REGISTER + M6809_X:			sprintf(info->s, "X:%04X", m6809.x.w.l); break;
-		case CPUINFO_STR_REGISTER + M6809_Y:			sprintf(info->s, "Y:%04X", m6809.y.w.l); break;
-		case CPUINFO_STR_REGISTER + M6809_DP:			sprintf(info->s, "DP:%02X", m6809.dp.b.h); break;
+		case CPUINFO_STR_REGISTER + M6809_PC:			snprintf(info->s, sizeof(info->s), "PC:%04X", m6809.pc.w.l); break;
+		case CPUINFO_STR_REGISTER + M6809_S:			snprintf(info->s, sizeof(info->s), "S:%04X", m6809.s.w.l); break;
+		case CPUINFO_STR_REGISTER + M6809_CC:			snprintf(info->s, sizeof(info->s), "CC:%02X", m6809.cc); break;
+		case CPUINFO_STR_REGISTER + M6809_U:			snprintf(info->s, sizeof(info->s), "U:%04X", m6809.u.w.l); break;
+		case CPUINFO_STR_REGISTER + M6809_A:			snprintf(info->s, sizeof(info->s), "A:%02X", m6809.d.b.h); break;
+		case CPUINFO_STR_REGISTER + M6809_B:			snprintf(info->s, sizeof(info->s), "B:%02X", m6809.d.b.l); break;
+		case CPUINFO_STR_REGISTER + M6809_X:			snprintf(info->s, sizeof(info->s), "X:%04X", m6809.x.w.l); break;
+		case CPUINFO_STR_REGISTER + M6809_Y:			snprintf(info->s, sizeof(info->s), "Y:%04X", m6809.y.w.l); break;
+		case CPUINFO_STR_REGISTER + M6809_DP:			snprintf(info->s, sizeof(info->s), "DP:%02X", m6809.dp.b.h); break;
 	}
 }
 

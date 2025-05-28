@@ -1,0 +1,165 @@
+--- m68kdasm.c.orig	2023-11-09 10:13:25
++++ m68kdasm.c	2023-11-09 10:13:25
+@@ -465,7 +465,7 @@
+ 				if(!preindex && !postindex)
+ 				{
+ 					/* We have base register and index register */
+-					snprintf(mode, 100, "(%s,%s.%c*%d)", base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++					snprintf(mode, 40, "(%s,%s.%c*%d)", base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 				}
+ 				else if(!preindex && !postindex)
+ 				{
+@@ -473,18 +473,18 @@
+ 					if(EXT_BASE_SUPPRESS(extension_word))
+ 					{
+ 						if(EXT_INDEX_SUPPRESS(extension_word))
+-							snprintf(mode, 100, "%s", make_signed_hex_str_32(displacement));
++							snprintf(mode, 40, "%s", make_signed_hex_str_32(displacement));
+ 						else
+-							snprintf(mode, 100, "(%s,%s.%c*%d)", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++							snprintf(mode, 40, "(%s,%s.%c*%d)", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 					}
+ 					else
+ 					{
+ 						if(EXT_INDEX_SUPPRESS(extension_word))
+-							snprintf(mode, 100, "(%s,%s)", make_signed_hex_str_32(displacement), base_reg);
++							snprintf(mode, 40, "(%s,%s)", make_signed_hex_str_32(displacement), base_reg);
+ 						else
+-							snprintf(mode, 100, "(%s,%s,%s.%c*%d)", make_signed_hex_str_32(displacement), base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++							snprintf(mode, 40, "(%s,%s,%s.%c*%d)", make_signed_hex_str_32(displacement), base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 					}
+ 				}
+ 				else
+ 				{
+@@ -492,18 +492,18 @@
+ 					if(EXT_BD_SIZE(extension_word) != 3 && !EXT_BASE_SUPPRESS(extension_word) && !EXT_INDEX_SUPPRESS(extension_word))
+ 					{
+ 						/* We have everything */
+ 						if(preindex)
+-							snprintf(mode, 100, "([%s,%s],%s.%c*%d)", make_signed_hex_str_32(displacement), base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++							snprintf(mode, 40, "([%s,%s],%s.%c*%d)", make_signed_hex_str_32(displacement), base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 						else
+-							snprintf(mode, 100, "([%s,%s.%c*%d],%s)", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale, base_reg);
++							snprintf(mode, 40, "([%s,%s.%c*%d],%s)", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale, base_reg);
+ 					}
+ 					else if(EXT_BD_SIZE(extension_word) != 3 && !EXT_BASE_SUPPRESS(extension_word) && EXT_INDEX_SUPPRESS(extension_word))
+ 					{
+ 						/* We have displacement and base register */
+-						snprintf(mode, 100, "([%s,%s])", make_signed_hex_str_32(displacement), base_reg);
++						snprintf(mode, 40, "([%s,%s])", make_signed_hex_str_32(displacement), base_reg);
+ 					}
+ 					else if(EXT_BD_SIZE(extension_word) != 3 && EXT_BASE_SUPPRESS(extension_word) && !EXT_INDEX_SUPPRESS(extension_word))
+ 					{
+ 						/* We have displacement and index register */
+ 						if(preindex)
+-							snprintf(mode, 100, "([%s],%s.%c*%d)", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++							snprintf(mode, 40, "([%s],%s.%c*%d)", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 						else
+-							snprintf(mode, 100, "([%s,%s.%c*%d])", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++							snprintf(mode, 40, "([%s,%s.%c*%d])", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 					}
+ 					else if(EXT_BD_SIZE(extension_word) == 3 && !EXT_BASE_SUPPRESS(extension_word) && !EXT_INDEX_SUPPRESS(extension_word))
+ 					{
+ 						/* We have base register and index register */
+ 						if(preindex)
+-							snprintf(mode, 100, "([%s],%s.%c*%d)", base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++							snprintf(mode, 40, "([%s],%s.%c*%d)", base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 						else
+-							snprintf(mode, 100, "([%s.%c*%d],%s)", index_reg, (index_size == 32) ? 'l' : 'w', index_scale, base_reg);
++							snprintf(mode, 40, "([%s.%c*%d],%s)", index_reg, (index_size == 32) ? 'l' : 'w', index_scale, base_reg);
+ 					}
+ 					else if(EXT_BD_SIZE(extension_word) == 3 && !EXT_BASE_SUPPRESS(extension_word) && EXT_INDEX_SUPPRESS(extension_word))
+ 					{
+ 						/* We have the base register only */
+-						snprintf(mode, 100, "([%s])", base_reg);
++						snprintf(mode, 40, "([%s])", base_reg);
+ 					}
+ 					else if(EXT_BD_SIZE(extension_word) != 3 && EXT_BASE_SUPPRESS(extension_word) && EXT_INDEX_SUPPRESS(extension_word))
+ 					{
+ 						/* We have displacement only */
+-						snprintf(mode, 100, "([%s])", make_signed_hex_str_32(displacement));
++						snprintf(mode, 40, "([%s])", make_signed_hex_str_32(displacement));
+ 					}
+ 				}
+ 			}
+ 		}
+ 		if(invalid_mode)
+-			snprintf(mode, 100, "<invalid mode>");
++			snprintf(mode, 40, "<invalid mode>");
+ 		break;
+ 	case 6:
+ 		switch(rn)
+@@ -570,7 +570,7 @@
+ 			}
+ 			default:
+-				snprintf(mode, 100, "<invalid mode>");
++				snprintf(mode, 40, "<invalid mode>");
+ 				break;
+ 		}
+ 		break;
+@@ -588,18 +588,18 @@
+ 			case 0: /* (xxx).w */
+ 				extension_word = read_imm_16();
+-				snprintf(mode, 100, "(%s).w", make_signed_hex_str_16(read_imm_16()));
++				snprintf(mode, 40, "(%s).w", make_signed_hex_str_16(read_imm_16()));
+ 				break;
+ 			case 1: /* (xxx).l */
+-				snprintf(mode, 100, "(%s).l", make_signed_hex_str_32(read_imm_32()));
++				snprintf(mode, 40, "(%s).l", make_signed_hex_str_32(read_imm_32()));
+ 				break;
+ 			case 2: /* (d16, PC) */
+-				snprintf(mode, 100, "(%s,PC)", make_signed_hex_str_16(read_imm_16()));
++				snprintf(mode, 40, "(%s,PC)", make_signed_hex_str_16(read_imm_16()));
+ 				break;
+ 			case 3: /* (d8, PC, Xn.SIZE*SCALE) */
+ 				break;
+ 			default:
+-				snprintf(mode, 100, "<invalid mode>");
++				snprintf(mode, 40, "<invalid mode>");
+ 				break;
+ 		}
+ 		break;
+@@ -644,7 +644,7 @@
+ 					if(EXT_BASE_SUPPRESS(extension_word))
+ 					{
+ 						if(EXT_INDEX_SUPPRESS(extension_word))
+-							snprintf(mode, 100, "%s", make_signed_hex_str_32(displacement));
++							snprintf(mode, 40, "%s", make_signed_hex_str_32(displacement));
+ 					}
+ 					else
+ 					{
+@@ -652,30 +652,30 @@
+ 						{
+ 							/* Base only */
+-							snprintf(mode, 100, "(%s)", base_reg);
++							snprintf(mode, 40, "(%s)", base_reg);
+ 						}
+ 						else
+ 						{
+ 							/* Base and index */
+-							snprintf(mode, 100, "(%s,%s.%c*%d)", base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++							snprintf(mode, 40, "(%s,%s.%c*%d)", base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 						}
+ 					}
+ 				}
+ 				else if(odtsize != 3)
+ 				{
+ 					if(EXT_BASE_SUPPRESS(extension_word) && EXT_INDEX_SUPPRESS(extension_word))
+-						snprintf(mode, 100, "%s", make_signed_hex_str_32(displacement));
++						snprintf(mode, 40, "%s", make_signed_hex_str_32(displacement));
+ 					else if(EXT_BASE_SUPPRESS(extension_word))
+-						snprintf(mode, 100, "(%s,%s.%c*%d)", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++						snprintf(mode, 40, "(%s,%s.%c*%d)", make_signed_hex_str_32(displacement), index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 					else if(EXT_INDEX_SUPPRESS(extension_word))
+-						snprintf(mode, 100, "(%s,%s)", make_signed_hex_str_32(displacement), base_reg);
++						snprintf(mode, 40, "(%s,%s)", make_signed_hex_str_32(displacement), base_reg);
+ 					else
+-						snprintf(mode, 100, "(%s,%s,%s.%c*%d)", make_signed_hex_str_32(displacement), base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
++						snprintf(mode, 40, "(%s,%s,%s.%c*%d)", make_signed_hex_str_32(displacement), base_reg, index_reg, (index_size == 32) ? 'l' : 'w', index_scale);
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+ 	return mode;
+ } 

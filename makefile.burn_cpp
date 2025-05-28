@@ -1,0 +1,4 @@
+# Compile the burn.cpp file specifically
+obj/metal/burner/burn/burn.o: src/burn/burn.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -include src/burner/metal/fixes/burn_cpp_fix.h -c $< -o $@

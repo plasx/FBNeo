@@ -1,4 +1,6 @@
 #include "burnint.h"
+#include "hiscore.h"
+#include "macos_compat.h"
 
 // A hiscore.dat support module for FB Neo - written by Barry Manilow, Feb 2009
 // Updates & fixes by dink and iq_132

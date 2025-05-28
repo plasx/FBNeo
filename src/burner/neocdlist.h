@@ -1,6 +1,10 @@
 #ifndef _neocdlist_
 #define _neocdlist_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct NGCDGAME
 {
 	TCHAR*	pszName;		// Short name
@@ -139,5 +143,8 @@ void iso9660_ReadOffset(unsigned char *Dest, FILE* fp, unsigned int lOffset, uns
 
 // ------------------------------------------------------
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,0 +1,68 @@
+FBNeo Metal Frame Debug Tool
+---------------------------
+Metal device: Apple M1 Max
+Metal initialized successfully
+Initialized frame buffer: 320x240, 32 bpp (307200 bytes)
+
+Testing pattern 0 (Color bars)...
+Generating test pattern (type 0) for 320x240 frame buffer
+
+=== FRAME BUFFER ANALYSIS ===
+Buffer: 0x128008000, Size: 307200 bytes, Dimensions: 320x240, BPP: 32
+  Non-zero bytes: 6400/10240 (62.5%)
+  Checksum (first 10KB): 0x0018E700
+  Max byte value: 0xFF
+  Sample pixels (RGBA format):
+    Pixel 0: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+    Pixel 1: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+    Pixel 2: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+    Pixel 3: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+    Pixel 4: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+==============================
+
+Updating Metal texture with frame buffer content
+Using direct texture update for unified memory
+Texture updated successfully
+
+Testing pattern 1 (Gradient)...
+Generating test pattern (type 1) for 320x240 frame buffer
+
+=== FRAME BUFFER ANALYSIS ===
+Buffer: 0x128008000, Size: 307200 bytes, Dimensions: 320x240, BPP: 32
+  Non-zero bytes: 9898/10240 (96.7%)
+  Checksum (first 10KB): 0x0011EC5F
+  Max byte value: 0xFF
+  Sample pixels (RGBA format):
+    Pixel 0: [R:00,G:00,B:00,A:FF] = 0xFF000000
+    Pixel 1: [R:00,G:00,B:00,A:FF] = 0xFF000000
+    Pixel 2: [R:01,G:00,B:00,A:FF] = 0xFF010000
+    Pixel 3: [R:02,G:00,B:01,A:FF] = 0xFF020001
+    Pixel 4: [R:03,G:00,B:01,A:FF] = 0xFF030001
+==============================
+
+Updating Metal texture with frame buffer content
+Using direct texture update for unified memory
+Texture updated successfully
+
+Testing pattern 2 (Checkerboard)...
+Generating test pattern (type 2) for 320x240 frame buffer
+
+=== FRAME BUFFER ANALYSIS ===
+Buffer: 0x128008000, Size: 307200 bytes, Dimensions: 320x240, BPP: 32
+  Non-zero bytes: 6400/10240 (62.5%)
+  Checksum (first 10KB): 0x0018E700
+  Max byte value: 0xFF
+  Sample pixels (RGBA format):
+    Pixel 0: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+    Pixel 1: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+    Pixel 2: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+    Pixel 3: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+    Pixel 4: [R:FF,G:FF,B:FF,A:FF] = 0xFFFFFFFF
+==============================
+
+Updating Metal texture with frame buffer content
+Using direct texture update for unified memory
+Texture updated successfully
+Frame buffer saved to: frame_debug.bin
+
+Test completed successfully

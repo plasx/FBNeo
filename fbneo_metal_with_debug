@@ -1,0 +1,14 @@
+#!/bin/bash
+# Wrapper script for fbneo_metal that displays full debug output
+
+# Get ROM path from arguments (use default if none provided)
+if [ "$#" -eq 0 ]; then
+    ROM_PATH="/Users/plasx/dev/ROMs/mvsc.zip"
+    echo "No ROM specified, using default: $ROM_PATH"
+else
+    ROM_PATH="$1"
+fi
+
+# Run the standalone debug display tool with the ROM path
+# This will show the debug output and then launch the emulator
+./show_full_debug "$ROM_PATH" 

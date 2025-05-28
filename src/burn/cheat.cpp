@@ -2,11 +2,17 @@
 // Cheat file parser @ burner/conc.cpp
 
 #include "burnint.h"
+#include "burn.h"
+#include "cheat.h"
+#include "metal_fixes.h"
 
 #define CHEAT_MAXCPU	8 // enough?
 
 // any system that uses Game Genie/Pro Action Replay codes can be defined as HW_NES...
 #define HW_NES ( ((BurnDrvGetHardwareCode() & HARDWARE_PUBLIC_MASK) == HARDWARE_SNES) || ((BurnDrvGetHardwareCode() & HARDWARE_PUBLIC_MASK) == HARDWARE_NES) || ((BurnDrvGetHardwareCode() & HARDWARE_PUBLIC_MASK) == HARDWARE_FDS) )
+
+// Add missing definition
+#define MB_CHEAT_ENDI_SWAP 0x00000001
 
 void (*nes_add_cheat)(char *) = NULL;
 void (*nes_remove_cheat)(char *) = NULL;
@@ -27,40 +33,7 @@ static struct cheat_core cpus[CHEAT_MAXCPU];
 static cheat_core *cheat_ptr;
 static cpu_core_config *cheat_subptr;
 
-static void dummy_open(INT32) {}
-static void dummy_close() {}
-static UINT8 dummy_read(UINT32) { return 0; }
-static void dummy_write(UINT32, UINT8) {}
-static INT32 dummy_active() { return -1; }
-static INT32 dummy_total_cycles() { return 0; }
-static void dummy_newframe() {}
-static INT32 dummy_idle(INT32) { return 0; }
-static void dummy_irq(INT32, INT32, INT32) {}
-static INT32 dummy_run(INT32) { return 0; }
-static void dummy_runend() {}
-static void dummy_reset() {}
-static INT32 dummy_scan(INT32) { return 0; }
-static void dummy_exit() {}
-
-static cpu_core_config dummy_config  = {
-	"dummy",
-	dummy_open,
-	dummy_close,
-	dummy_read,
-	dummy_write,
-	dummy_active,
-	dummy_total_cycles,
-	dummy_newframe,
-	dummy_idle,
-	dummy_irq,
-	dummy_run,
-	dummy_runend,
-	dummy_reset,
-	dummy_scan,
-	dummy_exit,
-	~0UL,
-	0
-};
+// Dummy driver uses the cpu_core_config structure from burnint.h
 
 cheat_core *GetCpuCheatRegister(INT32 nCPU)
 {
@@ -694,11 +667,11 @@ void CheatSearchDumptoFile()
 	UINT32 nAddress;
 	
 	if (fp) {
-		char Temp[256];
+		char Temp[256] = "";
 		
 		for (nAddress = 0; nAddress < nMemorySize; nAddress++) {
 			if (MemoryStatus[nAddress] == IN_RESULTS) {
-				sprintf(Temp, "Address %08X Value %02X\n", nAddress, MemoryValues[nAddress]);
+				snprintf(Temp, sizeof(Temp), "Address %08X Value %02X\n", nAddress, MemoryValues[nAddress]);
 				fwrite(Temp, 1, strlen(Temp), fp);
 			}
 		}

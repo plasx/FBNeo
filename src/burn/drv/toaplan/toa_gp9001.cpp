@@ -64,7 +64,7 @@ static INT32 nTileXPos, nTileYPos;
 static INT32 nLastBPP = 0;
 
 // Include the tile rendering functions
-#include "toa_gp9001_func.h"
+#include "../../dep/generated/toa_gp9001_func.h"
 
 static void PrepareSprites()
 {

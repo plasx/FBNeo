@@ -13,6 +13,10 @@
 #include <math.h>
 #include "burner.h"
 #include "lowpass2.h"
+#include "burnint.h"
+
+// External variables
+extern bool bRunPause;
 
 #define PI 3.141592653589793238462643383279502884197169399375105820974944592307816
 #define FixBits 15

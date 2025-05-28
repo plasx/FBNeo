@@ -51,7 +51,7 @@ typedef char	_TCHAR;
 #define _stricmp strcmp
 #define _strnicmp strncmp
 
-#define dprintf(...) fprintf (stderr, __VA_ARGS__)
+#define debug_printf(...) fprintf (stderr, __VA_ARGS__)
 
 #endif
 

@@ -769,13 +769,13 @@ void write_body(FILE* filep, body_struct* body, replace_struct* replace)
 /* Generate a base function name from an opcode struct */
 void get_base_name(char* base_name, opcode_struct* op)
 {
-	sprintf(base_name, "m68k_op_%s", op->name);
+	snprintf(base_name, 128, "m68k_op_%s", op->name);
 	if(op->size > 0)
-		sprintf(base_name+strlen(base_name), "_%d", op->size);
+		snprintf(base_name+strlen(base_name), 128-strlen(base_name), "_%d", op->size);
 	if(strcmp(op->spec_proc, UNSPECIFIED) != 0)
-		sprintf(base_name+strlen(base_name), "_%s", op->spec_proc);
+		snprintf(base_name+strlen(base_name), 128-strlen(base_name), "_%s", op->spec_proc);
 	if(strcmp(op->spec_ea, UNSPECIFIED) != 0)
-		sprintf(base_name+strlen(base_name), "_%s", op->spec_ea);
+		snprintf(base_name+strlen(base_name), 128-strlen(base_name), "_%s", op->spec_ea);
 }
 
 /* Write the name of an opcode handler function */
@@ -804,7 +804,8 @@ void add_opcode_output_table_entry(opcode_struct* op, char* name)
  */
 static int DECL_SPEC compare_nof_true_bits(const void* aptr, const void* bptr)
 {
-	const opcode_struct *a = aptr, *b = bptr;
+	const opcode_struct *a = (const opcode_struct *)aptr;
+	const opcode_struct *b = (const opcode_struct *)bptr;
 	if(a->bits != b->bits)
 		return a->bits - b->bits;
 	if(a->op_mask != b->op_mask)
@@ -849,7 +850,7 @@ void set_opcode_struct(opcode_struct* src, opcode_struct* dst, int ea_mode)
 	for(i=0;i<NUM_CPUS;i++)
 		dst->cycles[i] = get_oper_cycles(dst, ea_mode, i);
 	if(strcmp(dst->spec_ea, UNSPECIFIED) == 0 && ea_mode != EA_MODE_NONE)
-		sprintf(dst->spec_ea, "%s", g_ea_info_table[ea_mode].fname_add);
+		snprintf(dst->spec_ea, sizeof(dst->spec_ea), "%s", g_ea_info_table[ea_mode].fname_add);
 	dst->op_mask |= g_ea_info_table[ea_mode].mask_add;
 	dst->op_match |= g_ea_info_table[ea_mode].match_add;
 }
@@ -859,7 +860,7 @@ void set_opcode_struct(opcode_struct* src, opcode_struct* dst, int ea_mode)
 void generate_opcode_handler(FILE* filep, body_struct* body, replace_struct* replace, opcode_struct* opinfo, int ea_mode)
 {
 	char str[MAX_LINE_LENGTH+1];
-	opcode_struct* op = malloc(sizeof(opcode_struct));
+	opcode_struct* op = (opcode_struct*)malloc(sizeof(opcode_struct));
 
 	/* Set the opcode structure and write the tables, prototypes, etc */
 	set_opcode_struct(opinfo, op, ea_mode);
@@ -870,17 +871,17 @@ void generate_opcode_handler(FILE* filep, body_struct* body, replace_struct* rep
 	/* Add any replace strings needed */
 	if(ea_mode != EA_MODE_NONE)
 	{
-		sprintf(str, "EA_%s_8()", g_ea_info_table[ea_mode].ea_add);
+		snprintf(str, sizeof(str), "EA_%s_8()", g_ea_info_table[ea_mode].ea_add);
 		add_replace_string(replace, ID_OPHANDLER_EA_AY_8, str);
-		sprintf(str, "EA_%s_16()", g_ea_info_table[ea_mode].ea_add);
+		snprintf(str, sizeof(str), "EA_%s_16()", g_ea_info_table[ea_mode].ea_add);
 		add_replace_string(replace, ID_OPHANDLER_EA_AY_16, str);
-		sprintf(str, "EA_%s_32()", g_ea_info_table[ea_mode].ea_add);
+		snprintf(str, sizeof(str), "EA_%s_32()", g_ea_info_table[ea_mode].ea_add);
 		add_replace_string(replace, ID_OPHANDLER_EA_AY_32, str);
-		sprintf(str, "OPER_%s_8()", g_ea_info_table[ea_mode].ea_add);
+		snprintf(str, sizeof(str), "OPER_%s_8()", g_ea_info_table[ea_mode].ea_add);
 		add_replace_string(replace, ID_OPHANDLER_OPER_AY_8, str);
-		sprintf(str, "OPER_%s_16()", g_ea_info_table[ea_mode].ea_add);
+		snprintf(str, sizeof(str), "OPER_%s_16()", g_ea_info_table[ea_mode].ea_add);
 		add_replace_string(replace, ID_OPHANDLER_OPER_AY_16, str);
-		sprintf(str, "OPER_%s_32()", g_ea_info_table[ea_mode].ea_add);
+		snprintf(str, sizeof(str), "OPER_%s_32()", g_ea_info_table[ea_mode].ea_add);
 		add_replace_string(replace, ID_OPHANDLER_OPER_AY_32, str);
 	}
 
@@ -952,7 +953,7 @@ void generate_opcode_cc_variants(FILE* filep, body_struct* body, replace_struct*
 	char replnot[20];
 	int i;
 	int old_length = replace->length;
-	opcode_struct* op = malloc(sizeof(opcode_struct));
+	opcode_struct* op = (opcode_struct*)malloc(sizeof(opcode_struct));
 
 	*op = *op_in;
 
@@ -962,8 +963,8 @@ void generate_opcode_cc_variants(FILE* filep, body_struct* body, replace_struct*
 	for(i=2;i<16;i++)
 	{
 		/* Add replace strings for this condition code */
-		sprintf(repl, "COND_%s()", g_cc_table[i][1]);
-		sprintf(replnot, "COND_NOT_%s()", g_cc_table[i][1]);
+		snprintf(repl, sizeof(repl), "COND_%s()", g_cc_table[i][1]);
+		snprintf(replnot, sizeof(replnot), "COND_NOT_%s()", g_cc_table[i][1]);
 
 		add_replace_string(replace, ID_OPHANDLER_CC, repl);
 		add_replace_string(replace, ID_OPHANDLER_NOT_CC, replnot);
@@ -991,8 +992,8 @@ void process_opcode_handlers(FILE* filep)
 	char oper_spec_proc[MAX_LINE_LENGTH+1];
 	char oper_spec_ea[MAX_LINE_LENGTH+1];
 	opcode_struct* opinfo;
-	replace_struct* replace = malloc(sizeof(replace_struct));
-	body_struct* body = malloc(sizeof(body_struct));
+	replace_struct* replace = (replace_struct*)malloc(sizeof(replace_struct));
+	body_struct* body = (body_struct*)malloc(sizeof(body_struct));
 
 	for(;;)
 	{
@@ -1258,11 +1259,11 @@ int main(int argc, char **argv)
 #if defined(__DECC) && defined(VMS)
 
 	/* Open the files we need */
-	sprintf(filename, "%s%s", output_path, FILENAME_PROTOTYPE);
+	snprintf(filename, 256, "%s%s", output_path, FILENAME_PROTOTYPE);
 	if((g_prototype_file = fopen(filename, "w")) == NULL)
 		perror_exit("Unable to create prototype file (%s)\n", filename);
 
-	sprintf(filename, "%s%s", output_path, FILENAME_TABLE);
+	snprintf(filename, 256, "%s%s", output_path, FILENAME_TABLE);
 	if((g_table_file = fopen(filename, "w")) == NULL)
 		perror_exit("Unable to create table file (%s)\n", filename);
 
@@ -1273,11 +1274,11 @@ int main(int argc, char **argv)
 
 
 	/* Open the files we need */
-	sprintf(filename, "%s%s", output_path, FILENAME_PROTOTYPE);
+	snprintf(filename, 256, "%s%s", output_path, FILENAME_PROTOTYPE);
 	if((g_prototype_file = fopen(filename, "wt")) == NULL)
 		perror_exit("Unable to create prototype file (%s)\n", filename);
 
-	sprintf(filename, "%s%s", output_path, FILENAME_TABLE);
+	snprintf(filename, 256, "%s%s", output_path, FILENAME_TABLE);
 	if((g_table_file = fopen(filename, "wt")) == NULL)
 		perror_exit("Unable to create table file (%s)\n", filename);
 

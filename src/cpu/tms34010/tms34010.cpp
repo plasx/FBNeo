@@ -297,7 +297,7 @@ void write_ioreg(cpu_state *cpu, dword addr, word value)
     case VSBLNK:
     case VEBLNK:
 #ifdef TMS34010_DEBUGGER
-        qDebug() << QString().sprintf("vga crtc %dx%d - v:%d,h:%d",
+        qDebug() << QString().snprintf(256, "vga crtc %dx%d - v:%d,h:%d",
             cpu->io_regs[HSBLNK]-cpu->io_regs[HEBLNK],
             cpu->io_regs[VSBLNK]-cpu->io_regs[VEBLNK],
             cpu->io_regs[VTOTAL],

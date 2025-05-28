@@ -1,3 +1,6 @@
+#ifndef TILEMAP_GENERIC_H_INCLUDE
+#define TILEMAP_GENERIC_H_INCLUDE
+
 // Tilemap defines
 
 // use in place of "which" to have this applied to all initialized tilemaps
@@ -185,3 +188,5 @@ void GenericTilemapDraw(INT32 which, INT32 bitmap, INT32 priority);
 
 // Dump all tilemaps to bitmap files
 void GenericTilemapDumpToBitmap();
+
+#endif // TILEMAP_GENERIC_H_INCLUDE

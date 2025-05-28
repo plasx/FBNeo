@@ -121,11 +121,10 @@ int BurnComputeSHA1(const UINT8 *buffer, int buffer_size, char *hash_str) {
 	SHA1_Update(&ctx, buffer, buffer_size);
     SHA1_Final(hash, &ctx);
 
-	for (int i = 0; i < SHA1_HASH_SIZE; i++) {
-		char temp[128];
-		sprintf(temp, "%02x", hash[i]);
-		hash_str[i*2 + 0] = temp[0];
-		hash_str[i*2 + 1] = temp[1];
+	for (int i = 0; i < 20; i++) {
+		char temp[3];
+		snprintf(temp, sizeof(temp), "%02x", hash[i]);
+		memcpy(hash_str + (2 * i), temp, 2);
 	}
 
 	hash_str[SHA1_HASH_SIZE*2] = 0;
@@ -158,12 +157,11 @@ int BurnComputeSHA1(const char *filename, char *hash_str) {
 
     SHA1_Final(hash, &ctx);
 
-	for (int i = 0; i < SHA1_HASH_SIZE; i++) {
-		char temp[128];
-		sprintf(temp, "%02x", hash[i]);
-		hash_str[i*2 + 0] = temp[0];
-		hash_str[i*2 + 1] = temp[1];
-    }
+	for (int i = 0; i < 20; i++) {
+		char temp[3];
+		snprintf(temp, sizeof(temp), "%02x", hash[i]);
+		memcpy(hash_str + (2 * i), temp, 2);
+	}
 
 	hash_str[SHA1_HASH_SIZE*2] = 0;
 

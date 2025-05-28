@@ -31,8 +31,11 @@
 
 **********************************************************************/
 
-#include "burnint.h"
-#include "driver.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../burnint.h"
+#include "../driver.h"
 #include "8257dma.h"
 
 #define I8257_NUM_CHANNELS		(4)

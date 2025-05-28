@@ -71,8 +71,8 @@ Revision History:
 #include <stdlib.h>
 #include <math.h>
 
-#include "driver.h"		/* use M.A.M.E. */
-#include "state.h"
+#include "../../burn/driver.h"		/* use M.A.M.E. */
+#include "../../burn/state.h"
 
 #include "ymdeltat.h"
 

@@ -1,0 +1,308 @@
+{
+  "game": "sf3ts",
+  "architecture": "CPS3",
+  "version": "1.0.0",
+  "description": "Memory mapping for Street Fighter III: Third Strike",
+  "author": "FBNeo Team",
+  "created": "2023-06-15T15:00:00Z",
+  "updated": "2023-06-15T15:00:00Z",
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0x02026E74",
+      "type": "word",
+      "description": "Player 1 health",
+      "category": "health",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 160,
+      "is_signed": false,
+      "endianness": "little",
+      "notes": "Health decreases from 160 to 0"
+    },
+    {
+      "name": "p2_health",
+      "address": "0x02026FC4",
+      "type": "word",
+      "description": "Player 2 health",
+      "category": "health",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 160,
+      "is_signed": false,
+      "endianness": "little",
+      "notes": "Health decreases from 160 to 0"
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0x02026898",
+      "type": "float",
+      "description": "Player 1 X position",
+      "category": "position",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "little",
+      "is_signed": true
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0x0202689C",
+      "type": "float",
+      "description": "Player 1 Y position",
+      "category": "position",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "little",
+      "is_signed": true
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0x020269E8",
+      "type": "float",
+      "description": "Player 2 X position",
+      "category": "position",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "little",
+      "is_signed": true
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0x020269EC",
+      "type": "float",
+      "description": "Player 2 Y position",
+      "category": "position",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "endianness": "little",
+      "is_signed": true
+    },
+    {
+      "name": "p1_character",
+      "address": "0x02026828",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "state",
+      "player": 1,
+      "is_signed": false,
+      "notes": "Character ID (0-19)"
+    },
+    {
+      "name": "p2_character",
+      "address": "0x02026978",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "state",
+      "player": 2,
+      "is_signed": false,
+      "notes": "Character ID (0-19)"
+    },
+    {
+      "name": "p1_state",
+      "address": "0x02026838",
+      "type": "word",
+      "description": "Player 1 action state",
+      "category": "state",
+      "player": 1,
+      "endianness": "little",
+      "is_signed": false,
+      "notes": "Animation state ID"
+    },
+    {
+      "name": "p2_state",
+      "address": "0x02026988",
+      "type": "word",
+      "description": "Player 2 action state",
+      "category": "state",
+      "player": 2,
+      "endianness": "little",
+      "is_signed": false,
+      "notes": "Animation state ID"
+    },
+    {
+      "name": "p1_stun",
+      "address": "0x02026E7C",
+      "type": "word",
+      "description": "Player 1 stun meter",
+      "category": "health",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 64,
+      "endianness": "little",
+      "is_signed": false,
+      "notes": "Stun meter increases from 0 to 64 (stun at max)"
+    },
+    {
+      "name": "p2_stun",
+      "address": "0x02026FCC",
+      "type": "word",
+      "description": "Player 2 stun meter",
+      "category": "health",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 64,
+      "endianness": "little",
+      "is_signed": false,
+      "notes": "Stun meter increases from 0 to 64 (stun at max)"
+    },
+    {
+      "name": "p1_super_meter",
+      "address": "0x02026E80",
+      "type": "word",
+      "description": "Player 1 super meter",
+      "category": "meter",
+      "player": 1,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 300,
+      "endianness": "little",
+      "is_signed": false,
+      "notes": "Super meter increases from 0 to 300 (3 stocks at max)"
+    },
+    {
+      "name": "p2_super_meter",
+      "address": "0x02026FD0",
+      "type": "word",
+      "description": "Player 2 super meter",
+      "category": "meter",
+      "player": 2,
+      "scale": 1.0,
+      "offset": 0.0,
+      "min": 0,
+      "max": 300,
+      "endianness": "little",
+      "is_signed": false,
+      "notes": "Super meter increases from 0 to 300 (3 stocks at max)"
+    },
+    {
+      "name": "timer",
+      "address": "0x02025D40",
+      "type": "word",
+      "description": "Round timer in frames",
+      "category": "state",
+      "player": 0,
+      "scale": 0.01667,
+      "offset": 0.0,
+      "endianness": "little",
+      "is_signed": false,
+      "notes": "Counts down from 6000 (99 seconds) at 60 frames per second"
+    },
+    {
+      "name": "round_state",
+      "address": "0x02025D10",
+      "type": "byte",
+      "description": "Current round state",
+      "category": "state",
+      "player": 0,
+      "is_signed": false,
+      "notes": "Various game states (intro, fighting, round over, etc.)"
+    },
+    {
+      "name": "p1_rounds_won",
+      "address": "0x02025D0C",
+      "type": "byte",
+      "description": "Player 1 round wins",
+      "category": "score",
+      "player": 1,
+      "is_signed": false
+    },
+    {
+      "name": "p2_rounds_won",
+      "address": "0x02025D0D",
+      "type": "byte",
+      "description": "Player 2 round wins",
+      "category": "score",
+      "player": 2,
+      "is_signed": false
+    },
+    {
+      "name": "p1_parry_window",
+      "address": "0x02026E98",
+      "type": "byte",
+      "description": "Player 1 parry window active",
+      "category": "state",
+      "player": 1,
+      "is_signed": false,
+      "notes": "Non-zero when parry window is active"
+    },
+    {
+      "name": "p2_parry_window",
+      "address": "0x02026FE8",
+      "type": "byte",
+      "description": "Player 2 parry window active",
+      "category": "state",
+      "player": 2,
+      "is_signed": false,
+      "notes": "Non-zero when parry window is active"
+    },
+    {
+      "name": "p1_input",
+      "address": "0x020268C0",
+      "type": "dword",
+      "description": "Player 1 input state",
+      "category": "input",
+      "player": 1,
+      "endianness": "little",
+      "is_signed": false,
+      "bit_mask": "0xFFFFFFFF",
+      "notes": "Bit field for input buttons (LP, MP, HP, LK, MK, HK, etc.)"
+    },
+    {
+      "name": "p2_input",
+      "address": "0x02026A10",
+      "type": "dword",
+      "description": "Player 2 input state",
+      "category": "input",
+      "player": 2,
+      "endianness": "little",
+      "is_signed": false,
+      "bit_mask": "0xFFFFFFFF",
+      "notes": "Bit field for input buttons (LP, MP, HP, LK, MK, HK, etc.)"
+    }
+  ],
+  "groups": [
+    {
+      "name": "health",
+      "description": "Health-related mappings",
+      "mappings": ["p1_health", "p2_health", "p1_stun", "p2_stun"]
+    },
+    {
+      "name": "meter",
+      "description": "Super meter mappings",
+      "mappings": ["p1_super_meter", "p2_super_meter"]
+    },
+    {
+      "name": "position",
+      "description": "Position-related mappings",
+      "mappings": ["p1_x_position", "p1_y_position", "p2_x_position", "p2_y_position"]
+    },
+    {
+      "name": "state",
+      "description": "Game state mappings",
+      "mappings": ["p1_state", "p2_state", "timer", "round_state", "p1_character", "p2_character", "p1_parry_window", "p2_parry_window"]
+    },
+    {
+      "name": "input",
+      "description": "Input-related mappings",
+      "mappings": ["p1_input", "p2_input"]
+    },
+    {
+      "name": "score",
+      "description": "Score-related mappings",
+      "mappings": ["p1_rounds_won", "p2_rounds_won"]
+    }
+  ]
+} 

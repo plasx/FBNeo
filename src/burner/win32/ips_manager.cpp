@@ -90,7 +90,7 @@ static TCHAR* GetPatchDescByLangcode(FILE* fp, int nLang)
 	char* desc    = NULL;
 	char langtag[10];
 
-	sprintf(langtag, "[%s]", _TtoA(szLanguageCodes[nLang]));
+	snprintf(langtag, sizeof(langtag), "[%s]", _TtoA(szLanguageCodes[nLang]));
 
 	fseek(fp, 0, SEEK_SET);
 
@@ -138,7 +138,7 @@ static TCHAR* GetPatchDescByLangcode(FILE* fp, int nLang)
 
 					len += strlen(s) + 2;
 					p1 = (char*)malloc(len + 1);
-					sprintf(p1, "%s\r\n%s", desc, s);
+					snprintf(p1, len + 1, "%s\r\n%s", desc, s);
 					if (desc) {
 						free(desc);
 					}
@@ -986,9 +986,9 @@ static void DoPatchGame(const char* patch_name, char* game_name, UINT32 crc, UIN
 
 				if (strchr(ips_name, '\\')) {
 					// ips in parent's folder
-					sprintf(ips_path, "%s\\%s%s", ips_dir, ips_name, (has_ext) ? "" : IPS_EXT);
+					snprintf(ips_path, sizeof(ips_path), "%s\\%s%s", ips_dir, ips_name, (has_ext) ? "" : IPS_EXT);
 				} else {
-					sprintf(ips_path, "%s%s\\%s%s", ips_dir, BurnDrvGetTextA(DRV_NAME), ips_name, (has_ext) ? "" : IPS_EXT);
+					snprintf(ips_path, sizeof(ips_path), "%s%s\\%s%s", ips_dir, BurnDrvGetTextA(DRV_NAME), ips_name, (has_ext) ? "" : IPS_EXT);
 				}
 
 				PatchFile(ips_path, base, readonly);
@@ -1166,6 +1166,9 @@ static void GetIpsDrvDefine()
 	}
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void IpsApplyPatches(UINT8* base, char* rom_name, UINT32 crc, bool readonly)
 {
 	if (!bDoIpsPatch)
@@ -1181,6 +1184,9 @@ void IpsApplyPatches(UINT8* base, char* rom_name, UINT32 crc, bool readonly)
 		DoPatchGame(ips_data, rom_name, crc, base, readonly);
 	}
 }
+#ifdef __cplusplus
+}
+#endif
 
 void IpsPatchInit()
 {

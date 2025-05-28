@@ -443,7 +443,7 @@ int SDLinpGetControlName(int nCode, TCHAR* pszDeviceName, TCHAR* pszControlName)
 		if (i >= nJoystickCount) {				// This joystick isn't connected
 			return 0;
 		}
-		_tsprintf(pszDeviceName, "%hs", SDL_JoystickName(i));
+		snprintf(pszDeviceName, 256, "%hs", SDL_JoystickName(i));
 
 		break;
 	}

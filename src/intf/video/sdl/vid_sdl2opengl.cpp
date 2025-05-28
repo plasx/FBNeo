@@ -307,7 +307,7 @@ static int Init()
 		screenFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN;
 	}
 
-	sprintf(Windowtitle, "FBNeo - %s - %s", BurnDrvGetTextA(DRV_NAME), BurnDrvGetTextA(DRV_FULLNAME));
+	snprintf(Windowtitle, sizeof(Windowtitle), "FBNeo - %s - %s", BurnDrvGetTextA(DRV_NAME), BurnDrvGetTextA(DRV_FULLNAME));
 	
 	sdlWindow = SDL_CreateWindow(Windowtitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, test_rect.right * nSize,
 		test_rect.bottom * nSize, screenFlags);
@@ -385,7 +385,7 @@ static int Paint(int bValidate)
 	
 	if (bAppShowFPS && !bAppFullscreen)
 	{
-		sprintf(Windowtitle, "FBNeo - FPS: %s - %s - %s", fpsstring, BurnDrvGetTextA(DRV_NAME), BurnDrvGetTextA(DRV_FULLNAME));
+		snprintf(Windowtitle, sizeof(Windowtitle), "FBNeo - FPS: %s - %s - %s", fpsstring, BurnDrvGetTextA(DRV_NAME), BurnDrvGetTextA(DRV_FULLNAME));
 		SDL_SetWindowTitle(sdlWindow, Windowtitle);
 	}
 	SDL_GL_SwapWindow(sdlWindow);

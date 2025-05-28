@@ -51,7 +51,7 @@ include makefile.burn_rules
 
 # Platform stuff
 alldir	+= 	burner burner/sdl burner/sdl dep/libs/libspng dep/libs/lib7z dep/libs/zlib intf intf/video \
-			intf/video/scalers 	intf/video/sdl intf/audio intf/audio/sdl intf/input intf/input/sdl intf/cd intf/cd/sdl \
+			intf/video/scalers 	intf/video/sdl intf/video/metal intf/audio intf/audio/sdl intf/input intf/input/sdl intf/cd intf/cd/sdl \
 			intf/perfcount intf/perfcount/sdl dep/generated
 
 depobj	+= 	neocdlist.o \
@@ -68,7 +68,7 @@ depobj	+= 	neocdlist.o \
 			\
 			inp_sdl2.o aud_sdl.o support_paths.o ips_manager.o scrn.o localise_gamelist.o romdata.o \
 			cd_sdl2.o config.o main.o run.o stringset.o bzip.o drv.o media.o sdl2_gui_ingame.o sdl2_gui_common.o \
-			inpdipsw.o vid_sdl2opengl.o vid_sdl2.o inputbuf.o replay.o sdl2_gui.o sdl2_inprint.o input_sdl2.o stated.o
+			inpdipsw.o vid_sdl2opengl.o vid_sdl2.o vid_metal.o inputbuf.o replay.o sdl2_gui.o sdl2_inprint.o input_sdl2.o stated.o
 
 ifdef FORCE_PULSE_AUDIO
 alldir	+= 	intf/audio/linux
@@ -92,13 +92,16 @@ endif
 # End, platform stuff
 
 incdir	= $(foreach dir,$(alldir),-I$(srcdir)$(dir)) -I$(objdir)dep/generated \
-		  -I/local/include -I$(srcdir)dep/sdl/include \
-		  -I$(srcdir)intf/input/sdl `sdl2-config --cflags`
+		  -I/local/include -I$(srcdir)dep/sdl/include -I$(srcdir)burner/sdl \
+		  -I$(srcdir)intf/input/sdl -I$(srcdir)intf/cd -I$(srcdir)intf/cd/sdl -I$(srcdir)burner \
+		  -I$(srcdir)intf/video -I$(srcdir)intf/video/sdl -I$(srcdir)intf/video/metal \
+		  -I/opt/homebrew/include \
+		  `sdl2-config --cflags` `pkg-config --cflags sdl2_image`
 
 ifdef WINDOWS
 lib	= -lstdc++ `sdl2-config --libs` -lopengl32 -lSDL2_image -lm
 else ifdef DARWIN
-lib	= -lstdc++ `sdl2-config --libs` -lSDL2_image -lm -lpthread
+lib	= -lstdc++ `sdl2-config --libs` `pkg-config --libs sdl2_image` -lm -lpthread -framework Metal -framework MetalKit -framework QuartzCore
 else
 lib	= -lstdc++ `sdl2-config --libs` -lGL -lSDL2_image -lm -lpthread
 endif
@@ -140,6 +143,9 @@ allobj	= $(objdir)cpu/m68k/m68kcpu.o $(objdir)cpu/m68k/m68kops.o \
 	  $(foreach file,$(autobj:.o=.cpp), \
 		$(foreach dir,$(alldir),$(subst $(srcdir),$(objdir), \
 		$(firstword $(subst .cpp,.o,$(wildcard $(srcdir)$(dir)/$(file))))))) \
+	  $(foreach file,$(autobj:.o=.mm), \
+		$(foreach dir,$(alldir),$(subst $(srcdir),$(objdir), \
+		$(firstword $(subst .mm,.o,$(wildcard $(srcdir)$(dir)/$(file))))))) \
 	  $(foreach file,$(autobj:.o=.asm), \
 		$(foreach dir,$(alldir),$(subst $(srcdir),$(objdir), \
 		$(firstword $(subst .asm,.o,$(wildcard $(srcdir)$(dir)/$(file))))))) \
@@ -157,6 +163,9 @@ alldep	= $(foreach file,$(autobj:.o=.c), \
 	  $(foreach file,$(autobj:.o=.cpp), \
 		$(foreach dir,$(alldir),$(subst $(srcdir),$(objdir), \
 		$(firstword $(subst .cpp,.d,$(wildcard $(srcdir)$(dir)/$(file))))))) \
+	  $(foreach file,$(autobj:.o=.mm), \
+		$(foreach dir,$(alldir),$(subst $(srcdir),$(objdir), \
+		$(firstword $(subst .mm,.d,$(wildcard $(srcdir)$(dir)/$(file))))))) \
 	  $(foreach file,$(autobj:.o=.rc), \
 		$(foreach dir,$(alldir),$(subst $(srcdir),$(objdir), \
 		$(firstword $(subst .rc,.d,$(wildcard $(srcdir)$(dir)/$(file)))))))
@@ -194,7 +203,7 @@ endif
 CFLAGS = -O2 -fomit-frame-pointer -Wno-write-strings \
 	   -Wall -Wno-long-long -Wno-sign-compare -Wno-uninitialized -Wno-unused \
 	   -Wno-conversion -Wno-attributes \
-	   -Wno-unused-parameter -Wno-unused-value -std=c99 \
+	   -Wno-unused-parameter -Wno-unused-value -Wno-unused-result -std=c99 \
 	   $(PLATFLAGS) $(DEF) $(incdir)
 
 CXXFLAGS = -O2 -fomit-frame-pointer -Wno-write-strings \
@@ -202,8 +211,13 @@ CXXFLAGS = -O2 -fomit-frame-pointer -Wno-write-strings \
 	   -Wunknown-pragmas -Wundef -Wconversion -Wno-missing-braces \
 	   -Wuninitialized -Wpointer-arith -Winline -Wno-multichar \
 	   -Wno-conversion -Wno-attributes \
-	   -Wno-unused-parameter -Wno-unused-value -Wno-narrowing \
+	   -Wno-unused-parameter -Wno-unused-value -Wno-narrowing -Wno-unused-result \
 	   $(PLATFLAGS) $(DEF) $(incdir)
+
+# Add Objective-C++ flags for macOS
+ifdef DARWIN
+CXXFLAGS += -x objective-c++ -fobjc-arc
+endif
 
 ASFLAGS	=  -O1 -f coff -w-orphan-labels
 
@@ -296,11 +310,6 @@ ifdef PROFILE
 endif
 
 
-ifdef BUILD_NATIVE
-	CFLAGS	 += -march=native -mtune=native
-	CXXFLAGS += -march=native -mtune=native
-endif
-
 # For zlib
 DEF := $(DEF) -DNO_VIZ -D_LARGEFILE64_SOURCE=0 -D_FILE_OFFSET_BITS=32
 
@@ -320,6 +329,7 @@ vpath %.cpp	$(foreach dir,$(alldir),$(srcdir)$(dir)/ )
 vpath %.c	$(foreach dir,$(alldir),$(srcdir)$(dir)/ )
 vpath %.h	$(foreach dir,$(alldir),$(srcdir)$(dir)/ )
 vpath %.rc	$(foreach dir,$(alldir),$(srcdir)$(dir)/ )
+vpath %.mm	$(foreach dir,$(alldir),$(srcdir)$(dir)/ )
 
 vpath %.o 	$(foreach dir,$(alldir),$(objdir)$(dir)/ )
 vpath %.d 	$(foreach dir,$(alldir),$(objdir)$(dir)/ )
@@ -332,23 +342,67 @@ vpath %.d 	$(foreach dir,$(alldir),$(objdir)$(dir)/ )
 
 .PHONY:	all init cleandep touch clean
 
+# Main targets
 ifeq ($(MAKELEVEL),1)
 ifdef DEPEND
-
-all:	init $(drvdep) $(autdep) $(autobj) $(autdrv)
-	@$(MAKE) -f makefile.sdl2 -s
-
+all: init $(drvdep) $(autdep) $(autobj) $(autdrv)
+	@$(MAKE) -f makefile.sdl2 -f makefile.burn_rules
 else
-
-all:	init $(autobj) $(autdrv)
-	@$(MAKE) -f makefile.sdl2 -s
-
+all: init $(autobj) $(autdrv)
+	@$(MAKE) -f makefile.sdl2 -f makefile.burn_rules
 endif
 else
-
-all:	$(NAME)
-
+all: $(NAME)
 endif
+
+# Main executable target
+$(NAME): $(METAL_SHADER_LIB) $(allobj) $(objdir)drivers.o
+	@echo
+	@echo Linking executable... $(NAME)
+	@$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$^) $(lib)
+
+# Initialize build directories
+init:
+	@echo
+ifdef DEBUG
+	@echo Making debug build...
+else
+	@echo Making normal build...
+endif
+	@echo
+	@mkdir -p $(foreach dir,$(alldir),$(objdir)$(dir))
+	@mkdir -p $(srcdir)dep/generated
+	@mkdir -p $(METAL_OBJDIR)
+	@mkdir -p $(objdir)burn/snd
+	@mkdir -p $(objdir)burn/devices
+	@mkdir -p $(objdir)burn/drv
+	@mkdir -p $(objdir)burn/drv/atari
+	@mkdir -p $(objdir)burn/drv/capcom
+	@mkdir -p $(objdir)burn/drv/cave
+	@mkdir -p $(objdir)burn/drv/channelf
+	@mkdir -p $(objdir)burn/drv/coleco
+	@mkdir -p $(objdir)burn/drv/cps3
+	@mkdir -p $(objdir)burn/drv/dataeast
+	@mkdir -p $(objdir)burn/drv/galaxian
+	@mkdir -p $(objdir)burn/drv/irem
+	@mkdir -p $(objdir)burn/drv/konami
+	@mkdir -p $(objdir)burn/drv/megadrive
+	@mkdir -p $(objdir)burn/drv/midway
+	@mkdir -p $(objdir)burn/drv/pce
+	@mkdir -p $(objdir)burn/drv/pst90s
+	@mkdir -p $(objdir)burn/drv/pre90s
+	@mkdir -p $(objdir)burn/drv/neogeo
+	@mkdir -p $(objdir)burn/drv/nes
+	@mkdir -p $(objdir)burn/drv/snes
+	@mkdir -p $(objdir)burn/drv/pgm
+	@mkdir -p $(objdir)burn/drv/psikyo
+	@mkdir -p $(objdir)burn/drv/sega
+	@mkdir -p $(objdir)burn/drv/sg1000
+	@mkdir -p $(objdir)burn/drv/sms
+	@mkdir -p $(objdir)burn/drv/msx
+	@mkdir -p $(objdir)burn/drv/spectrum
+	@mkdir -p $(objdir)burn/drv/taito
+	@mkdir -p $(objdir)burn/drv/toaplan
 
 #
 #
@@ -358,8 +412,9 @@ endif
 
 ifeq ($(MAKELEVEL),2)
 
-$(objdir)drivers.o:		$(autdrv)
+$(objdir)drivers.o: $(autdrv)
 	@echo Linking drivers...
+	@mkdir -p $(@D)
 	@$(LD) -r -nostdlib -o $@ $^
 
 ifdef WINDOWS
@@ -371,10 +426,10 @@ $(NAME):	$(allobj) $(objdir)drivers.o
 
 else
 
-$(NAME):	$(allobj) $(objdir)drivers.o
+$(NAME):	$(METAL_SHADER_LIB) $(allobj) $(objdir)drivers.o
 	@echo
 	@echo Linking executable... $(NAME)
-	@$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(lib)
+	@$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$^) $(lib)
 endif
 
 
@@ -445,21 +500,25 @@ endif
 
 # Musashi
 
-$(objdir)cpu/m68k/m68kcpu.o: $(srcdir)cpu/m68k/m68kcpu.c $(objdir)dep/generated/m68kops.h $(srcdir)cpu/m68k/m68k.h $(srcdir)cpu/m68k/m68kconf.h
-	@echo Compiling Musashi MC680x0 core \(m68kcpu.c\)...
-	@$(CC) $(CFLAGS) -c $(srcdir)cpu/m68k/m68kcpu.c -o $(objdir)cpu/m68k/m68kcpu.o
-
-$(objdir)cpu/m68k/m68kops.o: $(objdir)cpu/m68k/m68kmake $(objdir)dep/generated/m68kops.h $(objdir)dep/generated/m68kops.c $(srcdir)cpu/m68k/m68k.h $(srcdir)cpu/m68k/m68kconf.h
-	@echo Compiling Musashi MC680x0 core \(m68kops.c\)...
-	@$(CC) $(CFLAGS) -c $(objdir)dep/generated/m68kops.c -o $(objdir)cpu/m68k/m68kops.o
-
-$(objdir)dep/generated/m68kops.h $(objdir)dep/generated/m68kops.c: $(objdir)cpu/m68k/m68kmake $(srcdir)cpu/m68k/m68k_in.c
-	$(objdir)cpu/m68k/m68kmake $(objdir)dep/generated/ $(srcdir)cpu/m68k/m68k_in.c
-
 $(objdir)cpu/m68k/m68kmake: $(srcdir)cpu/m68k/m68kmake.c
 	@echo Compiling Musashi MC680x0 core \(m68kmake.c\)...
-	@$(HOST_CC) $(HOST_CFLAGS) $(srcdir)cpu/m68k/m68kmake.c -o $(objdir)cpu/m68k/m68kmake -Dmain=main
+	@mkdir -p $(@D)
+	@$(HOST_CC) $(HOST_CFLAGS) -o $@ $< -Dmain=main
 
+$(objdir)dep/generated/m68kops.h $(objdir)dep/generated/m68kops.c: $(objdir)cpu/m68k/m68kmake $(srcdir)cpu/m68k/m68k_in.c
+	@echo Generating Musashi MC680x0 core tables...
+	@mkdir -p $(@D)
+	@$< $(@D) $(srcdir)cpu/m68k/m68k_in.c
+
+$(objdir)cpu/m68k/m68kcpu.o: $(srcdir)cpu/m68k/m68kcpu.c $(objdir)dep/generated/m68kops.h $(srcdir)cpu/m68k/m68k.h $(srcdir)cpu/m68k/m68kconf.h
+	@echo Compiling Musashi MC680x0 core \(m68kcpu.c\)...
+	@mkdir -p $(@D)
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+$(objdir)cpu/m68k/m68kops.o: $(objdir)dep/generated/m68kops.h $(objdir)dep/generated/m68kops.c $(srcdir)cpu/m68k/m68k.h $(srcdir)cpu/m68k/m68kconf.h
+	@echo Compiling Musashi MC680x0 core \(m68kops.c\)...
+	@mkdir -p $(@D)
+	@$(CC) $(CFLAGS) -c $(objdir)dep/generated/m68kops.c -o $@
 
 #
 #	Extra rules for generated header file ctv.h, needed by ctv.cpp
@@ -490,6 +549,8 @@ neo_sprite.d neo_sprite.o: $(neo_sprite_func.h)
 
 $(neo_sprite_func.h):	$(srcdir)dep/scripts/neo_sprite_func.pl
 	@$(srcdir)dep/scripts/neo_sprite_func.pl -o $(neo_sprite_func.h)
+	@mkdir -p $(objdir)dep/generated
+	@cp $(neo_sprite_func.h) $(objdir)dep/generated/
 
 #
 #	Extra rules for generated header file cave_tile_func.h, needed by cave_tile.cpp
@@ -549,31 +610,45 @@ endif
 
 ifeq ($(MAKELEVEL),1)
 
-%.o:	%.cpp
+$(objdir)%.o: $(srcdir)%.c
 	@echo Compiling $<...
-	@$(CC) $(CXXFLAGS) -c $< -o $(subst $(srcdir),$(objdir),$(<D))/$(@F)
+	@mkdir -p $(@D)
+	@$(CC) $(CFLAGS) -c $< -o $@
 
-%.o:	%.c
+$(objdir)%.o: $(srcdir)%.cpp
 	@echo Compiling $<...
-	@$(CC) $(CFLAGS) -c $< -o $(subst $(srcdir),$(objdir),$(<D))/$(@F)
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-%.o:	%.asm | init
+$(objdir)%.o: $(srcdir)%.mm
+	@echo Compiling $<...
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o:	%.asm
 	@echo Assembling $<...
 	@$(AS) $(ASFLAGS) $< -o $(subst $(srcdir),$(objdir),$(<D))/$(@F)
 
 else
 
-%.o:	%.c
+$(objdir)%.o: $(srcdir)%.c
 	@echo Compiling $<...
+	@mkdir -p $(@D)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
-%.o:	%.asm | init
+$(objdir)%.o: $(srcdir)%.cpp
+	@echo Compiling $<...
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(objdir)%.o: $(srcdir)%.mm
+	@echo Compiling $<...
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o:	%.asm
 	@echo Assembling $<...
 	@$(AS) $(ASFLAGS) $< -o $@
-
-%.o:
-	@echo Compiling $<...
-	@$(CC) $(CXXFLAGS) -c $< -o $@
 
 endif
 
@@ -591,6 +666,11 @@ ifdef DEPEND
 	@echo Generating depend file for $<...
 	@$(CC) -MM -MT "$(subst $(srcdir),$(objdir),$(<D))/$(*F).o $(subst $(srcdir),$(objdir),$(<D))/$(@F)" -x c++ $(CXXFLAGS) $< >$(subst $(srcdir),$(objdir),$(<D))/$(@F)
 
+%.d:	%.mm
+	@echo Generating depend file for $<...
+	@mkdir -p $(subst $(srcdir),$(objdir),$(<D))
+	@$(CC) -MM -MT "$(subst $(srcdir),$(objdir),$(<D))/$(*F).o $(subst $(srcdir),$(objdir),$(<D))/$(@F)" -x objective-c++ $(CXXFLAGS) $< >$(subst $(srcdir),$(objdir),$(<D))/$(@F)
+
 %.d:	%.rc
 	@echo Generating depend file for $<...
 	@$(CC) -MM -MT "$(subst $(srcdir),$(objdir),$(<D))/$(*F).o $(subst $(srcdir),$(objdir),$(<D))/$(@F)" -x c++ $(CXXFLAGS) $< >$(subst $(srcdir),$(objdir),$(<D))/$(@F)
@@ -600,17 +680,6 @@ endif
 #
 #	Phony targets
 #
-
-init:
-
-ifdef	DEBUG
-	@echo Making debug build...
-else
-	@echo Making normal build...
-endif
-	@echo
-	@mkdir -p $(foreach dir, $(alldir),$(objdir)$(dir))
-	@mkdir -p $(srcdir)dep/generated
 
 cleandep:
 	@echo Removing depend files from $(objdir)...
@@ -637,3 +706,60 @@ endif
 #
 
 FORCE:
+
+# Metal configuration
+METAL_SRCDIR = $(srcdir)intf/video/metal
+METAL_OBJDIR = $(objdir)intf/video/metal
+
+# Metal source files
+METAL_SRCS = $(wildcard $(METAL_SRCDIR)/*.mm)
+METAL_OBJS = $(patsubst $(METAL_SRCDIR)/%.mm,$(METAL_OBJDIR)/%.o,$(METAL_SRCS))
+
+# Metal shader files
+METAL_SHADER_SRC = $(METAL_SRCDIR)/Shaders.metal
+METAL_SHADER_AIR = $(METAL_OBJDIR)/Shaders.air
+METAL_SHADER_LIB = $(METAL_OBJDIR)/Shaders.metallib
+
+# Add Metal objects to allobj
+allobj += $(METAL_OBJS)
+
+# Rules for Metal Objective-C++ files
+$(METAL_OBJDIR)/%.o: $(METAL_SRCDIR)/%.mm
+	@echo Compiling Metal source $<...
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) $(incdir) -c $< -o $@
+
+# Rules for Metal shaders
+$(METAL_SHADER_AIR): $(METAL_SHADER_SRC)
+	@echo Compiling Metal shader $<...
+	@mkdir -p $(@D)
+	@xcrun -sdk macosx metal -c $< -o $@
+
+$(METAL_SHADER_LIB): $(METAL_SHADER_AIR)
+	@echo Creating Metal library $@...
+	@mkdir -p $(@D)
+	@xcrun -sdk macosx metallib $< -o $@
+
+# Add shader library to main target dependencies
+$(NAME): $(METAL_SHADER_LIB)
+
+# Sound chip compilation
+$(objdir)burn/%.o: $(srcdir)burn/%.c
+	@echo Compiling $<...
+	@mkdir -p $(@D)
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+$(objdir)burn/snd/%.o: $(srcdir)burn/snd/%.c
+	@echo Compiling $<...
+	@mkdir -p $(@D)
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+$(objdir)burn/snd/ym2612.o: $(srcdir)burn/snd/ym2612.c
+	@echo Compiling $<...
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+$(objdir)burn/snd/ym2151.o: $(srcdir)burn/snd/ym2151.c
+	@echo Compiling $<...
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+autobj := $(filter-out m68kops.o,$(autobj))

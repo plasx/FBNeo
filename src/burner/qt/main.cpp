@@ -53,15 +53,16 @@ bool AppProcessKeyboardInput()
 	return true;
 }
 
-char *TCHARToANSI(const TCHAR* pszInString, char* pszOutString, int nOutSize)
+#ifdef USE_QT
+extern "C" char *TCHARToANSI(const TCHAR* pszInString, char* pszOutString, int nOutSize)
 {
 	if (pszOutString) {
 		strcpy(pszOutString, pszInString);
 		return pszOutString;
 	}
-
 	return (char*)pszInString;
 }
+#endif
 
 
 QString loadAppStyle(const QString &name)

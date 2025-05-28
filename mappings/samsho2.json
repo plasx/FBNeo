@@ -1,0 +1,210 @@
+{
+  "game_name": "samsho2",
+  "architecture": "NEOGEO",
+  "version": "1.0",
+  "mappings": [
+    {
+      "name": "p1_health",
+      "address": "0x108204",
+      "type": "word",
+      "description": "Player 1 health",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 256,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_health",
+      "address": "0x108A04",
+      "type": "word",
+      "description": "Player 2 health",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 256,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_x_position",
+      "address": "0x108118",
+      "type": "word",
+      "description": "Player 1 X position",
+      "category": "player1",
+      "scale": 1.0
+    },
+    {
+      "name": "p1_y_position",
+      "address": "0x108120",
+      "type": "word",
+      "description": "Player 1 Y position",
+      "category": "player1",
+      "scale": 1.0
+    },
+    {
+      "name": "p2_x_position",
+      "address": "0x108918",
+      "type": "word",
+      "description": "Player 2 X position",
+      "category": "player2",
+      "scale": 1.0
+    },
+    {
+      "name": "p2_y_position",
+      "address": "0x108920",
+      "type": "word",
+      "description": "Player 2 Y position",
+      "category": "player2",
+      "scale": 1.0
+    },
+    {
+      "name": "timer",
+      "address": "0x10A83E",
+      "type": "byte",
+      "description": "Round timer",
+      "category": "game_state",
+      "min_value": 0,
+      "max_value": 99,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_character",
+      "address": "0x108102",
+      "type": "byte",
+      "description": "Player 1 character ID",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 15,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_character",
+      "address": "0x108902",
+      "type": "byte",
+      "description": "Player 2 character ID",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 15,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_state",
+      "address": "0x108110",
+      "type": "word",
+      "description": "Player 1 animation state",
+      "category": "player1",
+      "scale": 1.0
+    },
+    {
+      "name": "p2_state",
+      "address": "0x108910",
+      "type": "word",
+      "description": "Player 2 animation state",
+      "category": "player2",
+      "scale": 1.0
+    },
+    {
+      "name": "p1_rage",
+      "address": "0x108518",
+      "type": "word",
+      "description": "Player 1 rage meter",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 128,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_rage",
+      "address": "0x108D18",
+      "type": "word",
+      "description": "Player 2 rage meter",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 128,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_weapon_state",
+      "address": "0x1083F4",
+      "type": "byte",
+      "description": "Player 1 weapon state (0=normal, 1=unarmed)",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_weapon_state",
+      "address": "0x108BF4",
+      "type": "byte",
+      "description": "Player 2 weapon state (0=normal, 1=unarmed)",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 1,
+      "scale": 1.0
+    },
+    {
+      "name": "round_number",
+      "address": "0x10A842",
+      "type": "byte",
+      "description": "Current round number",
+      "category": "game_state",
+      "min_value": 1,
+      "max_value": 5,
+      "scale": 1.0
+    },
+    {
+      "name": "p1_rounds_won",
+      "address": "0x10A848",
+      "type": "byte",
+      "description": "Player 1 rounds won",
+      "category": "player1",
+      "min_value": 0,
+      "max_value": 3,
+      "scale": 1.0
+    },
+    {
+      "name": "p2_rounds_won",
+      "address": "0x10A84C",
+      "type": "byte",
+      "description": "Player 2 rounds won",
+      "category": "player2",
+      "min_value": 0,
+      "max_value": 3,
+      "scale": 1.0
+    }
+  ],
+  "groups": [
+    {
+      "name": "player1",
+      "mappings": [
+        "p1_health",
+        "p1_x_position",
+        "p1_y_position",
+        "p1_character",
+        "p1_state",
+        "p1_rage",
+        "p1_weapon_state",
+        "p1_rounds_won"
+      ]
+    },
+    {
+      "name": "player2",
+      "mappings": [
+        "p2_health",
+        "p2_x_position",
+        "p2_y_position",
+        "p2_character",
+        "p2_state",
+        "p2_rage",
+        "p2_weapon_state",
+        "p2_rounds_won"
+      ]
+    },
+    {
+      "name": "game_state",
+      "mappings": [
+        "timer",
+        "round_number"
+      ]
+    }
+  ]
+} 

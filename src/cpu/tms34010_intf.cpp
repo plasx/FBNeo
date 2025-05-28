@@ -84,7 +84,7 @@ void TMS34010SetIRQLine(INT32 cpu, INT32 vector, INT32 status)
 	}
 }
 
-cpu_core_config TMS34010Config =
+static cpu_core_config TMS34010Config =
 {
 	"TMS34010",
 	TMS34010Open,
@@ -99,8 +99,10 @@ cpu_core_config TMS34010Config =
 	TMS34010Run,
 	TMS34010RunEnd,
 	TMS34010Reset,
-	0x100000000ULL,
-	0
+	NULL,  // scan
+	NULL,  // exit
+	0,     // memory size
+	0      // address flags
 };
 // end cheat-engine hook-up
 

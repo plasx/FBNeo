@@ -798,7 +798,7 @@ void NamcoSoundExit()
 void NamcoSoundScan(INT32 nAction, INT32 *pnMin)
 {
 	struct BurnArea ba;
-	char szName[30];
+	char szName[128];
 
 	if ((nAction & ACB_DRIVER_DATA) == 0) {
 		return;
@@ -809,7 +809,7 @@ void NamcoSoundScan(INT32 nAction, INT32 *pnMin)
 	}
 
 	memset(&ba, 0, sizeof(ba));
-	sprintf(szName, "NamcoSound");
+	snprintf(szName, sizeof(szName), "NamcoSound");
 	ba.Data		= &chip->channel_list;
 	ba.nLen		= sizeof(chip->channel_list);
 	ba.nAddress = 0;
@@ -817,7 +817,7 @@ void NamcoSoundScan(INT32 nAction, INT32 *pnMin)
 	BurnAcb(&ba);
 
 	memset(&ba, 0, sizeof(ba));
-	sprintf(szName, "NamcoSoundWaveFormData");
+	snprintf(szName, sizeof(szName), "NamcoSoundWaveFormData");
 	ba.Data		= namco_waveformdata;
 	ba.nLen		= namco_waveformdatasize;
 	ba.nAddress = 0;
@@ -826,7 +826,7 @@ void NamcoSoundScan(INT32 nAction, INT32 *pnMin)
 
 	if (enable_ram) {
 		memset(&ba, 0, sizeof(ba));
-		sprintf(szName, "NamcoSoundWaveData");
+		snprintf(szName, sizeof(szName), "NamcoSoundWaveData");
 		ba.Data		= namco_wavedata;
 		ba.nLen		= 0x400;
 		ba.nAddress = 0;
@@ -835,7 +835,7 @@ void NamcoSoundScan(INT32 nAction, INT32 *pnMin)
 	}
 
 	memset(&ba, 0, sizeof(ba));
-	sprintf(szName, "NamcoSoundRegs");
+	snprintf(szName, sizeof(szName), "NamcoSoundRegs");
 	ba.Data		= namco_soundregs;
 	ba.nLen		= 0x400;
 	ba.nAddress = 0;

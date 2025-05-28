@@ -53,7 +53,7 @@ int MainInit(const char *path, const char *setname)
     }
 
     bCheatsAllowed = false;
-    sprintf(szAppRomPaths[0], path);
+    snprintf(szAppRomPaths[0], sizeof(szAppRomPaths[0]), "%s", path);
 
     if (DrvInit(i, 0))
         return 1;

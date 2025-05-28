@@ -219,7 +219,7 @@ static void __fastcall shisen_sound_write_port(UINT16 port, UINT8 data)
 	{
 		case 0x00:
 		case 0x01:
-			BurnYM2151Write(port, data);
+			BurnYM2151Write(0, port, data);
 		return;
 
 		case 0x80:
@@ -251,7 +251,7 @@ static UINT8 __fastcall shisen_sound_read_port(UINT16 port)
 	{
 		case 0x00:
 		case 0x01:
-			return BurnYM2151Read();
+			return BurnYM2151Read(0);
 
 		case 0x80:
 			return soundlatch;

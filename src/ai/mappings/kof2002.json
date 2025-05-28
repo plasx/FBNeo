@@ -1,0 +1,591 @@
+{
+  "game_name": "The King of Fighters 2002",
+  "architecture": "NEO-GEO",
+  "version": "1.0.0",
+  "description": "Memory mapping for The King of Fighters 2002 (NEO-GEO)",
+  "supported_roms": ["kof2002", "kof2002b", "kof2002um"],
+  
+  "mappings": {
+    "player_state": [
+      {
+        "name": "p1_health",
+        "address": "0x108340",
+        "type": "word",
+        "description": "Player 1 current health",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_health",
+        "address": "0x108540",
+        "type": "word",
+        "description": "Player 2 current health",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_max_health",
+        "address": "0x108342",
+        "type": "word",
+        "description": "Player 1 maximum health",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_max_health",
+        "address": "0x108542",
+        "type": "word",
+        "description": "Player 2 maximum health",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_power_gauge",
+        "address": "0x108370",
+        "type": "word",
+        "description": "Player 1 power gauge",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 12800,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_power_gauge",
+        "address": "0x108570",
+        "type": "word",
+        "description": "Player 2 power gauge",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 12800,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_guard_gauge",
+        "address": "0x108374",
+        "type": "word",
+        "description": "Player 1 guard crush gauge",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 1200,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_guard_gauge",
+        "address": "0x108574",
+        "type": "word",
+        "description": "Player 2 guard crush gauge",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 1200,
+        "endianness": "big"
+      }
+    ],
+    "position": [
+      {
+        "name": "p1_x_pos",
+        "address": "0x108300",
+        "type": "word",
+        "description": "Player 1 X position",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -20000,
+        "max_value": 20000,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_y_pos",
+        "address": "0x108304",
+        "type": "word",
+        "description": "Player 1 Y position",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -20000,
+        "max_value": 20000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_x_pos",
+        "address": "0x108500",
+        "type": "word",
+        "description": "Player 2 X position",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -20000,
+        "max_value": 20000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_y_pos",
+        "address": "0x108504",
+        "type": "word",
+        "description": "Player 2 Y position",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": -20000,
+        "max_value": 20000,
+        "endianness": "big"
+      }
+    ],
+    "game_state": [
+      {
+        "name": "timer",
+        "address": "0x10ACCC",
+        "type": "word",
+        "description": "Round timer (in frames)",
+        "scale": 0.0166,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 6000,
+        "endianness": "big"
+      },
+      {
+        "name": "round_number",
+        "address": "0x10ACD0",
+        "type": "byte",
+        "description": "Current round number (0-indexed)",
+        "scale": 1.0,
+        "offset": 1.0,
+        "min_value": 1,
+        "max_value": 5
+      },
+      {
+        "name": "p1_rounds_won",
+        "address": "0x10ACD4",
+        "type": "byte",
+        "description": "Rounds won by Player 1",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 3
+      },
+      {
+        "name": "p2_rounds_won",
+        "address": "0x10ACD5",
+        "type": "byte",
+        "description": "Rounds won by Player 2",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 3
+      },
+      {
+        "name": "match_state",
+        "address": "0x10ACD8",
+        "type": "byte",
+        "description": "Match state (0=fighting, 1=round over, 2=match over)",
+        "min_value": 0,
+        "max_value": 10
+      }
+    ],
+    "character_state": [
+      {
+        "name": "p1_char_id",
+        "address": "0x108100",
+        "type": "byte",
+        "description": "Player 1 current character ID",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 50
+      },
+      {
+        "name": "p2_char_id",
+        "address": "0x108500",
+        "type": "byte",
+        "description": "Player 2 current character ID",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 50
+      },
+      {
+        "name": "p1_state",
+        "address": "0x108310",
+        "type": "word",
+        "description": "Player 1 animation state",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 65535,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_state",
+        "address": "0x108510",
+        "type": "word",
+        "description": "Player 2 animation state",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 65535,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_facing",
+        "address": "0x108308",
+        "type": "byte",
+        "description": "Player 1 facing direction (0=right, 1=left)",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_facing",
+        "address": "0x108508",
+        "type": "byte",
+        "description": "Player 2 facing direction (0=right, 1=left)",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p1_max_mode",
+        "address": "0x108380",
+        "type": "byte",
+        "description": "Player 1 MAX mode active",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_max_mode",
+        "address": "0x108580",
+        "type": "byte",
+        "description": "Player 2 MAX mode active",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p1_max_timer",
+        "address": "0x108384",
+        "type": "word",
+        "description": "Player 1 MAX mode timer",
+        "player_index": 0,
+        "scale": 0.0166,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 1800,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_max_timer",
+        "address": "0x108584",
+        "type": "word",
+        "description": "Player 2 MAX mode timer",
+        "player_index": 1,
+        "scale": 0.0166,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 1800,
+        "endianness": "big"
+      }
+    ],
+    "team_info": [
+      {
+        "name": "p1_team_size",
+        "address": "0x10AD00",
+        "type": "byte",
+        "description": "Player 1 team size (number of characters)",
+        "player_index": 0,
+        "min_value": 1,
+        "max_value": 3
+      },
+      {
+        "name": "p2_team_size",
+        "address": "0x10AD01",
+        "type": "byte",
+        "description": "Player 2 team size (number of characters)",
+        "player_index": 1,
+        "min_value": 1,
+        "max_value": 3
+      },
+      {
+        "name": "p1_current_member",
+        "address": "0x10AD04",
+        "type": "byte",
+        "description": "Player 1 current team member (0-indexed)",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 2
+      },
+      {
+        "name": "p2_current_member",
+        "address": "0x10AD05",
+        "type": "byte",
+        "description": "Player 2 current team member (0-indexed)",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 2
+      },
+      {
+        "name": "p1_char1_id",
+        "address": "0x10AD10",
+        "type": "byte",
+        "description": "Player 1 character 1 ID",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 50
+      },
+      {
+        "name": "p1_char2_id",
+        "address": "0x10AD11",
+        "type": "byte",
+        "description": "Player 1 character 2 ID",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 50
+      },
+      {
+        "name": "p1_char3_id",
+        "address": "0x10AD12",
+        "type": "byte",
+        "description": "Player 1 character 3 ID",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 50
+      },
+      {
+        "name": "p2_char1_id",
+        "address": "0x10AD20",
+        "type": "byte",
+        "description": "Player 2 character 1 ID",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 50
+      },
+      {
+        "name": "p2_char2_id",
+        "address": "0x10AD21",
+        "type": "byte",
+        "description": "Player 2 character 2 ID",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 50
+      },
+      {
+        "name": "p2_char3_id",
+        "address": "0x10AD22",
+        "type": "byte",
+        "description": "Player 2 character 3 ID",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 50
+      },
+      {
+        "name": "p1_char1_health",
+        "address": "0x10AD30",
+        "type": "word",
+        "description": "Player 1 character 1 remaining health",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_char2_health",
+        "address": "0x10AD34",
+        "type": "word",
+        "description": "Player 1 character 2 remaining health",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      },
+      {
+        "name": "p1_char3_health",
+        "address": "0x10AD38",
+        "type": "word",
+        "description": "Player 1 character 3 remaining health",
+        "player_index": 0,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_char1_health",
+        "address": "0x10AD40",
+        "type": "word",
+        "description": "Player 2 character 1 remaining health",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_char2_health",
+        "address": "0x10AD44",
+        "type": "word",
+        "description": "Player 2 character 2 remaining health",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      },
+      {
+        "name": "p2_char3_health",
+        "address": "0x10AD48",
+        "type": "word",
+        "description": "Player 2 character 3 remaining health",
+        "player_index": 1,
+        "scale": 0.01,
+        "offset": 0.0,
+        "min_value": 0,
+        "max_value": 10000,
+        "endianness": "big"
+      }
+    ],
+    "special_actions": [
+      {
+        "name": "p1_cancel_flag",
+        "address": "0x1083A0",
+        "type": "byte",
+        "description": "Player 1 special/super cancel flag",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_cancel_flag",
+        "address": "0x1085A0",
+        "type": "byte",
+        "description": "Player 2 special/super cancel flag",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p1_super_flag",
+        "address": "0x1083A4",
+        "type": "byte",
+        "description": "Player 1 super move execution flag",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p2_super_flag",
+        "address": "0x1085A4",
+        "type": "byte",
+        "description": "Player 2 super move execution flag",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 1
+      },
+      {
+        "name": "p1_hit_state",
+        "address": "0x1083A8",
+        "type": "byte",
+        "description": "Player 1 hit state (0=normal, 1=hit, 2=block)",
+        "player_index": 0,
+        "min_value": 0,
+        "max_value": 2
+      },
+      {
+        "name": "p2_hit_state",
+        "address": "0x1085A8",
+        "type": "byte",
+        "description": "Player 2 hit state (0=normal, 1=hit, 2=block)",
+        "player_index": 1,
+        "min_value": 0,
+        "max_value": 2
+      }
+    ]
+  },
+  
+  "groups": {
+    "player1_info": [
+      "p1_health",
+      "p1_max_health",
+      "p1_power_gauge",
+      "p1_guard_gauge",
+      "p1_x_pos",
+      "p1_y_pos",
+      "p1_char_id",
+      "p1_state",
+      "p1_facing",
+      "p1_max_mode",
+      "p1_max_timer"
+    ],
+    "player2_info": [
+      "p2_health",
+      "p2_max_health",
+      "p2_power_gauge",
+      "p2_guard_gauge",
+      "p2_x_pos",
+      "p2_y_pos",
+      "p2_char_id",
+      "p2_state",
+      "p2_facing",
+      "p2_max_mode",
+      "p2_max_timer"
+    ],
+    "match_info": [
+      "timer",
+      "round_number",
+      "p1_rounds_won",
+      "p2_rounds_won",
+      "match_state"
+    ],
+    "p1_team": [
+      "p1_team_size",
+      "p1_current_member",
+      "p1_char1_id",
+      "p1_char2_id",
+      "p1_char3_id",
+      "p1_char1_health",
+      "p1_char2_health",
+      "p1_char3_health"
+    ],
+    "p2_team": [
+      "p2_team_size",
+      "p2_current_member",
+      "p2_char1_id",
+      "p2_char2_id",
+      "p2_char3_id",
+      "p2_char1_health",
+      "p2_char2_health",
+      "p2_char3_health"
+    ],
+    "special_actions": [
+      "p1_cancel_flag",
+      "p1_super_flag",
+      "p1_hit_state",
+      "p2_cancel_flag",
+      "p2_super_flag",
+      "p2_hit_state"
+    ]
+  }
+} 
