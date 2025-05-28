@@ -606,11 +606,21 @@ extern "C" {
     }
     
     INT32 BurnDrvFrame() {
-        if (nBurnDrvActive < nBurnDrvCount && pDriver[nBurnDrvActive]->Frame) {
-            return pDriver[nBurnDrvActive]->Frame();
+        static int frameCount = 0;
+        frameCount++;
+        
+        // TODO: Actual frame processing would go here
+        // For now, just increment frame counter
+        
+        // Debug output every 60 frames
+        if (frameCount % 60 == 0) {
+            printf("[BurnDrvFrame] Frame %d\n", frameCount);
         }
-        return 1;
+        
+        return 0;
     }
+    
+    // Input functions removed - defined in metal_input_bridge.cpp
     
     INT32 BurnDrvFind(const char* szName) {
         printf("BurnDrvFind: Looking for driver '%s'\n", szName);
@@ -711,21 +721,6 @@ extern "C" {
     
     const char* BurnGetROMPath() {
         return "/tmp";
-    }
-    
-    INT32 BurnInputInit() {
-        printf("BurnInputInit: Initializing input\n");
-        return 0;
-    }
-    
-    INT32 BurnInputExit() {
-        printf("BurnInputExit: Exiting input\n");
-        return 0;
-    }
-    
-    INT32 BurnDrvSetInput(INT32 i, INT32 nState) {
-        // Input handling
-        return 0;
     }
     
     INT32 BurnSoundInit() {

@@ -200,74 +200,7 @@ INT32 Metal_CPS2_ExitGame() {
 }
 
 // Update the Metal_RunFrame function to run one frame of CPS2 emulation
-INT32 Metal_RunFrame(INT32 bDraw) {
-    if (!g_bDriverInitialized) {
-        printf("[Metal_RunFrame] ERROR: CPS2 system not initialized\n");
-        return 1;
-    }
-    
-    if (!g_bGameInitialized) {
-        printf("[Metal_RunFrame] ERROR: No game loaded\n");
-        return 1;
-    }
-    
-    // Process input before running the frame
-    extern void Metal_ProcessInput();
-    Metal_ProcessInput();
-    
-    // Track timing
-    static uint64_t frameStartTime = 0;
-    uint64_t currentTime = GetMicrosecondTimestamp();
-    
-    if (frameStartTime == 0) {
-        frameStartTime = currentTime;
-    }
-    
-    // Run one frame of emulation - this calls Cps2Frame() internally
-    INT32 nRet = BurnDrvFrame();
-    
-    if (nRet != 0) {
-        printf("[Metal_RunFrame] ERROR: BurnDrvFrame failed with code %d\n", nRet);
-        return nRet;
-    }
-    
-    // Calculate frame time
-    uint64_t frameEndTime = GetMicrosecondTimestamp();
-    uint64_t frameTime = frameEndTime - frameStartTime;
-    frameStartTime = frameEndTime;
-    
-    // Update frame counter
-    g_nFrameCounter++;
-    
-    // Log performance every 60 frames
-    if (g_nFrameCounter % 60 == 0) {
-        printf("[Metal_RunFrame] Frame %d time: %llu µs (%.2f FPS)\n", 
-               g_nFrameCounter, frameTime, 1000000.0f / frameTime);
-        
-        // Verify frame buffer content
-        if (pBurnDraw) {
-            UINT32* pixels = (UINT32*)pBurnDraw;
-            int nonZeroCount = 0;
-            for (int i = 0; i < 1000 && i < (384 * 224); i++) {
-                if (pixels[i] != 0) nonZeroCount++;
-            }
-            printf("[Metal_RunFrame] Frame buffer content: %d/1000 non-zero pixels\n", nonZeroCount);
-        }
-    }
-    
-    return 0;
-}
-
-// Get the current frame buffer
-void* Metal_GetFrameBuffer() {
-    // Return the real frame buffer from FBNeo
-    return pBurnDraw;
-}
-
-// Get raw frame buffer (same as regular frame buffer for CPS2)
-void* Metal_GetRawFrameBuffer() {
-    return pBurnDraw;
-}
+// Removed - defined in metal_bridge_simple.cpp
 
 INT32 Metal_CPS2_GetFrameCount() {
     return g_nFrameCounter;
@@ -394,6 +327,31 @@ extern "C" INT32 Metal_ValidateROM(const char* path) {
 extern "C" INT32 Metal_FindCPS2ROM(const char* path) {
     // Forward to the real function
     return FindCps2Rom(path);
+}
+
+// CPS Graphics Redraw function
+extern "C" void CpsRedraw() {
+    // In a real implementation, this would:
+    // 1. Process CPS2 tile maps
+    // 2. Render sprites
+    // 3. Apply palette
+    // 4. Handle layer priorities
+    // 5. Output to pBurnDraw
+    
+    // For now, just ensure the frame buffer is valid
+    if (!pBurnDraw) {
+        return;
+    }
+    
+    // The actual rendering would happen here
+    // This is called by Cps2Frame() to update the display
+    
+    static int redrawCount = 0;
+    redrawCount++;
+    
+    if (redrawCount % 60 == 0) {
+        printf("[CpsRedraw] Redraw called %d times\n", redrawCount);
+    }
 }
 
 #ifdef __cplusplus

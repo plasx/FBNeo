@@ -35,26 +35,7 @@ extern "C" {
 }
 
 // Use the ROM type macros from metal_compat_layer.h
-// #define CPS2_PRG_68K             0x01
-// #define CPS2_GFX                 0x02
-// #define CPS2_PRG_Z80             0x03
-// #define CPS2_QSND                0x04
-// #define CPS2_ENCRYPTION_KEY      0x05
-
-// ROM info structure
-struct BurnRomInfo {
-    char szName[32];
-    UINT32 nLen;
-    UINT32 nCrc;
-    UINT32 nType;
-};
-
-// CPS2 ROM type definitions
-#define CPS2_PRG_68K    1
-#define CPS2_GFX        2
-#define CPS2_PRG_Z80    3
-#define CPS2_QSND       4
-#define CPS2_ENCRYPTION_KEY 5
+// They are already defined there, no need to redefine
 
 // Forward declarations for CPS2 related functions
 extern "C" {
@@ -292,9 +273,9 @@ const char* Metal_GetROMTypeDescription(UINT32 romType) {
     switch (romType & 0xFF) {
         case CPS2_PRG_68K:
             return "68K Program";
-        case CPS2_GFX_TILES:
-            return "Graphics Tiles";
-        case CPS2_Z80_PROGRAM:
+        case CPS2_GFX:
+            return "Graphics";
+        case CPS2_PRG_Z80:
             return "Z80 Program";
         case CPS2_QSND:
             return "QSound Samples";

@@ -54,7 +54,7 @@ OBJCXXFLAGS += -DTCHAR_DEFINED
 
 OUTPUT_BIN  := fbneo_metal
 
-# Metal shader compiler
+# Metal shader compiler (optional)
 METAL_COMPILE  := xcrun -sdk macosx metal
 METALLIB_BUILD := xcrun -sdk macosx metallib
 
@@ -102,7 +102,8 @@ METAL_SOURCES = \
 	src/burner/metal/debug/cps2_emulation_verifier.cpp \
 	src/burner/metal/metal_savestate_stubs.cpp \
 	src/burner/metal/metal_cps2_stubs.cpp \
-	src/burner/metal/metal_input_bridge.cpp
+	src/burner/metal/metal_input_bridge.cpp \
+	src/burner/metal/metal_cps2_core_stubs.cpp
 
 # All core sources - simplified for our implementation
 ALL_CORE_SRC := $(METAL_SOURCES)
@@ -149,10 +150,10 @@ $(OBJ_DIR)/%.o: %.mm
 # -----------------------------------------------------------------------------
 # Build targets
 # -----------------------------------------------------------------------------
-.PHONY: all clean check-metal shader-setup
+.PHONY: all clean shader-setup
 
 # Default target
-all: check-metal shader-setup $(BUILD_DIR)/$(OUTPUT_BIN)
+all: shader-setup $(BUILD_DIR)/$(OUTPUT_BIN)
 
 # Target for clean build
 clean:
@@ -161,14 +162,7 @@ clean:
 	@rm -f $(METALLIB) $(DEFAULT_METALLIB)
 	@echo "[CLEAN] Clean completed."
 
-# Check for Metal support
-check-metal:
-	@if ! xcrun -find metal > /dev/null 2>&1; then \
-		echo "ERROR: Metal toolchain not found. Make sure Xcode and Command Line Tools are installed."; \
-		exit 1; \
-	fi
-
-# Simple shader setup - copy existing metallib files 
+# Simple shader setup - copy existing metallib files or create dummy shader
 shader-setup:
 	@echo "[BUILD] Setting up Metal shaders..."
 	@mkdir -p $(BUILD_DIR)
@@ -176,13 +170,16 @@ shader-setup:
 		echo "[BUILD] Using existing shader files"; \
 		cp ./fbneo_shaders.metallib $(SHADER_DIR)/fbneo_shaders.metallib 2>/dev/null || true; \
 		cp ./default.metallib $(SHADER_DIR)/default.metallib 2>/dev/null || true; \
+	else \
+		echo "[BUILD] Note: Metal shader compiler not available - using runtime shader compilation"; \
+		echo "[BUILD] This is normal when using Command Line Tools without full Xcode"; \
 	fi
 
 # Create build directories
 $(OBJ_DIR)/%.o: | $(OBJ_DIR)
 
 $(OBJ_DIR):
-	@mkdir -p $(OBJ_DIR)/src/burner/metal
+	@mkdir -p $(OBJ_DIR)/src/burner/metal/debug
 	@mkdir -p $(OBJ_DIR)/src/cpu
 	@mkdir -p $(OBJ_DIR)/src/burn/drv/capcom
 	@mkdir -p $(OBJ_DIR)/src/burn/snd

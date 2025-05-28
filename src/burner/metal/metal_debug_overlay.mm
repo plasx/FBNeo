@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <mach/mach.h>
+#include <mach/mach_time.h>
 
 // External declarations
 extern "C" {
@@ -27,6 +29,7 @@ extern "C" {
 
 // Forward declarations
 extern "C" void* Metal_GetRawFrameBuffer();
+void Metal_UpdateDebugOverlay(int frameCount);
 
 // Debug overlay state
 static NSWindow* g_parentWindow = nil;
