@@ -204,24 +204,6 @@ static void createSamplerState(bool useLinearFiltering) {
                   pixels[0], pixels[1], pixels[2], pixels[3], pixels[4]);
         }
         
-        // Always apply border on even frames for clearer visibility issues
-        if (frameCount % 2 == 0) {
-            // Create a colorful border animation based on frame count
-            uint32_t borderColor = 0xFF000000 | 
-                                  ((frameCount % 256) << 16) |  // R
-                                  (((frameCount + 85) % 256) << 8) |  // G
-                                  ((frameCount + 170) % 256);  // B
-            
-            // Draw a visible 2-pixel border
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    if (x < 2 || x >= width - 2 || y < 2 || y >= height - 2) {
-                        pixels[y * width + x] = borderColor;
-                    }
-                }
-            }
-        }
-        
         // Content detection reporting
         float percentNonZero = 0;
         if (nonZeroPixels > 0) {
@@ -230,24 +212,9 @@ static void createSamplerState(bool useLinearFiltering) {
                 NSLog(@"✅✅✅ SCREEN CONTENT DETECTED! %.1f%% non-zero pixels", percentNonZero);
             }
         } else {
-            // No content detected - critical error!
+            // No content detected - this may be normal during initialization
             if (frameCount % 60 == 0) {
-                NSLog(@"⚠️⚠️⚠️ NO SCREEN CONTENT DETECTED! Empty frame buffer!");
-                
-                // Create a simple test pattern to verify the rendering pipeline
-                NSLog(@"Creating emergency test pattern to diagnose rendering...");
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        // Checkered pattern
-                        uint32_t color;
-                        if ((x / 16 + y / 16) % 2 == 0) {
-                            color = 0xFF0000FF; // Red in BGRA format
-                        } else {
-                            color = 0xFFFF0000; // Blue in BGRA format
-                        }
-                        pixels[y * width + x] = color;
-                    }
-                }
+                NSLog(@"⚠️ No screen content detected in frame buffer - may be initializing");
             }
         }
         

@@ -1,10 +1,29 @@
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
+#import <MetalKit/MetalKit.h>
 #include "metal_compat_layer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+
+// External declarations
+extern "C" {
+    extern INT32 g_nFrameCount;
+    extern void Metal_PrintCPS2InputState();
+    extern void Metal_GetROMValidationStats(int* totalROMs, int* validatedROMs, const char** currentPath);
+    extern float Metal_GetAudioLatency();
+    extern bool Metal_IsAudioInitialized();
+    extern int Metal_GetActiveInputs();
+    
+    // CPS2 input variables
+    extern UINT8 CpsReset;
+    extern UINT8 CpsInp000[8];
+    extern UINT8 CpsInp001[8];
+    extern UINT8 CpsInp011[8];
+    extern UINT8 CpsInp020[8];
+}
 
 // Forward declarations
 extern "C" void* Metal_GetRawFrameBuffer();
@@ -53,200 +72,239 @@ static double getCurrentTime() {
     return tv.tv_sec + tv.tv_usec / 1000000.0;
 }
 
+// Debug overlay state
+static NSWindow* g_debugWindow = nil;
+static NSTextView* g_debugTextView = nil;
+static bool g_debugOverlayEnabled = false;
+static NSTimer* g_updateTimer = nil;
+static uint64_t g_lastFrameTime = 0;
+static float g_avgFrameTime = 0.0f;
+static int g_frameTimeHistoryIndex = 0;
+static float g_frameTimeHistory[60] = {0};
+
 // Initialize debug overlay
-extern "C" INT32 Metal_InitDebugOverlay(NSWindow* parentWindow) {
+INT32 Metal_InitDebugOverlay(NSWindow* parentWindow) {
     printf("[Metal_InitDebugOverlay] Initializing debug overlay\n");
     
-    if (g_debugOverlayInitialized) {
+    if (g_debugWindow) {
         printf("[Metal_InitDebugOverlay] Debug overlay already initialized\n");
         return 0;
     }
     
-    g_parentWindow = parentWindow;
+    // Create debug window
+    NSRect frame = NSMakeRect(100, 100, 400, 600);
+    g_debugWindow = [[NSWindow alloc] initWithContentRect:frame
+                                               styleMask:NSWindowStyleMaskTitled |
+                                                        NSWindowStyleMaskClosable |
+                                                        NSWindowStyleMaskResizable
+                                                 backing:NSBackingStoreBuffered
+                                                   defer:NO];
     
-    if (!g_parentWindow) {
-        printf("[Metal_InitDebugOverlay] ERROR: No parent window provided\n");
-        return 1;
-    }
+    [g_debugWindow setTitle:@"FBNeo CPS2 Debug Info"];
+    [g_debugWindow setLevel:NSFloatingWindowLevel];
     
-    // Create debug text field
-    NSRect overlayFrame = NSMakeRect(10, 10, 400, 200);
-    g_debugTextField = [[NSTextField alloc] initWithFrame:overlayFrame];
+    // Create text view for debug output
+    NSScrollView* scrollView = [[NSScrollView alloc] initWithFrame:[[g_debugWindow contentView] bounds]];
+    scrollView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    scrollView.hasVerticalScroller = YES;
     
-    // Configure text field appearance
-    [g_debugTextField setBezeled:YES];
-    [g_debugTextField setDrawsBackground:YES];
-    [g_debugTextField setBackgroundColor:[NSColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.8]];
-    [g_debugTextField setTextColor:[NSColor greenColor]];
-    [g_debugTextField setFont:[NSFont fontWithName:@"Monaco" size:11]];
-    [g_debugTextField setEditable:NO];
-    [g_debugTextField setSelectable:NO];
-    [g_debugTextField setBordered:YES];
-    [g_debugTextField setAlignment:NSTextAlignmentLeft];
+    g_debugTextView = [[NSTextView alloc] initWithFrame:scrollView.bounds];
+    g_debugTextView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    g_debugTextView.editable = NO;
+    g_debugTextView.richText = YES;
+    g_debugTextView.font = [NSFont fontWithName:@"Menlo" size:11.0];
+    g_debugTextView.backgroundColor = [NSColor blackColor];
+    g_debugTextView.textColor = [NSColor greenColor];
     
-    // Set initial text
-    [g_debugTextField setStringValue:@"FBNeo Metal Debug Overlay\nInitializing..."];
+    scrollView.documentView = g_debugTextView;
+    [g_debugWindow.contentView addSubview:scrollView];
     
-    // Initially hidden
-    [g_debugTextField setHidden:YES];
+    // Start update timer
+    g_updateTimer = [NSTimer scheduledTimerWithTimeInterval:1.0/10.0  // 10Hz update
+                                                     target:[NSBlockOperation blockOperationWithBlock:^{
+                                                         Metal_UpdateDebugOverlay(0);
+                                                     }]
+                                                   selector:@selector(main)
+                                                   userInfo:nil
+                                                    repeats:YES];
     
-    // Add to parent window
-    [[g_parentWindow contentView] addSubview:g_debugTextField];
-    
-    // Initialize FPS tracking
-    g_lastFPSUpdate = getCurrentTime();
-    g_frameCount = 0;
-    g_framesSinceLastUpdate = 0;
-    g_currentFPS = 0.0;
-    
-    g_debugOverlayInitialized = true;
     printf("[Metal_InitDebugOverlay] Debug overlay initialized\n");
-    
     return 0;
 }
 
 // Exit debug overlay
-extern "C" INT32 Metal_ExitDebugOverlay() {
+INT32 Metal_ExitDebugOverlay() {
     printf("[Metal_ExitDebugOverlay] Shutting down debug overlay\n");
     
-    if (g_debugTextField) {
-        [g_debugTextField removeFromSuperview];
-        g_debugTextField = nil;
+    if (g_updateTimer) {
+        [g_updateTimer invalidate];
+        g_updateTimer = nil;
     }
     
-    g_parentWindow = nil;
-    g_debugOverlayVisible = false;
-    g_debugOverlayInitialized = false;
+    if (g_debugWindow) {
+        [g_debugWindow close];
+        g_debugWindow = nil;
+    }
+    
+    g_debugTextView = nil;
+    g_debugOverlayEnabled = false;
     
     return 0;
 }
 
 // Toggle debug overlay visibility
 void Metal_ToggleDebugOverlay() {
-    if (!g_debugOverlayInitialized || !g_debugTextField) {
-        printf("[Metal_ToggleDebugOverlay] Debug overlay not initialized\n");
+    if (!g_debugWindow) {
         return;
     }
     
-    g_debugOverlayVisible = !g_debugOverlayVisible;
-    [g_debugTextField setHidden:!g_debugOverlayVisible];
+    g_debugOverlayEnabled = !g_debugOverlayEnabled;
+    
+    if (g_debugOverlayEnabled) {
+        [g_debugWindow orderFront:nil];
+    } else {
+        [g_debugWindow orderOut:nil];
+    }
     
     printf("[Metal_ToggleDebugOverlay] Debug overlay %s\n", 
-           g_debugOverlayVisible ? "shown" : "hidden");
+           g_debugOverlayEnabled ? "enabled" : "disabled");
 }
 
-// Update debug overlay with current information
-extern "C" void Metal_UpdateDebugOverlay(int frameCount) {
-    if (!g_debugOverlayInitialized || !g_debugTextField || !g_debugOverlayVisible) {
+// Update debug overlay content
+void Metal_UpdateDebugOverlay(int frameCount) {
+    if (!g_debugTextView || !g_debugOverlayEnabled) {
         return;
     }
     
-    double currentTime = getCurrentTime();
-    g_framesSinceLastUpdate++;
-    
-    // Update FPS every second
-    if (currentTime - g_lastFPSUpdate >= 1.0) {
-        g_currentFPS = g_framesSinceLastUpdate / (currentTime - g_lastFPSUpdate);
-        g_lastFPSUpdate = currentTime;
-        g_framesSinceLastUpdate = 0;
-    }
-    
-    // Get frame buffer info
-    extern void* Metal_GetFrameBuffer();
-    void* frameBuffer = Metal_GetFrameBuffer();
-    
-    // Calculate frame checksum
-    UINT32 frameChecksum = 0;
-    if (frameBuffer) {
-        UINT32* pixels = (UINT32*)frameBuffer;
-        for (int i = 0; i < 384 * 224; i++) {
-            frameChecksum ^= pixels[i];
-            frameChecksum = (frameChecksum << 1) | (frameChecksum >> 31);
+    // Calculate frame timing
+    uint64_t currentTime = mach_absolute_time();
+    if (g_lastFrameTime > 0) {
+        mach_timebase_info_data_t timebase;
+        mach_timebase_info(&timebase);
+        
+        uint64_t elapsed = currentTime - g_lastFrameTime;
+        float frameTime = (float)(elapsed * timebase.numer / timebase.denom) / 1000000.0f; // Convert to ms
+        
+        // Update frame time history
+        g_frameTimeHistory[g_frameTimeHistoryIndex] = frameTime;
+        g_frameTimeHistoryIndex = (g_frameTimeHistoryIndex + 1) % 60;
+        
+        // Calculate average frame time
+        float sum = 0.0f;
+        for (int i = 0; i < 60; i++) {
+            sum += g_frameTimeHistory[i];
         }
+        g_avgFrameTime = sum / 60.0f;
     }
+    g_lastFrameTime = currentTime;
     
-    // Get audio info
-    extern bool Metal_IsAudioInitialized();
-    extern float Metal_GetAudioVolume();
-    extern float Metal_GetAudioLatency();
-    bool audioInit = Metal_IsAudioInitialized();
-    float audioVolume = Metal_GetAudioVolume();
-    float audioLatency = Metal_GetAudioLatency();
-    
-    // Get save state info
-    extern int Metal_GetCurrentSaveSlot();
-    extern const char* Metal_GetSaveStateStatus();
-    int saveSlot = Metal_GetCurrentSaveSlot();
-    const char* saveStatus = Metal_GetSaveStateStatus();
-    
-    // Get input state info
-    extern int Metal_GetActiveInputs();
-    int activeInputs = Metal_GetActiveInputs();
-    
-    // Build debug string
+    // Build debug text
     NSMutableString* debugText = [NSMutableString string];
-    [debugText appendString:@"=== FBNeo Metal Debug Info ===\n"];
-    [debugText appendFormat:@"Frame: %d\n", frameCount];
-    [debugText appendFormat:@"FPS: %.1f\n", g_currentFPS];
-    [debugText appendFormat:@"Frame Checksum: 0x%08X\n", frameChecksum];
-    [debugText appendString:@"\n"];
     
-    // ROM info
-    [debugText appendString:@"ROM: Marvel vs. Capcom\n"];
-    [debugText appendString:@"Resolution: 384x224\n"];
-    [debugText appendFormat:@"Frame Buffer: %p\n", frameBuffer];
-    [debugText appendString:@"\n"];
+    // Header
+    [debugText appendString:@"╔══════════════════════════════════════╗\n"];
+    [debugText appendString:@"║     FBNeo CPS2 Debug Information     ║\n"];
+    [debugText appendString:@"╚══════════════════════════════════════╝\n\n"];
     
-    // Audio info
-    [debugText appendFormat:@"Audio: %s\n", audioInit ? "ON" : "OFF"];
-    if (audioInit) {
-        [debugText appendFormat:@"Volume: %.0f%%\n", audioVolume * 100.0f];
-        [debugText appendFormat:@"Latency: %.1fms\n", audioLatency];
+    // Frame timing
+    [debugText appendString:@"═══ Frame Timing ═══\n"];
+    [debugText appendFormat:@"Frame Count: %d\n", frameCount];
+    [debugText appendFormat:@"Avg Frame Time: %.2f ms (%.1f FPS)\n", 
+              g_avgFrameTime, g_avgFrameTime > 0 ? 1000.0f / g_avgFrameTime : 0.0f];
+    [debugText appendFormat:@"Target: 16.67 ms (60 FPS)\n"];
+    [debugText appendFormat:@"Performance: %s\n\n", 
+              g_avgFrameTime <= 16.67f ? "✅ Good" : "⚠️ Slow"];
+    
+    // ROM status
+    [debugText appendString:@"═══ ROM Status ═══\n"];
+    int totalROMs = 0, validatedROMs = 0;
+    const char* romPath = NULL;
+    Metal_GetROMValidationStats(&totalROMs, &validatedROMs, &romPath);
+    [debugText appendFormat:@"ROM Path: %s\n", romPath ? romPath : "None"];
+    [debugText appendFormat:@"ROMs Loaded: %d/%d\n\n", validatedROMs, totalROMs];
+    
+    // Audio status
+    [debugText appendString:@"═══ Audio Status ═══\n"];
+    [debugText appendFormat:@"Audio System: %s\n", 
+              Metal_IsAudioInitialized() ? "✅ Initialized" : "❌ Not Initialized"];
+    [debugText appendFormat:@"Latency: %.1f ms\n\n", Metal_GetAudioLatency()];
+    
+    // Input status
+    [debugText appendString:@"═══ Input Status ═══\n"];
+    [debugText appendFormat:@"Active Inputs: %d\n", Metal_GetActiveInputs()];
+    
+    // Player 1 status
+    [debugText appendString:@"\nPlayer 1:\n"];
+    [debugText appendFormat:@"  D-Pad: %s%s%s%s\n",
+              CpsInp001[3] ? "↑" : " ",
+              CpsInp001[2] ? "↓" : " ",
+              CpsInp001[1] ? "←" : " ",
+              CpsInp001[0] ? "→" : " "];
+    [debugText appendFormat:@"  Buttons: %s %s %s %s %s %s\n",
+              CpsInp001[4] ? "LP" : "  ",
+              CpsInp001[5] ? "MP" : "  ",
+              CpsInp001[6] ? "HP" : "  ",
+              CpsInp011[0] ? "LK" : "  ",
+              CpsInp011[1] ? "MK" : "  ",
+              CpsInp011[2] ? "HK" : "  "];
+    [debugText appendFormat:@"  System: %s %s\n",
+              CpsInp020[0] ? "START" : "     ",
+              CpsInp020[4] ? "COIN" : "    "];
+    
+    // Player 2 status
+    [debugText appendString:@"\nPlayer 2:\n"];
+    [debugText appendFormat:@"  D-Pad: %s%s%s%s\n",
+              CpsInp000[3] ? "↑" : " ",
+              CpsInp000[2] ? "↓" : " ",
+              CpsInp000[1] ? "←" : " ",
+              CpsInp000[0] ? "→" : " "];
+    [debugText appendFormat:@"  Buttons: %s %s %s %s %s %s\n",
+              CpsInp000[4] ? "LP" : "  ",
+              CpsInp000[5] ? "MP" : "  ",
+              CpsInp000[6] ? "HP" : "  ",
+              CpsInp011[4] ? "LK" : "  ",
+              CpsInp011[5] ? "MK" : "  ",
+              CpsInp011[6] ? "HK" : "  "];
+    [debugText appendFormat:@"  System: %s %s\n",
+              CpsInp020[1] ? "START" : "     ",
+              CpsInp020[5] ? "COIN" : "    "];
+    
+    // System status
+    [debugText appendString:@"\nSystem:\n"];
+    [debugText appendFormat:@"  Reset: %s\n\n", CpsReset ? "YES" : "NO"];
+    
+    // Memory usage
+    [debugText appendString:@"═══ Memory Usage ═══\n"];
+    struct task_basic_info info;
+    mach_msg_type_number_t size = TASK_BASIC_INFO_COUNT;
+    if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&info, &size) == KERN_SUCCESS) {
+        [debugText appendFormat:@"Resident: %.1f MB\n", info.resident_size / 1024.0 / 1024.0];
+        [debugText appendFormat:@"Virtual: %.1f MB\n", info.virtual_size / 1024.0 / 1024.0];
     }
-    [debugText appendString:@"\n"];
     
-    // Save state info
-    [debugText appendFormat:@"Save Slot: %d\n", saveSlot];
-    [debugText appendFormat:@"Save Status: %s\n", saveStatus ? saveStatus : "None"];
-    [debugText appendString:@"\n"];
-    
-    // Input info
-    [debugText appendFormat:@"Active Inputs: 0x%04X\n", activeInputs];
-    [debugText appendString:@"\n"];
-    
-    // Controls
-    [debugText appendString:@"Controls:\n"];
-    [debugText appendString:@"F1: Toggle this overlay\n"];
-    [debugText appendString:@"F5: Quick save\n"];
-    [debugText appendString:@"F8: Quick load\n"];
-    [debugText appendString:@"F11: Fullscreen\n"];
-    [debugText appendString:@"ESC: Quit\n"];
-    [debugText appendString:@"⌘S: Save state\n"];
-    [debugText appendString:@"⌘L: Load state\n"];
-    
-    // Update the text field
-    [g_debugTextField setStringValue:debugText];
+    // Update text view
+    dispatch_async(dispatch_get_main_queue(), ^{
+        g_debugTextView.string = debugText;
+    });
 }
 
 // Show debug overlay
 void Metal_ShowDebugOverlay() {
-    if (g_debugOverlayInitialized && g_debugTextField) {
-        g_debugOverlayVisible = true;
-        [g_debugTextField setHidden:NO];
+    if (g_debugWindow && !g_debugOverlayEnabled) {
+        Metal_ToggleDebugOverlay();
     }
 }
 
 // Hide debug overlay
 void Metal_HideDebugOverlay() {
-    if (g_debugOverlayInitialized && g_debugTextField) {
-        g_debugOverlayVisible = false;
-        [g_debugTextField setHidden:YES];
+    if (g_debugWindow && g_debugOverlayEnabled) {
+        Metal_ToggleDebugOverlay();
     }
 }
 
 // Check if debug overlay is visible
 bool Metal_IsDebugOverlayVisible() {
-    return g_debugOverlayVisible;
+    return g_debugOverlayEnabled;
 }
 
 // Debug log functions

@@ -101,7 +101,8 @@ METAL_SOURCES = \
 	src/burner/metal/metal_rom_validation.cpp \
 	src/burner/metal/debug/cps2_emulation_verifier.cpp \
 	src/burner/metal/metal_savestate_stubs.cpp \
-	src/burner/metal/metal_cps2_stubs.cpp
+	src/burner/metal/metal_cps2_stubs.cpp \
+	src/burner/metal/metal_input_bridge.cpp
 
 # All core sources - simplified for our implementation
 ALL_CORE_SRC := $(METAL_SOURCES)
