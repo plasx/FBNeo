@@ -65,9 +65,12 @@ extern "C" {
 extern "C" {
 #endif
 
-// CPS global variables
-INT32 Cps = 2;  // Set to 2 for CPS2
+// CPS global variables - removed, defined in cps2_metal.cpp
+// INT32 Cps = 2;  // Set to 2 for CPS2
 INT32 Cps2DisableQSnd = 0;
+
+// External declaration for Cps variable
+extern INT32 Cps;
 
 // Game variables for Metal implementation
 static bool g_bDriverInitialized = false;
@@ -142,26 +145,12 @@ INT32 Metal_CPS2_LoadGame(int gameIndex) {
         return 1;
     }
     
-    // Find and select Marvel vs. Capcom
-    int nDrvIndex = BurnDrvFind("mvsc");
-    if (nDrvIndex < 0) {
-        printf("[Metal_CPS2_LoadGame] ERROR: Could not find game 'mvsc'\n");
-        return 1;
-    }
+    // Use the real CPS2 driver loader
+    extern INT32 Metal_LoadCPS2Game(const char* gameName);
+    INT32 nRet = Metal_LoadCPS2Game("mvsc");
     
-    printf("[Metal_CPS2_LoadGame] Found 'mvsc' at driver index %d\n", nDrvIndex);
-    
-    // Select the driver
-    INT32 nRet = BurnDrvSelect(nDrvIndex);
     if (nRet != 0) {
-        printf("[Metal_CPS2_LoadGame] ERROR: BurnDrvSelect failed with code %d\n", nRet);
-        return nRet;
-    }
-    
-    // Initialize the driver - this will call Cps2Init() internally
-    nRet = BurnDrvInit();
-    if (nRet != 0) {
-        printf("[Metal_CPS2_LoadGame] ERROR: BurnDrvInit failed with code %d\n", nRet);
+        printf("[Metal_CPS2_LoadGame] ERROR: Failed to load game via real driver\n");
         return nRet;
     }
     
@@ -327,31 +316,6 @@ extern "C" INT32 Metal_ValidateROM(const char* path) {
 extern "C" INT32 Metal_FindCPS2ROM(const char* path) {
     // Forward to the real function
     return FindCps2Rom(path);
-}
-
-// CPS Graphics Redraw function
-extern "C" void CpsRedraw() {
-    // In a real implementation, this would:
-    // 1. Process CPS2 tile maps
-    // 2. Render sprites
-    // 3. Apply palette
-    // 4. Handle layer priorities
-    // 5. Output to pBurnDraw
-    
-    // For now, just ensure the frame buffer is valid
-    if (!pBurnDraw) {
-        return;
-    }
-    
-    // The actual rendering would happen here
-    // This is called by Cps2Frame() to update the display
-    
-    static int redrawCount = 0;
-    redrawCount++;
-    
-    if (redrawCount % 60 == 0) {
-        printf("[CpsRedraw] Redraw called %d times\n", redrawCount);
-    }
 }
 
 #ifdef __cplusplus

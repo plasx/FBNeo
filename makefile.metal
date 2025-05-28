@@ -40,10 +40,10 @@ LD          := clang++
 ARCHFLAGS   := $(foreach arch,$(ARCH),-arch $(arch))
 
 # Clean flags without deprecated defines
-CFLAGS      := -std=c11 -O3 -Wall -DHAVE_STDINT_H -DHAVE_STDBOOL_H -DMETAL_IMPLEMENTATION_FILE -DUSE_METAL_RENDERER -DINCLUDE_CPS_DRIVER=1 -DUSE_CYCLONE=0 -DTCHAR_DEFINED=1 -DMAX_PATH=512 $(ARCHFLAGS)
-CXXFLAGS    := -std=c++17 -O3 -Wall -DMACOSX -DMETAL_IMPLEMENTATION_FILE -DUSE_METAL_RENDERER -DDARWIN -DINCLUDE_CPS_DRIVER=1 -DUSE_CYCLONE=0 -DTCHAR_DEFINED=1 -DMETAL_BUILD=1 -DMAX_PATH=512 $(ARCHFLAGS)
+CFLAGS      := -std=c11 -O3 -Wall -DHAVE_STDINT_H -DHAVE_STDBOOL_H -DMETAL_IMPLEMENTATION_FILE -DUSE_METAL_RENDERER -DINCLUDE_CPS_DRIVER=1 -DUSE_CYCLONE=0 -DTCHAR_DEFINED=1 -DMAX_PATH=512 -D_TCHAR_DEFINED $(ARCHFLAGS)
+CXXFLAGS    := -std=c++17 -O3 -Wall -DMACOSX -DMETAL_IMPLEMENTATION_FILE -DUSE_METAL_RENDERER -DDARWIN -DINCLUDE_CPS_DRIVER=1 -DUSE_CYCLONE=0 -DTCHAR_DEFINED=1 -DMETAL_BUILD=1 -DMAX_PATH=512 -D_TCHAR_DEFINED $(ARCHFLAGS)
 OBJCFLAGS   := $(CXXFLAGS) -fobjc-arc
-OBJCXXFLAGS := -std=c++17 -O3 -fobjc-arc -DMACOSX -DMETAL_IMPLEMENTATION_FILE -DUSE_REAL_METAL_RENDERER -DINCLUDE_CPS_DRIVER=1 -DUSE_CYCLONE=0 -DTCHAR_DEFINED=1 -DMAX_PATH=512 $(ARCHFLAGS)
+OBJCXXFLAGS := -std=c++17 -O3 -fobjc-arc -DMACOSX -DMETAL_IMPLEMENTATION_FILE -DUSE_REAL_METAL_RENDERER -DINCLUDE_CPS_DRIVER=1 -DUSE_CYCLONE=0 -DTCHAR_DEFINED=1 -DMAX_PATH=512 -D_TCHAR_DEFINED $(ARCHFLAGS)
 LDFLAGS     := $(ARCHFLAGS)
 
 # Fix the tchar.h TCHAR definition conflict by adding a safeguard in the global flags
@@ -91,7 +91,11 @@ SRC_DIRS := src src/burn src/burner src/cpu src/dep
 INCS     := $(addprefix -I, $(SRC_DIRS)) \
             -Isrc/burner/metal \
             -Isrc/cpu/z80 \
+            -Isrc/cpu/m68k \
             -Isrc/burn/snd \
+            -Isrc/burn/drv \
+            -Isrc/burn/drv/capcom \
+            -Isrc/burn/devices \
             -Ibuild/metal
 
 # Core FBNeo source files - using real implementation (no stubs)
@@ -105,8 +109,12 @@ METAL_SOURCES = \
 	src/burner/metal/metal_input_bridge.cpp \
 	src/burner/metal/metal_cps2_core_stubs.cpp
 
+# CPS2 driver - minimal implementation for Metal
+CPS2_SOURCES = \
+	src/burn/drv/capcom/cps2_metal.cpp
+
 # All core sources - simplified for our implementation
-ALL_CORE_SRC := $(METAL_SOURCES)
+ALL_CORE_SRC := $(METAL_SOURCES) $(CPS2_SOURCES)
 ALL_CORE_OBJ := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(filter %.cpp,$(ALL_CORE_SRC))) \
                 $(patsubst %.c,$(OBJ_DIR)/%.o,$(filter %.c,$(ALL_CORE_SRC))) \
                 $(patsubst %.mm,$(OBJ_DIR)/%.o,$(filter %.mm,$(ALL_CORE_SRC)))
@@ -181,6 +189,8 @@ $(OBJ_DIR)/%.o: | $(OBJ_DIR)
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)/src/burner/metal/debug
 	@mkdir -p $(OBJ_DIR)/src/cpu
+	@mkdir -p $(OBJ_DIR)/src/cpu/m68k
+	@mkdir -p $(OBJ_DIR)/src/cpu/z80
 	@mkdir -p $(OBJ_DIR)/src/burn/drv/capcom
 	@mkdir -p $(OBJ_DIR)/src/burn/snd
 

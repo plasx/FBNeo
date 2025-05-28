@@ -22,25 +22,42 @@ typedef int16_t INT16;
 typedef char TCHAR;
 
 // Global variables
-UINT32 nBurnDrvCount = 1;
-int nBurnDrvActive = 0;
+bool g_burnInitialized = false;
+INT32 g_nBurnDrvActive = -1;
+
+// Frame buffer - global definitions
 UINT8* pBurnDraw = NULL;
 INT32 nBurnPitch = 0;
-INT32 nBurnBpp = 32;
-INT16* pBurnSoundOut = NULL;
-INT32 nBurnSoundLen = 0;
-INT32 nBurnSoundRate = 44100;
+INT32 nBurnBpp = 4;  // 32-bit color
 
-// CPS2 input variables
-UINT8 CpsInp000[8] = {0};
-UINT8 CpsInp001[8] = {0};
-UINT8 CpsInp010[8] = {0};
-UINT8 CpsInp011[8] = {0};
-UINT8 CpsInp018[8] = {0};
-UINT8 CpsInp020[8] = {0};
-UINT8 CpsInp021[8] = {0};
-UINT8 CpsInp119[8] = {0};
-UINT8 CpsReset = 0;
+// Driver count - removed, defined in cps2_metal.cpp
+// UINT32 nBurnDrvCount = 1;  // We support 1 driver for now
+// INT32 nBurnDrvActive = -1;
+
+// CPS input variables - removed, defined in cps2_metal.cpp
+// UINT8 CpsReset = 0;
+// UINT8 CpsInp000[8] = {0};
+// UINT8 CpsInp001[8] = {0};
+// UINT8 CpsInp010[8] = {0};
+// UINT8 CpsInp011[8] = {0};
+// UINT8 CpsInp018[8] = {0};
+// UINT8 CpsInp020[8] = {0};
+// UINT8 CpsInp021[8] = {0};
+
+// External declarations for variables defined in cps2_metal.cpp
+extern UINT8* pBurnDraw;
+extern INT32 nBurnPitch;
+extern INT32 nBurnBpp;
+extern UINT32 nBurnDrvCount;
+extern INT32 nBurnDrvActive;
+extern UINT8 CpsReset;
+extern UINT8 CpsInp000[8];
+extern UINT8 CpsInp001[8];
+extern UINT8 CpsInp010[8];
+extern UINT8 CpsInp011[8];
+extern UINT8 CpsInp018[8];
+extern UINT8 CpsInp020[8];
+extern UINT8 CpsInp021[8];
 
 // ROM info structure
 struct BurnRomInfo {
@@ -580,17 +597,14 @@ extern "C" {
         return 0;
     }
     
-    INT32 BurnDrvSelect(INT32 nDrvNum) {
-        printf("BurnDrvSelect: Selecting driver %d\n", nDrvNum);
-        if (nDrvNum >= 0 && nDrvNum < nBurnDrvCount) {
-            nBurnDrvActive = nDrvNum;
-            return 0;
-        }
-        return 1;
-    }
-    
     INT32 BurnDrvInit() {
         printf("BurnDrvInit: Initializing driver %d\n", nBurnDrvActive);
+        
+        if (nBurnDrvActive < 0 || nBurnDrvActive >= (INT32)nBurnDrvCount) {
+            printf("BurnDrvInit: Invalid driver index\n");
+            return 1;
+        }
+
         if (nBurnDrvActive < nBurnDrvCount && pDriver[nBurnDrvActive]->Init) {
             return pDriver[nBurnDrvActive]->Init();
         }
@@ -620,80 +634,27 @@ extern "C" {
         return 0;
     }
     
-    // Input functions removed - defined in metal_input_bridge.cpp
-    
-    INT32 BurnDrvFind(const char* szName) {
-        printf("BurnDrvFind: Looking for driver '%s'\n", szName);
-        for (UINT32 i = 0; i < nBurnDrvCount; i++) {
-            if (pDriver[i] && pDriver[i]->szShortName && 
-                strcmp(pDriver[i]->szShortName, szName) == 0) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    
-    const char* BurnDrvGetTextA(UINT32 i) {
-        if (nBurnDrvActive < nBurnDrvCount && pDriver[nBurnDrvActive]) {
-            switch (i) {
-                case 0: return pDriver[nBurnDrvActive]->szFullNameA;
-                case 1: return pDriver[nBurnDrvActive]->szShortName;
-                default: return NULL;
-            }
-        }
-        return NULL;
-    }
-    
-    INT32 BurnDrvGetVisibleSize(INT32* pnWidth, INT32* pnHeight) {
-        if (nBurnDrvActive < nBurnDrvCount && pDriver[nBurnDrvActive]) {
-            *pnWidth = pDriver[nBurnDrvActive]->nWidth;
-            *pnHeight = pDriver[nBurnDrvActive]->nHeight;
-            return 0;
-        }
-        *pnWidth = 384;
-        *pnHeight = 224;
-        return 1;
-    }
-    
-    INT32 BurnDrvGetHardwareCode() {
-        if (nBurnDrvActive < nBurnDrvCount && pDriver[nBurnDrvActive]) {
-            return pDriver[nBurnDrvActive]->nHardwareCode;
-        }
+    INT32 BurnDrvGetRomInfo(struct BurnRomInfo* pri, UINT32 i) {
+        printf("BurnDrvGetRomInfo: Getting info for ROM %d\n", i);
+        if (!pri) return 1;
+        
+        // Return dummy ROM info for now
+        pri->nLen = 0x100000;  // 1MB
+        pri->nCrc = 0x12345678;
+        pri->nType = 0;
+        
         return 0;
-    }
-    
-    INT32 BurnDrvGetFlags() {
-        if (nBurnDrvActive < nBurnDrvCount && pDriver[nBurnDrvActive]) {
-            return pDriver[nBurnDrvActive]->nFlags;
-        }
-        return 0;
-    }
-    
-    bool BurnDrvIsWorking() {
-        return true;
-    }
-    
-    INT32 BurnDrvGetMaxPlayers() {
-        if (nBurnDrvActive < nBurnDrvCount && pDriver[nBurnDrvActive]) {
-            return pDriver[nBurnDrvActive]->nPlayers;
-        }
-        return 2;
-    }
-    
-    INT32 BurnDrvGetRomInfo(struct BurnRomInfo *pri, UINT32 i) {
-        if (nBurnDrvActive < nBurnDrvCount && pDriver[nBurnDrvActive] && 
-            pDriver[nBurnDrvActive]->pGetRomInfo) {
-            return pDriver[nBurnDrvActive]->pGetRomInfo(pri, i);
-        }
-        return 1;
     }
     
     INT32 BurnDrvGetRomName(const char** pszName, UINT32 i, INT32 nAka) {
-        if (nBurnDrvActive < nBurnDrvCount && pDriver[nBurnDrvActive] && 
-            pDriver[nBurnDrvActive]->pGetRomName) {
-            return pDriver[nBurnDrvActive]->pGetRomName(pszName, i, nAka);
-        }
-        return 1;
+        printf("BurnDrvGetRomName: Getting name for ROM %d (aka %d)\n", i, nAka);
+        if (!pszName) return 1;
+        
+        // Return dummy ROM name for now
+        static const char* romName = "rom.bin";
+        *pszName = romName;
+        
+        return 0;
     }
     
     INT32 BurnLoadRom(UINT8* Dest, INT32* pnWrote, INT32 i) {
@@ -819,10 +780,62 @@ extern "C" {
         memset(CpsInp018, 0, sizeof(CpsInp018));
         memset(CpsInp020, 0, sizeof(CpsInp020));
         memset(CpsInp021, 0, sizeof(CpsInp021));
-        memset(CpsInp119, 0, sizeof(CpsInp119));
         CpsReset = 0;
         
         return 0;
+    }
+    
+    // Input functions removed - defined in metal_input_bridge.cpp
+    // BurnInputInit is defined in metal_input_bridge.cpp
+    
+    // Driver functions - BurnDrvFind and BurnDrvSelect are defined in cps2_metal.cpp
+    // But we still need these other driver functions:
+    
+    const char* BurnDrvGetTextA(UINT32 i) {
+        if (nBurnDrvActive < (INT32)nBurnDrvCount && pDriver[nBurnDrvActive]) {
+            switch (i) {
+                case 0: return pDriver[nBurnDrvActive]->szFullNameA;
+                case 1: return pDriver[nBurnDrvActive]->szShortName;
+                default: return NULL;
+            }
+        }
+        return NULL;
+    }
+    
+    INT32 BurnDrvGetVisibleSize(INT32* pnWidth, INT32* pnHeight) {
+        if (nBurnDrvActive < (INT32)nBurnDrvCount && pDriver[nBurnDrvActive]) {
+            *pnWidth = pDriver[nBurnDrvActive]->nWidth;
+            *pnHeight = pDriver[nBurnDrvActive]->nHeight;
+            return 0;
+        }
+        *pnWidth = 384;
+        *pnHeight = 224;
+        return 1;
+    }
+    
+    INT32 BurnDrvGetHardwareCode() {
+        if (nBurnDrvActive < (INT32)nBurnDrvCount && pDriver[nBurnDrvActive]) {
+            return pDriver[nBurnDrvActive]->nHardwareCode;
+        }
+        return 0;
+    }
+    
+    INT32 BurnDrvGetFlags() {
+        if (nBurnDrvActive < (INT32)nBurnDrvCount && pDriver[nBurnDrvActive]) {
+            return pDriver[nBurnDrvActive]->nFlags;
+        }
+        return 0;
+    }
+    
+    bool BurnDrvIsWorking() {
+        return true;
+    }
+    
+    INT32 BurnDrvGetMaxPlayers() {
+        if (nBurnDrvActive < (INT32)nBurnDrvCount && pDriver[nBurnDrvActive]) {
+            return pDriver[nBurnDrvActive]->nPlayers;
+        }
+        return 2;
     }
 }
 

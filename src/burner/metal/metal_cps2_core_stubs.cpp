@@ -1,6 +1,5 @@
-// CPS2 Core Stubs for Metal Implementation
-// This file provides minimal implementations of the CPS2 core functions
-// In a real implementation, these would come from the actual FBNeo core
+// CPS2 Core Bridge for Metal Implementation
+// This bridges the Metal frontend to the minimal CPS2 driver
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,75 +27,32 @@ typedef uint32_t UINT32;
 extern "C" {
 #endif
 
-// CPS2 Memory Areas
-UINT8* CpsRom = NULL;      // 68K Program ROM
-UINT8* CpsGfx = NULL;      // Graphics ROM
-UINT8* CpsZRom = NULL;     // Z80 ROM
-UINT8* CpsQSam = NULL;     // QSound Samples
+// CPS2 Memory Areas - These are allocated by the minimal driver
+extern UINT8* CpsRom;      // 68K Program ROM
+extern UINT8* CpsGfx;      // Graphics ROM
+extern UINT8* CpsZRom;     // Z80 ROM
+extern UINT8* CpsQSam;     // QSound Samples
 
 // CPS2 Memory Sizes
-INT32 nCpsRomLen = 0;
-INT32 nCpsGfxLen = 0;
-INT32 nCpsZRomLen = 0;
-INT32 nCpsQSamLen = 0;
+extern INT32 nCpsRomLen;
+extern INT32 nCpsGfxLen;
+extern INT32 nCpsZRomLen;
+extern INT32 nCpsQSamLen;
 
 // Frame buffer for rendering
 extern UINT8* pBurnDraw;
 extern INT32 nBurnPitch;
-extern void CpsRedraw();
 
-// CPS2 Initialization
-INT32 Cps2Init() {
-    printf("[Cps2Init] Initializing CPS2 emulation core\n");
-    
-    // Allocate memory for CPS2 systems
-    nCpsRomLen = 4 * 1024 * 1024;  // 4MB for program ROM
-    nCpsGfxLen = 16 * 1024 * 1024; // 16MB for graphics
-    nCpsZRomLen = 64 * 1024;       // 64KB for Z80
-    nCpsQSamLen = 4 * 1024 * 1024; // 4MB for QSound
-    
-    CpsRom = (UINT8*)calloc(1, nCpsRomLen);
-    CpsGfx = (UINT8*)calloc(1, nCpsGfxLen);
-    CpsZRom = (UINT8*)calloc(1, nCpsZRomLen);
-    CpsQSam = (UINT8*)calloc(1, nCpsQSamLen);
-    
-    if (!CpsRom || !CpsGfx || !CpsZRom || !CpsQSam) {
-        printf("[Cps2Init] ERROR: Failed to allocate memory\n");
-        return 1;
-    }
-    
-    printf("[Cps2Init] CPS2 core initialized successfully\n");
-    printf("[Cps2Init] Memory allocated: ROM=%d MB, GFX=%d MB, Z80=%d KB, QSound=%d MB\n",
-           nCpsRomLen / (1024*1024), nCpsGfxLen / (1024*1024), 
-           nCpsZRomLen / 1024, nCpsQSamLen / (1024*1024));
-    
-    return 0;
-}
-
-// CPS2 Frame execution
-INT32 Cps2Frame() {
-    static int frameCounter = 0;
-    frameCounter++;
-    
-    // In a real implementation, this would:
-    // 1. Run the 68000 CPU for one frame
-    // 2. Handle interrupts
-    // 3. Update graphics
-    // 4. Process sound
-    // 5. Render the frame
-    
-    // Call the actual CPS redraw function to render graphics
-    if (pBurnDraw) {
-        CpsRedraw();
-    }
-    
-    // Log frame execution periodically
-    if (frameCounter % 60 == 0) {
-        printf("[Cps2Frame] Frame %d executed\n", frameCounter);
-    }
-    
-    return 0;
-}
+// The minimal driver already implements these functions
+extern INT32 Cps2Init();
+extern INT32 Cps2Frame();
+extern INT32 CpsExit();
+extern INT32 CpsRunInit();
+extern INT32 CpsRunExit();
+extern void CpsRwGetInp();
+extern INT32 CpsDraw();
+extern INT32 CpsObjGet();
+extern INT32 CpsGetROMs(INT32 bLoad);
 
 // CPS2 RunFrame wrapper
 INT32 Metal_CPS2_RunFrame(int render) {
@@ -104,6 +60,11 @@ INT32 Metal_CPS2_RunFrame(int render) {
         return Cps2Frame();
     }
     return 0;
+}
+
+// CPS Graphics Redraw function - handled by Cps2Frame
+extern "C" void CpsRedraw() {
+    // Handled internally by Cps2Frame()
 }
 
 // ROM validation stats
@@ -137,6 +98,35 @@ INT32 Metal_ExitDebugOverlay() {
 
 void Metal_UpdateDebugOverlay(int frameCount) {
     // Debug overlay update handled in the Objective-C++ side
+}
+
+// Load a specific CPS2 game
+INT32 Metal_LoadCPS2Game(const char* gameName) {
+    printf("[Metal_LoadCPS2Game] Loading CPS2 game: %s\n", gameName);
+    
+    // Initialize CPS2 system
+    INT32 nRet = Cps2Init();
+    if (nRet != 0) {
+        printf("[Metal_LoadCPS2Game] Failed to initialize CPS2\n");
+        return nRet;
+    }
+    
+    // Load ROMs
+    nRet = CpsGetROMs(1);
+    if (nRet != 0) {
+        printf("[Metal_LoadCPS2Game] Failed to load ROMs\n");
+        return nRet;
+    }
+    
+    // Initialize runtime
+    nRet = CpsRunInit();
+    if (nRet != 0) {
+        printf("[Metal_LoadCPS2Game] Failed to initialize runtime\n");
+        return nRet;
+    }
+    
+    printf("[Metal_LoadCPS2Game] Game loaded successfully\n");
+    return 0;
 }
 
 #ifdef __cplusplus
